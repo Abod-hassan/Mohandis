@@ -4,21 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<!-- Lets the app reach a locally-hosted API over plain HTTP during
-	     development (http://localhost:<port>). Apple permits this key without a
-	     review exception, and unlike NSAllowsArbitraryLoads it does NOT weaken
-	     transport security for anything off the local network. -->
-	<!-- image_picker: iOS refuses to present the picker without these, and the
-	     text is what the person sees in the permission sheet. -->
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>نحتاج إذن الوصول إلى صورك لاختيار صورة ملفك الشخصي.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>نحتاج إذن الكاميرا لالتقاط صورة لملفك الشخصي.</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -41,6 +26,15 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>نحتاج إذن الكاميرا لالتقاط صورة لملفك الشخصي.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>نحتاج إذن الوصول إلى صورك لاختيار صورة ملفك الشخصي.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
