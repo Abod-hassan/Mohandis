@@ -1,0 +1,93 @@
+name: flutter_mobile_template
+description: "Flutter mobile app template — Clean Architecture, Riverpod, multi-flavor, signed-request stack. See docs/ARCHITECTURE.md."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management — Riverpod is the ONLY state framework used in this
+  # template. See docs/ARCHITECTURE.md §5.
+  flutter_riverpod: ^2.5.1
+
+  # Networking — one shared Dio instance app-wide via `apiClientProvider`.
+  # See docs/ARCHITECTURE.md §6.
+  dio: ^5.7.0
+
+  # Routing
+  go_router: ^14.6.2
+
+  # Storage — Keychain (iOS) / EncryptedSharedPreferences (Android) for tokens;
+  # plain shared_preferences for non-secret app state and the background-
+  # notification queue.
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
+
+  # Media — avatar selection at sign-up. Uploaded to Bunny storage by
+  # `MediaUploadService`; only the host-less path is stored on the contact.
+  image_picker: ^1.1.2
+
+  # Document attachments on a post. image_picker cannot offer a PDF or a
+  # spreadsheet, and the platform document pickers are what people already know
+  # for finding one — Files on iOS, the Storage Access Framework on Android.
+  file_picker: ^8.1.4
+
+  # Lecture playback. Progressive MP4 over HTTPS is what Bunny Storage serves,
+  # which is exactly what this plays — AVPlayer on iOS, ExoPlayer on Android,
+  # both of which handle it without a streaming server behind the file.
+  video_player: ^2.9.2
+
+  # Hands a PDF lesson to the device's own viewer. An embedded renderer is a
+  # platform plugin and a set of rendering bugs for a file the phone already
+  # displays — and handing it off means downloads and printing work for free.
+  url_launcher: ^6.3.1
+
+  # Utilities
+  crypto: ^3.0.6           # HMAC-SHA256 for request signing
+  uuid: ^4.5.1             # X-Request-ID
+  intl: ^0.20.2            # Date + currency formatters
+
+  # Push notifications. firebase_core initialises the SDK from
+  # google-services.json (Android) / GoogleService-Info.plist (iOS);
+  # firebase_messaging exposes FCM; flutter_local_notifications renders
+  # the in-app banner Android needs while the app is foregrounded.
+  #
+  # Drop your Firebase config files into place before shipping — see
+  # docs/GETTING_STARTED.md.
+  firebase_core: ^3.8.0
+  firebase_messaging: ^15.1.5
+  flutter_local_notifications: ^18.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/icon/
+
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
+          weight: 800

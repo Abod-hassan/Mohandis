@@ -1,0 +1,11 @@
+# Arabic is the authoritative catalogue (ARCHITECTURE.md §16.2) — app_ar.arb
+# carries the @-metadata and English is the translation.
+#
+# Output is written into the repo (not a synthetic package) so the generated
+# API is greppable and shows up in code review.
+arb-dir: lib/l10n
+template-arb-file: app_ar.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

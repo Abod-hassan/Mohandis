@@ -1,0 +1,765 @@
+{
+  "@@locale": "ar",
+  "appTitle": "رنق",
+  "@appTitle": {
+    "description": "Product name shown in the OS task switcher."
+  },
+  "actionRetry": "إعادة المحاولة",
+  "actionCancel": "إلغاء",
+  "actionSave": "حفظ",
+  "actionDone": "تم",
+  "actionContinue": "متابعة",
+  "actionSend": "إرسال",
+  "actionAccept": "قبول",
+  "actionIgnore": "تجاهل",
+  "actionChange": "تغيير",
+  "comingSoon": "قريباً",
+  "optionalSuffix": "(اختياري)",
+  "applyResumeReplace": "اضغط لاستبدال الملف",
+  "applyResumeRequired": "أرفق سيرتك الذاتية قبل التقديم",
+  "requiredSuffix": "(مطلوب)",
+  "genericError": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+  "emptyTitle": "لا يوجد شيء هنا بعد",
+  "themeToggleToDark": "التبديل إلى المظهر الداكن",
+  "themeToggleToLight": "التبديل إلى المظهر الفاتح",
+  "authHeroTitle": "حيث تلتقي المسارات المهنية.",
+  "@authHeroTitle": {
+    "description": "Onboarding hero headline."
+  },
+  "authHeroBody": "ابنِ ملفك المهني، وسّع شبكتك، شارك أعمالك، واعثر على دورك المهني القادم — في مكان واحد هادئ واحترافي.",
+  "authStatProfessionalsValue": "+١٢ مليون",
+  "authStatProfessionalsLabel": "مختص",
+  "authStatJobsValue": "٢٤٠ ألف",
+  "authStatJobsLabel": "وظيفة شاغرة",
+  "authStatTrustValue": "٩٨٪",
+  "authStatTrustLabel": "درجة الثقة",
+  "authGetStarted": "لنبدأ",
+  "authSignIn": "تسجيل الدخول",
+  "authCreateAccount": "إنشاء حساب",
+  "authContinueWith": "أو تابع عبر",
+  "authGoogle": "جوجل",
+  "authApple": "آبل",
+  "authTerms": "بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة برنق",
+  "authWelcomeBack": "أهلاً بعودتك، {name} 👋",
+  "@authWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "navHome": "الرئيسية",
+  "navReels": "ريلز",
+  "navDashboard": "لوحتي",
+  "navJobs": "الوظائف",
+  "navNetwork": "شبكتي",
+  "topBarSearchHint": "ابحث عن أشخاص أو وظائف أو وسوم",
+  "feedYourStory": "قصتك",
+  "feedComposerHint": "شارك تحديثاً أو فكرة…",
+  "feedCaughtUp": "لقد اطّلعت على كل الجديد ✓",
+  "feedRepostedBy": "أعاد {name} النشر",
+  "@feedRepostedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postActionLike": "إعجاب",
+  "postActionComment": "تعليق",
+  "postActionRepost": "إعادة نشر",
+  "postActionSave": "حفظ",
+  "postCommentsCount": "{count} تعليق",
+  "@postCommentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "postRepostsCount": "{count} إعادة نشر",
+  "@postRepostsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "postLikesCount": "{count} إعجاب",
+  "@postLikesCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "postViewJob": "عرض الوظيفة والتقديم ←",
+  "postDetailTitle": "المنشور",
+  "postAddComment": "أضف تعليقاً…",
+  "postReply": "رد",
+  "postLikeWithCount": "إعجاب · {count}",
+  "@postLikeWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "visibilityPublic": "عام",
+  "visibilityFollowers": "المتابعون",
+  "visibilityPrivate": "خاص",
+  "visibilityEveryoneLabel": "الجميع",
+  "visibilityFollowersOnlyLabel": "المتابعون فقط",
+  "visibilityOnlyMeLabel": "أنا فقط",
+  "composerTitle": "منشور جديد",
+  "composerPublish": "نشر",
+  "composerHint": "شارك تحديثاً أو فكرة أو فرصة…",
+  "toastSavedToItems": "حُفظ في عناصرك",
+  "toastReposted": "أُعيد النشر لمتابعيك",
+  "toastPosted": "تم نشر المنشور ✓",
+  "toastSavedToReels": "حُفظ في ريلزك",
+  "toastProfileUpdated": "تم تحديث الملف ✓",
+  "toastApplicationSent": "تم إرسال الطلب ✓",
+  "toastConnectRequestSent": "أُرسل طلب التواصل إلى {name}",
+  "@toastConnectRequestSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "toastConnected": "تم التواصل مع {name}",
+  "@toastConnected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "toastFollowing": "تتابع الآن {name}",
+  "@toastFollowing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "toastUnfollowed": "تم إلغاء المتابعة",
+  "storyReplyTo": "رد على {name}…",
+  "@storyReplyTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storyPostedAgo": "قبل {time}",
+  "@storyPostedAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reelsTitle": "ريلز",
+  "reelFollow": "متابعة",
+  "reelShare": "مشاركة",
+  "reelPlays": "{count} مشاهدة",
+  "@reelPlays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOpenToWork": "متاح للعمل",
+  "profileHiring": "نتوظّف",
+  "profileConnections": "اتصالاً",
+  "profileFollowers": "متابعاً",
+  "profileEdit": "تعديل الملف",
+  "profileFollow": "متابعة",
+  "profileUnfollow": "إلغاء المتابعة",
+  "profileConnect": "إضافة",
+  "profileAbout": "نبذة",
+  "profileDownloadCv": "تنزيل السيرة الذاتية",
+  "profileExperience": "الخبرات",
+  "profileEducation": "التعليم",
+  "profileSkills": "المهارات",
+  "profileEndorsements": "{count} تزكية",
+  "@profileEndorsements": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "profileEndorse": "+ تزكية",
+  "editProfileTitle": "تعديل الملف",
+  "editProfileFullName": "الاسم الكامل",
+  "editProfileHeadline": "المسمى المهني",
+  "editProfileIndustry": "القطاع",
+  "editProfileLocation": "الموقع",
+  "editProfileAbout": "نبذة",
+  "editProfileOpenToWorkTitle": "متاح للعمل",
+  "editProfileOpenToWorkSubtitle": "أظهر لجهات التوظيف أنك متاح",
+  "editProfilePrivateTitle": "ملف خاص",
+  "editProfilePrivateSubtitle": "وافق على المتابعين قبل رؤية منشوراتك",
+  "networkTitle": "شبكتي",
+  "networkRequests": "طلبات التواصل",
+  "networkSuggestions": "أشخاص قد تعرفهم",
+  "networkMutual": "{count} معارف مشتركة",
+  "@networkMutual": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "networkAdd": "+ إضافة",
+  "searchHint": "ابحث في رنق",
+  "searchTabTop": "الأهم",
+  "searchTabPeople": "أشخاص",
+  "searchTabJobs": "وظائف",
+  "searchTabTags": "وسوم",
+  "searchTrendingTags": "الوسوم الرائجة",
+  "searchSectionPeople": "أشخاص",
+  "searchNoResults": "لا نتائج مطابقة لبحثك",
+  "searchPostsCount": "{count} منشور",
+  "@searchPostsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsTitle": "الإشعارات",
+  "notificationsMarkAllRead": "تعليم الكل كمقروء",
+  "notificationsNowConnected": "أصبح على تواصل معك",
+  "messagesTitle": "الرسائل",
+  "messagesSearchHint": "بحث في الرسائل",
+  "messagesYouPrefix": "أنت: ",
+  "threadMembers": "{count} أعضاء",
+  "@threadMembers": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "threadInputHint": "اكتب رسالة…",
+  "threadToday": "اليوم",
+  "threadRead": "تمت القراءة",
+  "threadJustNow": "الآن",
+  "jobsTitle": "الوظائف",
+  "jobsMyApplications": "طلباتي",
+  "jobsSearchHint": "المسمى أو الشركة أو الموقع",
+  "jobsFilterAll": "الكل",
+  "jobsFilterRemote": "عن بُعد",
+  "jobsFilterHybrid": "هجين",
+  "jobsFilterOnsite": "من المقر",
+  "jobsEmpty": "لا توجد وظائف مطابقة للفلاتر",
+  "jobPostedAgo": "قبل {time}",
+  "@jobPostedAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jobApplicants": "{count} متقدماً",
+  "@jobApplicants": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "jobApplied": "تم التقديم",
+  "jobDetailTitle": "تفاصيل الوظيفة",
+  "jobSalaryRange": "نطاق الراتب",
+  "jobAboutSection": "عن الوظيفة",
+  "jobRequirementsSection": "ما نبحث عنه",
+  "jobSkillsSection": "المهارات",
+  "jobApplyNow": "قدّم الآن",
+  "jobApplicationStatus": "الطلب: {status}",
+  "@jobApplicationStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "applyTitle": "التقديم",
+  "applyResumeSection": "سيرتك الذاتية",
+  "applyResumeUploaded": "تم الرفع · {size}",
+  "@applyResumeUploaded": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "applyCoverLetterSection": "خطاب التقديم",
+  "applyCoverHint": "أضف ملاحظة لفريق التوظيف…",
+  "applyReviewSection": "مراجعة وإرسال",
+  "applyApplicantLabel": "المتقدم",
+  "applyResumeLabel": "السيرة الذاتية",
+  "applyNoCoverLetter": "لم تتم إضافة خطاب تقديم.",
+  "applySubmit": "إرسال الطلب",
+  "applyDoneTitle": "تم إرسال طلبك!",
+  "applyDoneBody": "تم إرسال طلبك لوظيفة {title} في {company}. يمكنك متابعة حالته من صفحة طلباتي.",
+  "@applyDoneBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "myApplicationsTitle": "طلباتي",
+  "myApplicationsEmpty": "لم تقدّم على أي وظيفة بعد",
+  "applicationStepSubmitted": "الإرسال",
+  "applicationStepReview": "المراجعة",
+  "applicationStepShortlist": "الاختيار",
+  "applicationStepInterview": "المقابلة",
+  "applicationStepDecision": "القرار",
+  "applicationStatusSubmitted": "تم الإرسال",
+  "applicationStatusInReview": "قيد المراجعة",
+  "applicationStatusShortlisted": "القائمة المختصرة",
+  "applicationStatusInterview": "مقابلة",
+  "applicationStatusAccepted": "مقبول",
+  "applicationStatusRejected": "مرفوض",
+  "dashboardGreeting": "مساءً الخير",
+  "dashboardContinueLearning": "أكمل التعلّم",
+  "dashboardLectureProgress": "المحاضرة {current} من {total} · نظري",
+  "@dashboardLectureProgress": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardStatCourses": "دورات نشطة",
+  "dashboardStatHours": "ساعة تعلّم",
+  "dashboardStatCertificates": "شهادات",
+  "dashboardSectionLearning": "التعلّم",
+  "dashboardSectionServices": "الخدمات",
+  "dashboardSectionTools": "أدواتي",
+  "dashboardNewBadge": "{count} جديد",
+  "@dashboardNewBadge": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTheory": "محاضرات نظرية",
+  "dashboardTheorySubtitle": "دروس ومفاهيم أساسية",
+  "dashboardPractical": "محاضرات عملية",
+  "dashboardPracticalSubtitle": "تطبيقات وأمثلة عملية",
+  "dashboardTraining": "تدريب وتطوير",
+  "dashboardTrainingSubtitle": "برامج تطوير المهارات",
+  "dashboardEngy": "المهندسة إنجي",
+  "dashboardEngySubtitle": "مساعدتك الذكية للاستشارات",
+  "dashboardEngyBadge": "AI",
+  "dashboardLegalRequest": "طلب استشارة قانونية",
+  "dashboardLegalRequestSubtitle": "خطوات حل النزاعات القانونية",
+  "dashboardLegalAffairs": "الشؤون القانونية",
+  "dashboardLegalAffairsSubtitle": "حقوق المهندس والقوانين",
+  "dashboardNotes": "ملاحظاتي",
+  "dashboardNotesSubtitle": "ملاحظاتك الشخصية",
+  "dashboardLibrary": "المكتبة الهندسية",
+  "dashboardLibrarySubtitle": "مراجع وأكواد ومواصفات",
+  "dashboardOpening": "جارٍ فتح {item}",
+  "@dashboardOpening": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardEngyGreeting": "مرحباً، أنا إنجي — كيف أساعدك؟",
+  "authSignInTitle": "تسجيل الدخول",
+  "authSignUpTitle": "إنشاء حساب جديد",
+  "authUserName": "اسم المستخدم",
+  "authUserNameHint": "بالأحرف اللاتينية أو الأرقام",
+  "@authUserNameHint": {
+    "description": "Helper text under the username field at sign-up."
+  },
+  "authPassword": "كلمة المرور",
+  "authFullName": "الاسم الكامل",
+  "authFullNameHint": "كما تريد أن يظهر في ملفك",
+  "authCompanyName": "اسم الشركة",
+  "authCompanyNameHint": "كما تريد أن يظهر في صفحة الشركة",
+  "authPhone": "رقم الهاتف",
+  "authAccountType": "نوع الحساب",
+  "authAccountIndividual": "فرد",
+  "authAccountCompany": "شركة",
+  "authSubmitSignIn": "دخول",
+  "authSubmitSignUp": "إنشاء الحساب",
+  "authSwitchToSignUp": "ليس لديك حساب؟ أنشئ حساباً",
+  "authSwitchToSignIn": "لديك حساب بالفعل؟ سجّل الدخول",
+  "authRequiredField": "هذا الحقل مطلوب",
+  "authPasswordTooShort": "كلمة المرور ٦ أحرف على الأقل",
+  "authUserNameTooShort": "اسم المستخدم ٣ أحرف على الأقل",
+  "authPhoneInvalid": "أدخل رقم هاتف صحيح",
+  "authAccountCreated": "تم إنشاء حسابك، أهلاً بك {name} 🎉",
+  "@authAccountCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupTitle": "أكمل ملفك",
+  "setupSubtitle": "عرّف الآخرين بنفسك — يمكنك تعديل كل شيء لاحقاً.",
+  "setupSubtitleCompany": "عرّف الآخرين بشركتك — يمكنك تعديل كل شيء لاحقاً.",
+  "setupHeadline": "المسمّى المهني",
+  "setupHeadlineHint": "مهندس برمجيات في…",
+  "setupHeadlineHintCompany": "ما الذي تقدّمه شركتك؟",
+  "setupAbout": "نبذة",
+  "setupAboutHint": "بضعة أسطر عن خبرتك واهتماماتك",
+  "setupAboutHintCompany": "بضعة أسطر عن نشاط الشركة",
+  "setupLocation": "الموقع",
+  "setupLocationHint": "بغداد، العراق",
+  "setupIndustry": "المجال",
+  "setupIndustryHint": "التقنية، الهندسة، الرعاية الصحية…",
+  "setupWebsite": "الموقع الإلكتروني",
+  "setupOpenToWork": "متاح لفرص عمل",
+  "setupOpenToWorkSubtitle": "يظهر شارة على ملفك",
+  "setupSave": "متابعة",
+  "setupSkip": "تخطٍّ الآن",
+  "setupSaved": "تم حفظ ملفك 🎉",
+  "authGender": "الجنس",
+  "authGenderMale": "ذكر",
+  "authGenderFemale": "أنثى",
+  "authPhoto": "صورة الملف",
+  "authPhotoPick": "اختر صورة",
+  "authPhotoChange": "تغيير الصورة",
+  "authPhotoRemove": "إزالة",
+  "authPhotoUploading": "جارٍ رفع الصورة…",
+  "authGenderRequired": "اختر الجنس",
+  "profileConnectSent": "تم إرسال الطلب",
+  "profileConnectAccept": "قبول الطلب",
+  "profileConnected": "متصل",
+  "profileFollowRequested": "بانتظار الموافقة",
+  "toastConnectRequestCancelled": "تم سحب الطلب",
+  "toastConnectionRemoved": "تمت إزالة الاتصال",
+  "toastConnectAccepted": "تم قبول الطلب",
+  "networkAddSent": "تم الإرسال",
+  "welcomeConnectTitle": "ابدأ شبكتك",
+  "welcomeConnectBody": "هؤلاء أشخاص في مجالك — أرسل طلب تواصل لتظهر منشوراتهم في صفحتك الرئيسية.",
+  "welcomeConnectEmpty": "لا توجد اقتراحات الآن. يمكنك البحث عن أشخاص في أي وقت من تبويب الشبكة.",
+  "welcomeConnectContinue": "المتابعة إلى الرئيسية",
+  "activityFollowed": "بدأ بمتابعتك",
+  "activityConnectRequested": "أرسل إليك طلب تواصل",
+  "activityConnectAccepted": "قبل طلب التواصل",
+  "activityLiked": "أعجب بمنشورك",
+  "activityCommented": "علّق على منشورك",
+  "activityMentioned": "أشار إليك",
+  "activityMessaged": "أرسل إليك رسالة",
+  "activityShared": "أعاد نشر منشورك",
+  "activityApplied": "تقدّم إلى وظيفتك",
+  "activityCalled": "اتصل بك",
+  "activityOther": "أرسل إليك إشعارًا",
+  "applyResumeNone": "لا توجد سيرة ذاتية مرفقة",
+  "applyResumeUploadHint": "اختر ملف PDF أو Word"
+,
+  "actionDelete": "حذف",
+  "actionAdd": "إضافة",
+  "actionEdit": "تعديل",
+  "profileEditExperience": "تعديل الخبرات",
+  "profileEditEducation": "تعديل التعليم",
+  "profileEditSkills": "تعديل المهارات",
+  "profileAddExperience": "إضافة خبرة",
+  "profileAddEducation": "إضافة مؤهل",
+  "profileAddSkill": "إضافة مهارة",
+  "profileSectionEmpty": "لا توجد عناصر بعد",
+  "profileDeleteEntryTitle": "حذف العنصر؟",
+  "profileDeleteEntryBody": "لا يمكن التراجع عن هذا الإجراء.",
+  "fieldRole": "المسمى الوظيفي",
+  "fieldCompany": "الشركة",
+  "fieldEmploymentType": "نوع التوظيف",
+  "fieldLocation": "الموقع",
+  "fieldStartDate": "تاريخ البدء",
+  "fieldEndDate": "تاريخ الانتهاء",
+  "fieldCurrentRole": "أعمل هنا حالياً",
+  "fieldDescription": "الوصف",
+  "fieldSchool": "الجامعة أو المدرسة",
+  "fieldDegree": "الدرجة العلمية",
+  "fieldFieldOfStudy": "التخصص",
+  "fieldSkillName": "اسم المهارة",
+  "fieldRequired": "هذا الحقل مطلوب",
+  "fieldNotSet": "غير محدد",
+  "employmentFullTime": "دوام كامل",
+  "employmentPartTime": "دوام جزئي",
+  "employmentContract": "عقد",
+  "employmentInternship": "تدريب",
+  "employmentFreelance": "عمل حر",
+  "employmentSelfEmployed": "عمل خاص",
+  "employmentTemporary": "مؤقت"
+,
+  "editProfileChangePhoto": "تغيير الصورة الشخصية",
+  "editProfileChangeCover": "تغيير صورة الغلاف"
+,
+  "profileActivity": "النشاط",
+  "profileActivityPosts": "المنشورات",
+  "profileActivityComments": "التعليقات",
+  "profileActivityShowAll": "عرض الكل",
+  "profileCreatePost": "إنشاء منشور",
+  "profileFollowersCount": "{count} متابع",
+  "@profileFollowersCount": { "placeholders": { "count": { "type": "String" } } },
+  "profileCommentedOn": "علّق على منشور"
+,
+  "postSeeMore": "…المزيد"
+,
+  "settingsTitle": "الإعدادات",
+  "settingsAppearance": "المظهر",
+  "settingsThemeSystem": "حسب النظام",
+  "settingsThemeLight": "فاتح",
+  "settingsThemeDark": "داكن",
+  "settingsAccount": "الحساب",
+  "settingsSaved": "المحفوظات",
+  "savedPostsTitle": "المنشورات المحفوظة",
+  "savedPostsEmpty": "لم تحفظ أي منشور بعد",
+  "savedJobsTitle": "الوظائف المحفوظة",
+  "savedJobsEmpty": "لم تحفظ أي وظيفة بعد",
+  "jobSaveRemoved": "أُزيلت من المحفوظات",
+  "jobCompanyCannotApply": "حسابات الشركات لا تتقدّم للوظائف",
+  "settingsLogout": "تسجيل الخروج",
+  "settingsLogoutTitle": "تسجيل الخروج؟",
+  "settingsLogoutBody": "سيلزمك تسجيل الدخول مرة أخرى للمتابعة.",
+  "profileMoreOptions": "خيارات",
+  "profileBlock": "حظر",
+  "profileBlockTitle": "حظر هذا الحساب؟",
+  "profileBlockBody": "لن يرى أحدكما منشورات الآخر أو ملفه، وستُلغى المتابعة بينكما.",
+  "profileBlockDone": "تم الحظر",
+  "feedSuggestedPost": "مقترح لك",
+  "composerAddPhoto": "إضافة صورة",
+  "composerUploadsOff": "رفع الملفات غير مفعّل على هذا الخادم",
+  "composerAddDocument": "إضافة ملف",
+  "composerAddHashtag": "إضافة وسم",
+  "composerAddMention": "الإشارة إلى شخص",
+  "composerModePost": "منشور",
+  "composerModeStory": "قصة",
+  "composerModeReel": "ريل",
+  "composerSingleMediaOnly": "هذا النوع يأخذ ملفاً واحداً فقط",
+  "composerVideoTooLarge": "الفيديو كبير جداً (الحد {max} ميجابايت)",
+  "@composerVideoTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "composerDocumentTooLarge": "الملف كبير جداً (الحد {max} ميجابايت)",
+  "@composerDocumentTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "composerTitleStory": "قصة جديدة",
+  "composerTitleReel": "ريل جديد",
+  "composerHintStory": "أضف تعليقاً على القصة…",
+  "composerHintReel": "اكتب وصفاً للريل…",
+  "composerAddVideo": "إضافة فيديو",
+  "composerStoryNeedsMedia": "القصة تحتاج صورة أو فيديو",
+  "composerReelNeedsVideo": "الريل يحتاج فيديو",
+  "composerModeDropped": "أُزيلت المرفقات التي لا تناسب هذا النوع",
+  "toastStoryPosted": "تم نشر القصة ✓",
+  "toastReelPosted": "تم نشر الريل ✓",
+  "postOpenDocument": "فتح الملف",
+  "postOpenDocumentFailed": "تعذّر فتح الملف",
+  "composerPhotoRetry": "إعادة المحاولة",
+  "composerPhotoLimit": "يمكنك إرفاق {max} صور كحد أقصى",
+  "@composerPhotoLimit": { "placeholders": { "max": { "type": "int" } } },
+  "navMyJobs": "وظائفي",
+  "navApplicants": "المتقدّمون",
+  "navPage": "صفحتي",
+  "companyJobsTitle": "وظائفي",
+  "companyJobsEmpty": "لم تنشر أي وظيفة بعد",
+  "companyJobsEmptyHint": "انشر وظيفة ليبدأ المرشّحون بالتقديم",
+  "companyPostJob": "نشر وظيفة",
+  "companyPublishJob": "نشر الوظيفة",
+  "companyJobPosted": "تم نشر الوظيفة",
+  "companyJobOpen": "مفتوحة",
+  "companyJobClosed": "مغلقة",
+  "companyViewApplicants": "عرض المتقدّمين",
+  "companyApplicantsTitle": "المتقدّمون",
+  "companyNoApplicants": "لا يوجد متقدّمون بعد",
+  "companyNoApplicantsHint": "سيظهر هنا كل من يقدّم على هذه الوظيفة",
+  "companyApplicantUnknown": "متقدّم",
+  "companyStatusSaved": "تم تحديث حالة الطلب",
+  "companyFieldRequired": "هذا الحقل مطلوب",
+  "companyJobTitle": "المسمى الوظيفي",
+  "companyJobCompany": "اسم الجهة",
+  "companyJobLocation": "الموقع",
+  "companyJobEmploymentType": "نوع التوظيف",
+  "companyJobWorkMode": "نمط العمل",
+  "companyJobSalaryMin": "أقل راتب",
+  "companyJobSalaryMax": "أعلى راتب",
+  "companyJobDescription": "الوصف",
+  "companyJobRequirements": "المتطلبات",
+  "companyJobRequirementsHint": "متطلب واحد في كل سطر",
+  "companyApplicantCount": "{count} متقدّم",
+  "@companyApplicantCount": { "placeholders": { "count": { "type": "String" } } },
+  "companyAppliedAgo": "قدّم {time}",
+  "@companyAppliedAgo": { "placeholders": { "time": { "type": "String" } } },
+  "companyOverview": "نظرة عامة",
+  "companySize": "حجم الشركة",
+  "companySizeSelf": "أنا فقط",
+  "companyFounded": "تاريخ التأسيس",
+  "companyFoundedOn": "تأسست في {date}",
+  "@companyFoundedOn": { "placeholders": { "date": { "type": "String" } } },
+  "companySpecialties": "التخصصات",
+  "companySpecialtiesHint": "تخصص واحد في كل سطر",
+  "companyJobCompanyWebsite": "الموقع الإلكتروني",
+  "companyOpenJobs": "الوظائف المتاحة",
+  "companyOpenJobsCount": "{count, plural, =1{وظيفة مفتوحة} =2{وظيفتان مفتوحتان} few{وظائف مفتوحة} many{وظيفة مفتوحة} other{وظيفة مفتوحة}}",
+  "@companyOpenJobsCount": { "placeholders": { "count": { "type": "num", "format": "compact" } } },
+  "companyWebsiteFailed": "تعذّر فتح الموقع",
+  "companySeeAllJobs": "عرض كل الوظائف",
+  "profilePosts": "منشور",
+  "companySizeOver": "أكثر من {count} موظف",
+  "@companySizeOver": { "placeholders": { "count": { "type": "String" } } },
+  "companySizeRange": "من {from} إلى {to} موظف",
+  "@companySizeRange": { "placeholders": { "from": { "type": "String" }, "to": { "type": "String" } } },
+  "companyNoOpenJobs": "لا توجد وظائف متاحة حالياً",
+  "courseTitle": "الدورة",
+  "coursesEmpty": "لا توجد دورات بعد",
+  "coursesEmptyHint": "ستظهر هنا الدورات فور نشرها",
+  "courseLecturesDone": "المحاضرات",
+  "courseEnroll": "التحق بالدورة",
+  "courseEnrolled": "تم التحاقك بالدورة",
+  "courseFinishLecture": "أنهيت المحاضرة",
+  "courseProgressSaved": "تم حفظ تقدّمك",
+  "courseCompleted": "أتممت الدورة",
+  "courseCertificateEarned": "حصلت على شهادة هذه الدورة",
+  "notesEmpty": "لا توجد ملاحظات",
+  "notesEmptyHint": "اكتب ملاحظتك الأولى",
+  "notesNew": "ملاحظة جديدة",
+  "notesEdit": "تعديل الملاحظة",
+  "notesTitleLabel": "العنوان",
+  "notesBodyLabel": "النص",
+  "notesUntitled": "بدون عنوان",
+  "documentsEmpty": "لا توجد مراجع بعد",
+  "documentsEmptyHint": "ستظهر المراجع فور إضافتها",
+  "documentNoFile": "لا يوجد ملف مرفق",
+  "legalEmpty": "لا توجد طلبات",
+  "legalEmptyHint": "أرسل طلب استشارة وسيصلك الرد هنا",
+  "legalNewRequest": "طلب جديد",
+  "legalSubjectLabel": "موضوع الطلب",
+  "legalBodyLabel": "تفاصيل الطلب",
+  "legalSubmit": "إرسال الطلب",
+  "legalSubmitted": "تم إرسال طلبك",
+  "legalResponse": "الرد",
+  "legalStatusSubmitted": "مُرسل",
+  "legalStatusInReview": "قيد المراجعة",
+  "legalStatusAnswered": "تم الرد",
+  "legalStatusClosed": "مغلق",
+  "assistantHint": "اكتب سؤالك…",
+  "assistantStubNotice": "المساعد غير مفعّل بعد — أسئلتك محفوظة وسيصلك الرد فور تفعيل الخدمة.",
+  "courseLectureCount": "{count} محاضرة",
+  "@courseLectureCount": { "placeholders": { "count": { "type": "String" } } },
+  "courseLectureOf": "{current} من {total}",
+  "@courseLectureOf": { "placeholders": { "current": { "type": "String" }, "total": { "type": "String" } } },
+  "courseLecturesSection": "المحاضرات",
+  "courseLecturesEmpty": "لم تُضف محاضرات لهذه الدورة بعد",
+  "courseLectureLocked": "أكمل المحاضرة السابقة أولاً",
+  "courseLectureNoVideo": "الفيديو غير متاح بعد",
+  "courseLecturePreview": "معاينة مجانية",
+  "courseLectureMarkedDone": "تم تحديد المحاضرة كمكتملة",
+  "coursePlayerError": "تعذّر تشغيل الفيديو",
+  "courseLectureMinutes": "{minutes} دقيقة",
+  "@courseLectureMinutes": { "placeholders": { "minutes": { "type": "String" } } },
+  "subscriptionTitle": "الاشتراك",
+  "subscriptionLockedTitle": "هذا القسم متاح للمشتركين",
+  "subscriptionLockedBody": "اشترك للوصول إلى الدورات والمكتبة الهندسية والشؤون القانونية وأدواتك الشخصية.",
+  "subscriptionChoosePlan": "اختر خطة",
+  "subscriptionSubscribe": "اشترك الآن",
+  "subscriptionPlansEmpty": "لا توجد خطط متاحة حالياً",
+  "subscriptionCurrent": "اشتراكك الحالي",
+  "subscriptionManage": "إدارة الاشتراك",
+  "subscriptionStatusPending": "بانتظار التفعيل",
+  "subscriptionStatusActive": "فعّال",
+  "subscriptionStatusExpired": "منتهٍ",
+  "subscriptionStatusCancelled": "ملغى",
+  "subscriptionPendingNotice": "تم استلام طلبك. يبدأ اشتراكك فور تأكيد الدفع.",
+  "subscriptionStarted": "تم إرسال طلب الاشتراك",
+  "subscriptionCancelAction": "إلغاء الاشتراك",
+  "subscriptionCancelConfirm": "هل تريد إلغاء اشتراكك؟ يبقى الوصول متاحاً حتى نهاية المدة المدفوعة.",
+  "subscriptionCancelled": "تم إلغاء اشتراكك",
+  "subscriptionKeep": "تراجع",
+  "subscriptionTrialBadge": "تجربة مجانية",
+  "subscriptionTrialEndsIn": "تنتهي تجربتك المجانية بعد {days} يوماً",
+  "@subscriptionTrialEndsIn": { "placeholders": { "days": { "type": "String" } } },
+  "subscriptionExpiresIn": "ينتهي بعد {days} يوماً",
+  "@subscriptionExpiresIn": { "placeholders": { "days": { "type": "String" } } },
+  "subscriptionEndsToday": "ينتهي اليوم",
+  "billingCycleMonthly": "شهري",
+  "billingCycleAnnual": "سنوي",
+  "billingPerMonth": "شهرياً",
+  "billingPerYear": "سنوياً",
+  "billingSave": "وفّر {percent}٪",
+  "@billingSave": { "placeholders": { "percent": { "type": "String" } } },
+  "subscriptionCycleUnavailable": "غير متاح على هذه الباقة",
+  "subscriptionChangeAction": "تغيير الباقة",
+  "subscriptionChangeTitle": "تغيير الباقة",
+  "subscriptionChangeConfirm": "تأكيد التغيير",
+  "subscriptionChangeDismiss": "تراجع",
+  "subscriptionChangeBlocked": "لا يمكن التغيير إلى هذه الباقة",
+  "subscriptionChangeFrom": "من",
+  "subscriptionChangeTo": "إلى",
+  "subscriptionChangePrice": "السعر",
+  "subscriptionCurrentPlanBadge": "باقتك الحالية",
+  "subscriptionChangeDue": "المطلوب دفعه",
+  "subscriptionChangePlanPrice": "سعر الباقة الجديدة",
+  "subscriptionChangeCreditAmount": "محتسب من باقتك الحالية",
+  "subscriptionChangeNoExtraCost": "بدون رسوم إضافية",
+  "subscriptionChangeKeepsDate": "لا يتغيّر موعد انتهاء اشتراكك — متبقٍ {days} يوماً",
+  "@subscriptionChangeKeepsDate": { "placeholders": { "days": { "type": "String" } } },
+  "subscriptionChangeImmediateNotice": "يبدأ التغيير فوراً، ويُحتسب الفرق على فاتورتك القادمة.",
+  "subscriptionChangeDowngradeNotice": "ستفقد مزايا باقتك الحالية فور التأكيد، ولا يوجد استرداد للمبلغ المدفوع.",
+  "subscriptionChangeDone": "تم تغيير باقتك",
+  "subscriptionPerDays": "لكل {days} يوماً",
+  "@subscriptionPerDays": { "placeholders": { "days": { "type": "String" } } },
+  "courseLevelBeginner": "مبتدئ",
+  "courseLevelIntermediate": "متوسط",
+  "courseLevelAdvanced": "متقدم",
+  "courseFree": "مجاني",
+  "courseLockedBadge": "يتطلب اشتراكاً",
+  "courseLockedTitle": "هذه الدورة تتطلب اشتراكاً",
+  "courseLockedBody": "اشترك لفتح هذا القسم من الدورات. يمكنك مشاهدة المحاضرة الأولى مجاناً قبل ذلك.",
+  "courseSubscribeToOpen": "اعرض خطط الاشتراك",
+  "courseHours": "{hours} ساعة",
+  "@courseHours": { "placeholders": { "hours": { "type": "String" } } },
+  "courseEnrolledCount": "{count} ملتحق",
+  "@courseEnrolledCount": { "placeholders": { "count": { "type": "String" } } },
+  "courseNoRatings": "لا توجد تقييمات بعد",
+  "courseRatingOf": "{rating} ({count})",
+  "@courseRatingOf": { "placeholders": { "rating": { "type": "String" }, "count": { "type": "String" } } },
+  "courseAbout": "عن الدورة",
+  "courseOutcomes": "ما ستتعلمه",
+  "courseRequirements": "المتطلبات",
+  "courseInstructor": "المدرّب",
+  "courseRateTitle": "قيّم هذه الدورة",
+  "courseRateAction": "أرسل التقييم",
+  "courseRated": "شكراً لتقييمك",
+  "courseYourRating": "تقييمك",
+  "courseRateHint": "اكتب رأيك (اختياري)",
+  "lessonKindVideo": "فيديو",
+  "lessonKindPdf": "ملف PDF",
+  "lessonKindArticle": "قراءة",
+  "lessonOpenPdf": "فتح الملف",
+  "lessonPdfFailed": "تعذّر فتح الملف",
+  "coursesFilterAll": "الكل",
+  "coursesFilterFree": "المجانية",
+  "planIncludes": "تشمل الخطة",
+  "featureTheoryCourses": "الدورات النظرية",
+  "featurePracticalCourses": "الدورات العملية",
+  "featureTrainingCourses": "الدورات التدريبية",
+  "featureLibrary": "المكتبة الهندسية",
+  "featureLegalAffairs": "الشؤون القانونية والاستشارات",
+  "documentLocked": "يتطلب اشتراكاً",
+  "subscriptionInvoiceNumber": "فاتورة رقم {number}",
+  "@subscriptionInvoiceNumber": { "placeholders": { "number": { "type": "String" } } },
+  "subscriptionAutoRenew": "التجديد التلقائي",
+  "subscriptionAutoRenewOn": "سيبدأ اشتراك جديد تلقائياً عند انتهاء المدة الحالية.",
+  "subscriptionAutoRenewOff": "سينتهي اشتراكك عند نهاية المدة الحالية ولن يُجدَّد.",
+  "subscriptionAutoRenewSaved": "تم حفظ إعداد التجديد"
+}
