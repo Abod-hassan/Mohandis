@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';

@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mohandis/firebase_options.dart';
+
 /// Background message handler for `firebase_messaging`.
 ///
 /// **Wiring** — registered ONCE from `bootstrap()` via
@@ -37,7 +39,9 @@ Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
   // an already-initialised default app, so this is safe to call
   // unconditionally.
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     if (kDebugMode) {
       debugPrint('[fcm-bg] Firebase.initializeApp failed: $e');

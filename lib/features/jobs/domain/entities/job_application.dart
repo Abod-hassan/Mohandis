@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 /// Application lifecycle. The order of these values is the order of the
 /// status stepper — [accepted] and [rejected] are both the final step, so
@@ -39,6 +39,7 @@ class JobApplication extends BaseEntity {
     this.coverLetter = '',
     this.applicantId = '',
     this.applicantName = '',
+    this.applicantHeadline = '',
     this.applicantAvatarUrl,
   });
 
@@ -66,6 +67,10 @@ class JobApplication extends BaseEntity {
   final String applicantId;
   final String applicantName;
 
+  /// The applicant's own one-line description — what they do, in their words.
+  /// Empty on the applicant's own list, and on a profile that never set one.
+  final String applicantHeadline;
+
   /// Stored host-less like every other image; resolve before rendering.
   final String? applicantAvatarUrl;
 
@@ -78,6 +83,7 @@ class JobApplication extends BaseEntity {
     coverLetter: coverLetter,
     applicantId: applicantId,
     applicantName: applicantName,
+    applicantHeadline: applicantHeadline,
     applicantAvatarUrl: applicantAvatarUrl,
   );
 }

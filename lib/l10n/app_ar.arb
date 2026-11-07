@@ -1,6 +1,6 @@
 {
   "@@locale": "ar",
-  "appTitle": "رنق",
+  "appTitle": "مهندس",
   "@appTitle": {
     "description": "Product name shown in the OS task switcher."
   },
@@ -27,19 +27,13 @@
     "description": "Onboarding hero headline."
   },
   "authHeroBody": "ابنِ ملفك المهني، وسّع شبكتك، شارك أعمالك، واعثر على دورك المهني القادم — في مكان واحد هادئ واحترافي.",
-  "authStatProfessionalsValue": "+١٢ مليون",
-  "authStatProfessionalsLabel": "مختص",
-  "authStatJobsValue": "٢٤٠ ألف",
-  "authStatJobsLabel": "وظيفة شاغرة",
-  "authStatTrustValue": "٩٨٪",
-  "authStatTrustLabel": "درجة الثقة",
   "authGetStarted": "لنبدأ",
   "authSignIn": "تسجيل الدخول",
   "authCreateAccount": "إنشاء حساب",
   "authContinueWith": "أو تابع عبر",
   "authGoogle": "جوجل",
   "authApple": "آبل",
-  "authTerms": "بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة برنق",
+  "authTerms": "بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بمهندس",
   "authWelcomeBack": "أهلاً بعودتك، {name} 👋",
   "@authWelcomeBack": {
     "placeholders": {
@@ -52,7 +46,7 @@
   "navReels": "ريلز",
   "navDashboard": "لوحتي",
   "navJobs": "الوظائف",
-  "navNetwork": "شبكتي",
+  "navNetwork": "الاشخاص",
   "topBarSearchHint": "ابحث عن أشخاص أو وظائف أو وسوم",
   "feedYourStory": "قصتك",
   "feedComposerHint": "شارك تحديثاً أو فكرة…",
@@ -204,7 +198,7 @@
   "editProfileOpenToWorkSubtitle": "أظهر لجهات التوظيف أنك متاح",
   "editProfilePrivateTitle": "ملف خاص",
   "editProfilePrivateSubtitle": "وافق على المتابعين قبل رؤية منشوراتك",
-  "networkTitle": "شبكتي",
+  "networkTitle": "الاشخاص",
   "networkRequests": "طلبات التواصل",
   "networkSuggestions": "أشخاص قد تعرفهم",
   "networkMutual": "{count} معارف مشتركة",
@@ -216,7 +210,7 @@
     }
   },
   "networkAdd": "+ إضافة",
-  "searchHint": "ابحث في رنق",
+  "searchHint": "ابحث في مهندس",
   "searchTabTop": "الأهم",
   "searchTabPeople": "أشخاص",
   "searchTabJobs": "وظائف",
@@ -386,7 +380,7 @@
   "dashboardEngyGreeting": "مرحباً، أنا إنجي — كيف أساعدك؟",
   "authSignInTitle": "تسجيل الدخول",
   "authSignUpTitle": "إنشاء حساب جديد",
-  "authUserName": "اسم المستخدم",
+  "authUserName": "معرف المستخدم",
   "authUserNameHint": "بالأحرف اللاتينية أو الأرقام",
   "@authUserNameHint": {
     "description": "Helper text under the username field at sign-up."
@@ -405,8 +399,35 @@
   "authSwitchToSignUp": "ليس لديك حساب؟ أنشئ حساباً",
   "authSwitchToSignIn": "لديك حساب بالفعل؟ سجّل الدخول",
   "authRequiredField": "هذا الحقل مطلوب",
-  "authPasswordTooShort": "كلمة المرور ٦ أحرف على الأقل",
-  "authUserNameTooShort": "اسم المستخدم ٣ أحرف على الأقل",
+  "authPasswordTooShort": "كلمة المرور 8 أحرف على الأقل",
+  "authUserNameTooShort": "معرف المستخدم 3 أحرف على الأقل",
+  "authChecking": "جارٍ التحقق…",
+  "authAvailable": "متاح",
+  "authUserNameTaken": "هذا المعرف محجوز، جرّب غيره",
+  "authPhoneTaken": "هذا الرقم مسجّل بحساب آخر",
+  "authPhoneHint": "7701234567",
+  "authSessionExpired": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+  "authPasswordWeak": "أضف رقمًا وحرفًا كبيرًا وحرفًا صغيرًا",
+  "authEmail": "البريد الإلكتروني",
+  "authEmailOptional": "البريد الإلكتروني (اختياري)",
+  "authEmailHint": "name@example.com",
+  "authEmailInvalid": "أدخل بريدًا إلكترونيًا صحيحًا",
+  "authEmailTaken": "هذا البريد مسجّل بحساب آخر",
+  "authVerifyTitle": "تأكيد رقم هاتفك",
+  "authVerifyNoDraft": "انتهت جلسة التسجيل. ابدأ من جديد.",
+  "@authVerifyNoDraft": {
+    "description": "Shown when the verify screen opens with no draft to verify."
+  },
+  "authVerifyRestart": "البدء من جديد",
+  "authVerifyEmailLater": "يمكنك تأكيد بريدك الإلكتروني بعد إنشاء الحساب لتفعيل التحقق بخطوتين.",
+  "@authVerifyEmailLater": {
+    "description": "Explains why there is no e-mail option on the sign-up code screen."
+  },
+  "authVerifyCodeTitle": "أدخل رمز التأكيد",
+  "authVerifyResend": "إعادة الإرسال",
+  "authVerifyConfirm": "تأكيد",
+  "authVerifyNoCode": "لم يصلك الرمز؟",
+  "authVerifySentTo": "أرسلنا رمزًا من 6 أرقام إلى",
   "authPhoneInvalid": "أدخل رقم هاتف صحيح",
   "authAccountCreated": "تم إنشاء حسابك، أهلاً بك {name} 🎉",
   "@authAccountCreated": {
@@ -432,6 +453,1112 @@
   "setupWebsite": "الموقع الإلكتروني",
   "setupOpenToWork": "متاح لفرص عمل",
   "setupOpenToWorkSubtitle": "يظهر شارة على ملفك",
+  "authForgotPassword": "نسيت كلمة المرور؟",
+  "forgotTitle": "استعادة كلمة المرور",
+  "forgotIntro": "اختر طريقة استلام رمز التحقق، ثم عيّن كلمة مرور جديدة.",
+  "forgotSend": "إرسال الرمز",
+  "forgotNoAccountPhone": "لا يوجد حساب بهذا الرقم. تحقق منه أو أنشئ حسابًا جديدًا.",
+  "forgotNoAccountEmail": "لا يوجد حساب مؤكَّد بهذا البريد. جرّب رقم هاتفك.",
+  "@forgotNoAccountEmail": {
+    "description": "Only a CONFIRMED e-mail identifies an account, so an unconfirmed one reads as no account."
+  },
+  "forgotChangeTarget": "تغيير الرقم أو البريد",
+  "forgotLeaveTitle": "إلغاء استعادة كلمة المرور؟",
+  "forgotLeaveBody": "لن تتغيّر كلمة المرور وسيتم تسجيل خروجك. ستحتاج إلى رمز تحقق جديد للمحاولة مرة أخرى.",
+  "forgotLeaveConfirm": "إلغاء الاستعادة",
+  "forgotSetTitle": "كلمة مرور جديدة",
+  "forgotSetSubtitle": "اختر كلمة مرور لا تستخدمها في مكان آخر.",
+  "forgotNewPassword": "كلمة المرور الجديدة",
+  "forgotConfirmPassword": "تأكيد كلمة المرور",
+  "forgotPasswordMismatch": "كلمتا المرور غير متطابقتين",
+  "forgotSave": "حفظ كلمة المرور",
+  "forgotDone": "تم تغيير كلمة المرور ✅",
+  "setupCareerTitle": "سيرتك المهنية",
+  "setupCv": "السيرة الذاتية",
+  "setupCvOnFile": "مرفقة",
+  "notificationsFollowApproved": "وافقت على طلب المتابعة",
+  "notificationsRequestHandled": "تمت معالجة هذا الطلب مسبقًا",
+  "toastFollowApproved": "أصبح {name} يتابعك",
+  "@toastFollowApproved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activityFollowRequested": "طلب متابعتك",
+  "settingsPrivacy": "الخصوصية",
+  "settingsPrivateAccount": "حساب خاص",
+  "settingsPrivateAccountOn": "منشوراتك تظهر لمتابعيك فقط، وتوافق على كل طلب متابعة جديد",
+  "settingsPrivateAccountOff": "يمكن لأي شخص رؤية منشوراتك ومتابعتك",
+  "profilePrivateTitle": "هذا الحساب خاص",
+  "profilePrivateBody": "تابِع هذا الحساب لرؤية منشوراته",
+  "profilePrivateRequested": "أُرسل طلب المتابعة، وستظهر المنشورات بعد الموافقة",
+  "postReplyingTo": "الرد على {name}",
+  "@postReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postCancelReply": "إلغاء الرد",
+  "postWriteReply": "اكتب ردًّا…",
+  "subscriptionApprovedToast": "تمت الموافقة على اشتراكك وأصبح فعّالًا",
+  "feedRankingTitle": "ترتيب المنشورات",
+  "feedRankingSaved": "تم حفظ إعدادات الترتيب",
+  "feedRankingIntro": "تحدد هذه الأوزان كيف يرتّب التطبيق منشورات الصفحة الرئيسية لكل المستخدمين. الأوزان نسبية: المهم هو النسبة بينها. تسري التغييرات على الصفحات التي تُحمَّل بعد الحفظ.",
+  "feedRankingWeights": "الأوزان",
+  "feedRankingAdvanced": "متقدم",
+  "feedRankingAffinity": "القرب من الكاتب",
+  "feedRankingAffinityHint": "كم يتفاعل المستخدم مع هذا الكاتب. الأعلى يجعل الصفحة أكثر شخصية.",
+  "feedRankingRecency": "الحداثة",
+  "feedRankingRecencyHint": "تفضيل المنشورات الأحدث.",
+  "feedRankingEngagement": "التفاعل",
+  "feedRankingEngagementHint": "الإعجابات والتعليقات والمشاركات بالنسبة لعمر المنشور.",
+  "feedRankingUnseen": "مكافأة غير المُشاهَد",
+  "feedRankingUnseenHint": "رفع المنشورات التي لم يرها المستخدم بعد.",
+  "feedRankingRepeat": "عقوبة تكرار الكاتب",
+  "feedRankingRepeatHint": "تخفيض كل منشور إضافي من نفس الكاتب في الصفحة، حتى لا يستحوذ كاتب واحد عليها.",
+  "feedRankingHalfLife": "نصف عمر الحداثة",
+  "feedRankingHalfLifeHint": "بعد هذه المدة تنخفض قيمة الحداثة إلى النصف. القيم القصيرة تجعل الصفحة زمنية أكثر.",
+  "feedRankingOverfetch": "عدد المرشحين لكل خانة",
+  "feedRankingOverfetchHint": "كم منشورًا يُجلب لكل مكان في الصفحة قبل الترتيب. الأعلى أدق لكنه أبطأ وأكثر كلفة.",
+  "feedRankingTtl": "مدة بقاء عناصر الصفحة",
+  "feedRankingTtlHint": "بعدها تُحذف المنشورات غير المقروءة من صفحة المستخدم. صفر يعني بلا حذف.",
+  "feedRankingTtlForever": "دائم",
+  "feedRankingHours": "{count} ساعة",
+  "@feedRankingHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedRankingDays": "{count} يوم",
+  "@feedRankingDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedRankingReset": "استعادة القيم الافتراضية",
+  "settingsAdmin": "الإدارة",
+  "panelAccessTitle": "صلاحية لوحتي",
+  "panelAccessIntro": "حدد ما إذا كانت لوحة المهندس تتطلب اشتراكًا، وأي أقسامها مفتوحة للجميع. تسري التغييرات فورًا على كل المستخدمين.",
+  "panelAccessGateSection": "الاشتراك",
+  "panelAccessGate": "طلب اشتراك للوحة",
+  "panelAccessGateOn": "اللوحة مغلقة إلا للمشتركين، عدا الأقسام المفتوحة أدناه.",
+  "panelAccessGateOff": "اللوحة مفتوحة للجميع بالكامل.",
+  "panelAccessTrial": "مدة التجربة",
+  "panelAccessTrialHint": "أيام يحصل فيها الحساب الجديد على اللوحة كاملة، تُحسب من تاريخ إنشائه.",
+  "panelAccessTrialNone": "بلا تجربة",
+  "panelAccessDays": "{count} يوم",
+  "@panelAccessDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "panelAccessSections": "الأقسام",
+  "panelAccessSectionsHint": "القسم المفعّل هنا مفتوح لكل المستخدمين بلا اشتراك؛ البقية تحتاج اشتراكًا.",
+  "panelAccessSectionsIgnored": "لا أثر لهذه الخيارات ما دامت اللوحة مفتوحة للجميع.",
+  "panelAccessSectionFree": "مفتوح بلا اشتراك",
+  "panelAccessSectionPaid": "يتطلب اشتراكًا",
+  "panelAccessSaved": "تم حفظ إعدادات اللوحة",
+  "dashboardSectionLocked": "يتطلب اشتراكًا — اضغط للاشتراك",
+  "panelAccessLibraryLive": "تفعيل المكتبة الهندسية",
+  "panelAccessLibraryLiveHint": "ما دامت متوقفة تظهر في اللوحة بوسم «قريبًا» ولا تُفتح، مهما كانت إعدادات الاشتراك.",
+  "disciplinesTitle": "الاختصاصات الهندسية",
+  "disciplinesIntro": "الاختصاصات التي يختار منها المهندسون عند إنشاء ملفاتهم. اضغط على الشعار لرفع صورة، والمفتاح لإيقاف اختصاص دون حذفه — من اختاره يحتفظ به.",
+  "disciplineAdd": "إضافة اختصاص",
+  "disciplineRename": "تعديل الاسم",
+  "disciplineSetLogo": "رفع شعار",
+  "disciplineClearLogo": "إزالة الشعار",
+  "disciplineNameTitle": "اسم الاختصاص",
+  "disciplineNameAr": "الاسم بالعربية",
+  "disciplineNameEn": "الاسم بالإنجليزية",
+  "disciplineLogoHint": "اضغط على المربع لرفع شعار",
+  "disciplineLogoNoStorage": "رفع الصور غير مهيأ على هذا الخادم",
+  "disciplinePickerTitle": "اختر اختصاصك",
+  "disciplinePickerHint": "اختر اختصاصك",
+  "disciplinePickerSearch": "ابحث عن اختصاص…",
+  "disciplinePickerClear": "بلا اختصاص",
+  "disciplinePickerFailed": "تعذّر تحميل قائمة الاختصاصات.",
+  "setupDiscipline": "الاختصاص",
+  "setupDisciplineHint": "اختر اختصاصك الهندسي",
+  "editProfileDiscipline": "الاختصاص",
+  "governoratePickerTitle": "اختر المحافظة",
+  "governoratePickerHint": "اختر المحافظة",
+  "governoratePickerSearch": "ابحث عن محافظة…",
+  "governoratePickerClear": "بلا محافظة",
+  "governoratePickerFailed": "تعذّر تحميل قائمة المحافظات.",
+  "setupGovernorate": "المحافظة",
+  "setupGovernorateHint": "اختر محافظتك",
+  "editProfileGovernorate": "المحافظة",
+  "profileTabPosts": "المنشورات",
+  "profileTabReels": "ريلز",
+  "profileTabCv": "الخبرة",
+  "profileNoPosts": "لا توجد منشورات بعد.",
+  "profileNoReels": "لا توجد ريلز بعد.",
+  "profileMessage": "مراسلة",
+  "profileNoCv": "لا توجد سيرة ذاتية مرفوعة.",
+  "profileCvFailed": "تعذّر فتح السيرة الذاتية.",
+  "activityFollowAccepted": "قبل طلب المتابعة",
+  "@activityFollowAccepted": {
+    "description": "Predicate on a notification row: the actor approved the viewer's follow request"
+  },
+  "postOptionsTitle": "خيارات المنشور",
+  "@postOptionsTitle": {
+    "description": "Header of the post options sheet"
+  },
+  "postOptionsEdit": "تعديل المنشور",
+  "@postOptionsEdit": {
+    "description": "Option: edit your own post"
+  },
+  "postOptionsDelete": "حذف المنشور",
+  "@postOptionsDelete": {
+    "description": "Option: delete your own post"
+  },
+  "postOptionsReport": "الإبلاغ عن المنشور",
+  "@postOptionsReport": {
+    "description": "Option: report somebody else's post"
+  },
+  "postOptionsSave": "حفظ المنشور",
+  "@postOptionsSave": {
+    "description": "Option: bookmark a post"
+  },
+  "postOptionsUnsave": "إزالة من المحفوظات",
+  "@postOptionsUnsave": {
+    "description": "Option: remove a bookmarked post"
+  },
+  "postDeleteConfirm": "حذف هذا المنشور نهائياً؟",
+  "@postDeleteConfirm": {
+    "description": "Confirmation question before deleting a post"
+  },
+  "postDeleteConfirmBody": "لا يمكن التراجع عن الحذف.",
+  "@postDeleteConfirmBody": {
+    "description": "Body of the delete confirmation dialog"
+  },
+  "toastPostDeleted": "حُذف المنشور",
+  "@toastPostDeleted": {
+    "description": "Toast after deleting a post"
+  },
+  "postEditTitle": "تعديل المنشور",
+  "@postEditTitle": {
+    "description": "Title of the edit-post sheet"
+  },
+  "postEditHint": "اكتب شيئاً…",
+  "@postEditHint": {
+    "description": "Hint of the edit-post text field"
+  },
+  "postEditEmpty": "لا يمكن ترك المنشور فارغاً",
+  "@postEditEmpty": {
+    "description": "Validation message when the edited post has no text"
+  },
+  "toastPostUpdated": "تم تحديث المنشور",
+  "@toastPostUpdated": {
+    "description": "Toast after editing a post"
+  },
+  "postReportTitle": "سبب الإبلاغ",
+  "@postReportTitle": {
+    "description": "Title of the report sheet"
+  },
+  "postReportDetailsHint": "تفاصيل إضافية (اختياري)",
+  "@postReportDetailsHint": {
+    "description": "Hint of the optional report details field"
+  },
+  "postReportSend": "إرسال البلاغ",
+  "@postReportSend": {
+    "description": "Submit button of the report sheet"
+  },
+  "toastPostReported": "شكراً، وصلنا بلاغك",
+  "@toastPostReported": {
+    "description": "Toast after reporting a post"
+  },
+  "reportReasonSpam": "محتوى مزعج أو إعلاني",
+  "@reportReasonSpam": {
+    "description": "Report reason"
+  },
+  "reportReasonHarassment": "تحرّش أو تنمّر",
+  "@reportReasonHarassment": {
+    "description": "Report reason"
+  },
+  "reportReasonHateSpeech": "خطاب كراهية",
+  "@reportReasonHateSpeech": {
+    "description": "Report reason"
+  },
+  "reportReasonViolence": "عنف أو تهديد",
+  "@reportReasonViolence": {
+    "description": "Report reason"
+  },
+  "reportReasonNudity": "محتوى جنسي أو عارٍ",
+  "@reportReasonNudity": {
+    "description": "Report reason"
+  },
+  "reportReasonMisinformation": "معلومات مضللة",
+  "@reportReasonMisinformation": {
+    "description": "Report reason"
+  },
+  "reportReasonSelfHarm": "إيذاء النفس",
+  "@reportReasonSelfHarm": {
+    "description": "Report reason"
+  },
+  "reportReasonImpersonation": "انتحال شخصية",
+  "@reportReasonImpersonation": {
+    "description": "Report reason"
+  },
+  "reportReasonIntellectualProperty": "انتهاك حقوق ملكية",
+  "@reportReasonIntellectualProperty": {
+    "description": "Report reason"
+  },
+  "reportReasonOther": "سبب آخر",
+  "@reportReasonOther": {
+    "description": "Report reason"
+  },
+  "companyApplicantOpenCv": "عرض السيرة الذاتية",
+  "@companyApplicantOpenCv": {
+    "description": "Button on an applicant card that opens the attached résumé"
+  },
+  "companyApplicantNoCv": "لم يُرفق المتقدّم سيرة ذاتية",
+  "@companyApplicantNoCv": {
+    "description": "Shown when an application has no résumé file"
+  },
+  "companyApplicantCvFailed": "تعذّر فتح الملف",
+  "@companyApplicantCvFailed": {
+    "description": "Toast when the résumé link cannot be opened"
+  },
+  "companyApplicantNotes": "ملاحظات المتقدّم",
+  "@companyApplicantNotes": {
+    "description": "Heading above the cover letter on an applicant card"
+  },
+  "companyApplicantNoNotes": "لم يكتب المتقدّم أي ملاحظات",
+  "@companyApplicantNoNotes": {
+    "description": "Shown when an application has no cover letter"
+  },
+  "companyApplicantDetails": "عرض التفاصيل",
+  "@companyApplicantDetails": {
+    "description": "Opens the full applicant sheet"
+  },
+  "companyApplicantProfile": "الملف الشخصي",
+  "@companyApplicantProfile": {
+    "description": "Opens the applicant's profile from their application"
+  },
+  "companyDashboardTitle": "لوحة الشركة",
+  "@companyDashboardTitle": {
+    "description": "Title of the company's home screen"
+  },
+  "companyStatOpenJobs": "وظائف مفتوحة",
+  "@companyStatOpenJobs": {
+    "description": "Stat tile: postings still taking applications"
+  },
+  "companyStatApplicants": "إجمالي المتقدّمين",
+  "@companyStatApplicants": {
+    "description": "Stat tile: everyone who applied"
+  },
+  "companyStatNewThisWeek": "متقدّمون هذا الأسبوع",
+  "@companyStatNewThisWeek": {
+    "description": "Stat tile: applications received in the last seven days"
+  },
+  "companyStatFollowers": "متابعو الصفحة",
+  "@companyStatFollowers": {
+    "description": "Stat tile: followers of the company page"
+  },
+  "companyPendingTitle": "بانتظار قرارك",
+  "@companyPendingTitle": {
+    "description": "Section title: applications not yet decided"
+  },
+  "companyPendingEmpty": "لا توجد طلبات بانتظار قرار",
+  "@companyPendingEmpty": {
+    "description": "Empty state of the pending-applications section"
+  },
+  "companyPendingAll": "كل المتقدّمين",
+  "@companyPendingAll": {
+    "description": "Link from the pending section to the applicants tab"
+  },
+  "companyOpenJobsTitle": "وظائفك المفتوحة",
+  "@companyOpenJobsTitle": {
+    "description": "Section title: the company's active postings"
+  },
+  "companyOpenJobsEmpty": "لا توجد وظائف مفتوحة الآن",
+  "@companyOpenJobsEmpty": {
+    "description": "Empty state of the open-jobs section"
+  },
+  "companyJobApplicants": "المتقدّمون: {count}",
+  "@companyJobApplicants": {
+    "description": "Applicant count under a posting on the dashboard",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "companyClosedJobs": "وظائف مغلقة: {count}",
+  "@companyClosedJobs": {
+    "description": "Note under the open-jobs section about closed postings",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "companyDashboardGreeting": "أهلاً، {name}",
+  "@companyDashboardGreeting": {
+    "description": "Greeting at the top of the company dashboard",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "companyQuickActions": "إجراءات سريعة",
+  "@companyQuickActions": {
+    "description": "Section title above the company dashboard's shortcut tiles"
+  },
+  "companyEditPage": "تعديل الصفحة",
+  "@companyEditPage": {
+    "description": "Shortcut that opens the company's page editor"
+  },
+  "jobApplyLocked": "التقديم للمشتركين",
+  "@jobApplyLocked": {
+    "description": "Label on the apply button when the viewer has no subscription"
+  },
+  "jobApplyLockedBody": "اشترك لتتمكن من التقديم على الوظائف",
+  "@jobApplyLockedBody": {
+    "description": "Explains why the apply button is locked"
+  },
+  "authAccountEngineer": "مهندس",
+  "@authAccountEngineer": {
+    "description": "Account type: an engineer, the account that looks for work"
+  },
+  "authAccountContractor": "مقاول",
+  "@authAccountContractor": {
+    "description": "Account type: a contractor"
+  },
+  "authAccountCraftsman": "حرفي",
+  "@authAccountCraftsman": {
+    "description": "Account type: a tradesperson — carpenter, blacksmith, electrician"
+  },
+  "authAccountEquipmentOwner": "صاحب آلية",
+  "@authAccountEquipmentOwner": {
+    "description": "Account type: owns machinery and hires it out"
+  },
+  "authBusinessName": "اسم النشاط",
+  "@authBusinessName": {
+    "description": "Name field label for a contractor, craftsman or machinery-owner account"
+  },
+  "authBusinessNameHint": "كما تريد أن يظهر في صفحتك",
+  "@authBusinessNameHint": {
+    "description": "Hint under the business name field"
+  },
+  "profileTradeLabel": "الحرفة",
+  "@profileTradeLabel": {
+    "description": "Label of the specialty picker for a craftsman account"
+  },
+  "profileEquipmentLabel": "نوع الآلية",
+  "@profileEquipmentLabel": {
+    "description": "Label of the specialty picker for a machinery-owner account"
+  },
+  "authAccountTypeSheetTitle": "اختر نوع الحساب",
+  "@authAccountTypeSheetTitle": {
+    "description": "Title of the bottom sheet that lists the five account types."
+  },
+  "authAccountEngineerHint": "حساب شخصي: تتقدّم على الوظائف وتبني ملفك المهني.",
+  "@authAccountEngineerHint": {
+    "description": "One-line description of the مهندس account type in the picker."
+  },
+  "authAccountCompanyHint": "تنشر الوظائف وتستقبل طلبات المتقدّمين.",
+  "@authAccountCompanyHint": {
+    "description": "One-line description of the شركة account type in the picker."
+  },
+  "authAccountContractorHint": "تنفّذ المشاريع وتنشر فرص العمل.",
+  "@authAccountContractorHint": {
+    "description": "One-line description of the مقاول account type in the picker."
+  },
+  "authAccountCraftsmanHint": "صاحب مهنة: نجار، حدّاد، كهربائي وغيرها.",
+  "@authAccountCraftsmanHint": {
+    "description": "One-line description of the حرفي account type in the picker."
+  },
+  "authAccountEquipmentOwnerHint": "تؤجّر الآليات والمعدّات وتنشر فرص العمل.",
+  "@authAccountEquipmentOwnerHint": {
+    "description": "One-line description of the صاحب آلية account type in the picker."
+  },
+  "myCoursesTitle": "دوراتي",
+  "@myCoursesTitle": {
+    "description": "Title of the list of courses this viewer has authored."
+  },
+  "myCoursesEmpty": "لم تنشئ أي دورة بعد. ابدأ بدورة جديدة وأرسلها للمراجعة.",
+  "@myCoursesEmpty": {
+    "description": "Empty state of the author's course list."
+  },
+  "myCoursesNew": "دورة جديدة",
+  "@myCoursesNew": {
+    "description": "Button that starts a new course."
+  },
+  "myCoursesEarnings": "أرباح دوراتي",
+  "@myCoursesEarnings": {
+    "description": "Opens the list of purchases of courses this viewer wrote."
+  },
+  "courseStatusDraft": "مسودة",
+  "@courseStatusDraft": {
+    "description": "Review state: not yet submitted."
+  },
+  "courseStatusSubmitted": "قيد المراجعة",
+  "@courseStatusSubmitted": {
+    "description": "Review state: with the reviewer."
+  },
+  "courseStatusRejected": "مُعادة للتعديل",
+  "@courseStatusRejected": {
+    "description": "Review state: rejected with a note."
+  },
+  "courseStatusApproved": "منشورة",
+  "@courseStatusApproved": {
+    "description": "Review state: approved and live."
+  },
+  "courseEditorEdit": "تعديل الدورة",
+  "@courseEditorEdit": {
+    "description": "Title of the course editor when editing."
+  },
+  "courseFieldTitle": "عنوان الدورة",
+  "@courseFieldTitle": {
+    "description": "Form field label."
+  },
+  "courseFieldSummary": "وصف مختصر",
+  "@courseFieldSummary": {
+    "description": "Form field label for the one-line card summary."
+  },
+  "courseFieldDescription": "الوصف الكامل",
+  "@courseFieldDescription": {
+    "description": "Form field label."
+  },
+  "courseFieldCategory": "القسم",
+  "@courseFieldCategory": {
+    "description": "Form field label for the course category."
+  },
+  "courseFieldLevel": "المستوى",
+  "@courseFieldLevel": {
+    "description": "Form field label."
+  },
+  "courseFieldPrice": "السعر",
+  "@courseFieldPrice": {
+    "description": "Form field label for what the author charges."
+  },
+  "courseFieldPriceHint": "اتركه صفرًا لتكون الدورة مجانية",
+  "@courseFieldPriceHint": {
+    "description": "Hint under the price field."
+  },
+  "courseAddLine": "إضافة سطر",
+  "@courseAddLine": {
+    "description": "Adds one bullet to an outcomes or requirements list."
+  },
+  "courseLessons": "الدروس",
+  "@courseLessons": {
+    "description": "Section heading for the lesson list in the editor."
+  },
+  "courseAddLesson": "إضافة درس",
+  "@courseAddLesson": {
+    "description": "Button in the course editor."
+  },
+  "courseLessonTitle": "عنوان الدرس",
+  "@courseLessonTitle": {
+    "description": "Form field label."
+  },
+  "courseLessonKind": "نوع الدرس",
+  "@courseLessonKind": {
+    "description": "Form field label: video, PDF or article."
+  },
+  "courseLessonDuration": "المدة بالدقائق",
+  "@courseLessonDuration": {
+    "description": "Form field label."
+  },
+  "courseLessonPreview": "درس تجريبي مجاني",
+  "@courseLessonPreview": {
+    "description": "Toggle: openable before buying."
+  },
+  "courseLessonBody": "نص الدرس",
+  "@courseLessonBody": {
+    "description": "Form field label for an article lesson's body."
+  },
+  "courseLessonDelete": "حذف الدرس",
+  "@courseLessonDelete": {
+    "description": "Removes a lesson from a course."
+  },
+  "courseSubmitForReview": "إرسال للمراجعة",
+  "@courseSubmitForReview": {
+    "description": "Hands the course to the reviewer."
+  },
+  "courseSubmittedToast": "أُرسلت الدورة للمراجعة",
+  "@courseSubmittedToast": {
+    "description": "Confirmation after submitting."
+  },
+  "courseSavedToast": "تم حفظ الدورة",
+  "@courseSavedToast": {
+    "description": "Confirmation after saving a draft."
+  },
+  "courseReviewNote": "ملاحظة المراجع",
+  "@courseReviewNote": {
+    "description": "Heading over the rejection reason shown to the author."
+  },
+  "courseLockedUntilReview": "الدورة عند المراجع ولا يمكن تعديلها حتى يصدر القرار.",
+  "@courseLockedUntilReview": {
+    "description": "Explains why the editor is read-only."
+  },
+  "courseLockedApproved": "الدورة منشورة ولا يمكن تعديلها.",
+  "@courseLockedApproved": {
+    "description": "Explains why an approved course is read-only."
+  },
+  "courseBuy": "شراء الدورة",
+  "@courseBuy": {
+    "description": "Button on a paid course."
+  },
+  "coursePurchasePending": "بانتظار تأكيد الدفع",
+  "@coursePurchasePending": {
+    "description": "State of a purchase request not yet confirmed."
+  },
+  "coursePurchasePaid": "تم الشراء",
+  "@coursePurchasePaid": {
+    "description": "State of a confirmed purchase."
+  },
+  "coursePurchaseAsked": "تم إرسال طلب الشراء. تُفتح الدورة فور تأكيد الدفع.",
+  "@coursePurchaseAsked": {
+    "description": "Toast after asking to buy."
+  },
+  "courseSubscriberDiscount": "خصم المشتركين {percent}%",
+  "@courseSubscriberDiscount": {
+    "description": "Badge on a price a subscriber gets a discount on.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "courseReviewTitle": "مراجعة الدورات",
+  "@courseReviewTitle": {
+    "description": "Title of the admin review queue."
+  },
+  "courseReviewEmpty": "لا توجد دورات بانتظار المراجعة.",
+  "@courseReviewEmpty": {
+    "description": "Empty state of the review queue."
+  },
+  "courseApprove": "موافقة",
+  "@courseApprove": {
+    "description": "Approves a submitted course."
+  },
+  "courseReject": "رفض",
+  "@courseReject": {
+    "description": "Rejects a submitted course with a reason."
+  },
+  "coursePlatformPercent": "نسبة المنصة %",
+  "@coursePlatformPercent": {
+    "description": "The commission the platform takes from this course."
+  },
+  "coursePlatformPercentHint": "تُحتسب من المبلغ المدفوع فعليًا، وتُثبّت على كل عملية شراء لهذه الدورة.",
+  "@coursePlatformPercentHint": {
+    "description": "Hint under the commission field."
+  },
+  "courseRejectReason": "سبب الإعادة",
+  "@courseRejectReason": {
+    "description": "Required note on a rejection."
+  },
+  "courseApprovedToast": "تمت الموافقة ونُشرت الدورة",
+  "@courseApprovedToast": {
+    "description": "Toast after approving."
+  },
+  "courseRejectedToast": "أُعيدت الدورة إلى ناشرها",
+  "@courseRejectedToast": {
+    "description": "Toast after rejecting."
+  },
+  "courseAuthorLabel": "الناشر",
+  "@courseAuthorLabel": {
+    "description": "Label over the profile that wrote a course."
+  },
+  "courseCommerceTitle": "تسعير الدورات",
+  "@courseCommerceTitle": {
+    "description": "Title of the admin screen holding the two tenant-wide numbers."
+  },
+  "courseCommerceIntro": "رقمان يسريان على كل الدورات: نسبة المنصة المقترحة عند المراجعة، وخصم المشتركين على السعر.",
+  "@courseCommerceIntro": {
+    "description": "Intro on the course pricing screen."
+  },
+  "courseCommissionDefault": "نسبة المنصة الافتراضية %",
+  "@courseCommissionDefault": {
+    "description": "Settings field: what the review screen pre-fills."
+  },
+  "courseCommissionDefaultHint": "قيمة مقترحة فقط؛ النسبة المُلزِمة هي ما يُثبَّت على كل دورة عند الموافقة.",
+  "@courseCommissionDefaultHint": {
+    "description": "Hint under the default commission field."
+  },
+  "courseDiscountPercent": "خصم المشتركين على الدورات %",
+  "@courseDiscountPercent": {
+    "description": "Settings field."
+  },
+  "courseDiscountPercentHint": "يُخصم من سعر كل دورة مدفوعة لصاحب الاشتراك الفعّال. صفر يوقف الخصم.",
+  "@courseDiscountPercentHint": {
+    "description": "Hint under the subscriber discount field."
+  },
+  "courseCommerceSaved": "تم حفظ إعدادات التسعير",
+  "@courseCommerceSaved": {
+    "description": "Toast after saving the two numbers."
+  },
+  "coursePurchasesTitle": "طلبات شراء الدورات",
+  "@coursePurchasesTitle": {
+    "description": "Title of the admin purchase queue."
+  },
+  "coursePurchasesEmpty": "لا توجد طلبات شراء.",
+  "@coursePurchasesEmpty": {
+    "description": "Empty state of the purchase queue."
+  },
+  "purchaseConfirm": "تأكيد الدفع",
+  "@purchaseConfirm": {
+    "description": "Admin action that opens the course for the buyer."
+  },
+  "purchaseCancelRequest": "إلغاء الطلب",
+  "@purchaseCancelRequest": {
+    "description": "Admin action that cancels a pending request."
+  },
+  "purchaseAmountDue": "المبلغ",
+  "@purchaseAmountDue": {
+    "description": "What the learner owes."
+  },
+  "purchasePlatformShare": "حصة المنصة",
+  "@purchasePlatformShare": {
+    "description": "The commission on one purchase."
+  },
+  "purchaseAuthorShare": "حصة الناشر",
+  "@purchaseAuthorShare": {
+    "description": "What the author is owed for one purchase."
+  },
+  "purchaseConfirmedToast": "تم تأكيد الدفع",
+  "@purchaseConfirmedToast": {
+    "description": "Toast after confirming a purchase."
+  },
+  "purchaseCancelledToast": "أُلغي الطلب",
+  "@purchaseCancelledToast": {
+    "description": "Toast after cancelling a purchase."
+  },
+  "purchaseNote": "ملاحظة",
+  "@purchaseNote": {
+    "description": "Free-text note on a purchase decision, e.g. a transfer reference."
+  },
+  "courseEarningsEmpty": "لم تُبَع أي من دوراتك بعد.",
+  "@courseEarningsEmpty": {
+    "description": "Empty state of the author's earnings list."
+  },
+  "dashboardTeach": "دوراتي كمدرّب",
+  "@dashboardTeach": {
+    "description": "Panel row that opens the author's own course list."
+  },
+  "dashboardTeachSubtitle": "أنشئ دورة، حدّد سعرها، وأرسلها للمراجعة",
+  "@dashboardTeachSubtitle": {
+    "description": "Subtitle of the teach row on the panel."
+  },
+  "courseCoverLabel": "صورة الغلاف",
+  "@courseCoverLabel": {
+    "description": "Label over the course cover picker in the editor."
+  },
+  "courseCoverAdd": "أضف صورة غلاف للدورة",
+  "@courseCoverAdd": {
+    "description": "Empty state of the cover picker."
+  },
+  "courseCoverHint": "تظهر على بطاقة الدورة في الكتالوج",
+  "@courseCoverHint": {
+    "description": "Hint under the cover picker."
+  },
+  "courseCoverChange": "تغيير الصورة",
+  "@courseCoverChange": {
+    "description": "Replaces an already-chosen cover."
+  },
+  "courseCoverRemove": "إزالة الصورة",
+  "@courseCoverRemove": {
+    "description": "Clears the chosen cover."
+  },
+  "courseLessonFile": "ملف الدرس",
+  "@courseLessonFile": {
+    "description": "Label over the lesson file picker."
+  },
+  "courseLessonPickVideo": "اختيار فيديو",
+  "@courseLessonPickVideo": {
+    "description": "Opens the video picker for a lesson."
+  },
+  "courseLessonPickPdf": "اختيار ملف PDF",
+  "@courseLessonPickPdf": {
+    "description": "Opens the file picker for a PDF lesson."
+  },
+  "courseLessonFileReady": "تم رفع الملف",
+  "@courseLessonFileReady": {
+    "description": "Shown once a lesson's file is on the CDN."
+  },
+  "courseLessonFileMissing": "لم يُرفع ملف بعد",
+  "@courseLessonFileMissing": {
+    "description": "Empty state of the lesson file picker."
+  },
+  "courseUploading": "جارٍ الرفع… {percent}%",
+  "@courseUploading": {
+    "description": "Progress text while a course file uploads.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "courseLessonsAutoSave": "تُحفظ الدورة تلقائيًا عند إضافة أول درس.",
+  "@courseLessonsAutoSave": {
+    "description": "Explains why the lessons section is empty on a course that has never been saved."
+  },
+  "courseNewTag": "جديد",
+  "@courseNewTag": {
+    "description": "Tag on a catalogue card for a course published recently that this viewer has not opened."
+  },
+  "profileBannerAdd": "أضف صورة غلاف",
+  "@profileBannerAdd": {
+    "description": "Button on an empty profile banner, shown only to its owner."
+  },
+  "profileBannerChange": "تغيير صورة الغلاف",
+  "@profileBannerChange": {
+    "description": "Action on a profile banner that already has an image."
+  },
+  "profileBannerRemove": "إزالة صورة الغلاف",
+  "@profileBannerRemove": {
+    "description": "Clears the profile's cover image."
+  },
+  "profileBannerSaved": "تم تحديث صورة الغلاف",
+  "@profileBannerSaved": {
+    "description": "Toast after the cover image is saved."
+  },
+  "composerReelsStreamOff": "نشر الريلز غير متاح على هذا الخادم حالياً",
+  "@composerReelsStreamOff": {
+    "description": "Shown when a reel cannot be published because the Bunny Stream library is not configured."
+  },
+  "courseLessonStreamOff": "رفع فيديو المحاضرات غير متاح على هذا الخادم حالياً",
+  "@courseLessonStreamOff": {
+    "description": "Shown when a course lesson video cannot be uploaded because the Bunny Stream library is not configured."
+  },
+  "uploadBannerUploading": "جارٍ رفع الفيديو",
+  "@uploadBannerUploading": {
+    "description": "Background upload banner, while bytes are transferring."
+  },
+  "uploadBannerFinishing": "جارٍ النشر…",
+  "@uploadBannerFinishing": {
+    "description": "Background upload banner, after the transfer and while the publish call runs."
+  },
+  "uploadBannerDone": "تم الرفع والنشر",
+  "@uploadBannerDone": {
+    "description": "Background upload banner, on success."
+  },
+  "uploadBannerFailed": "فشل الرفع",
+  "@uploadBannerFailed": {
+    "description": "Background upload banner, on failure."
+  },
+  "uploadBannerBusy": "هناك فيديو قيد الرفع بالفعل، انتظر حتى ينتهي",
+  "@uploadBannerBusy": {
+    "description": "Shown when a second video upload is requested while one is running."
+  },
+  "uploadLeaveTitle": "الرفع لم ينتهِ",
+  "@uploadLeaveTitle": {
+    "description": "Title of the confirm dialog shown when leaving the app mid-upload."
+  },
+  "uploadLeaveBody": "إغلاق التطبيق الآن سيلغي رفع الفيديو. هل تريد الخروج؟",
+  "@uploadLeaveBody": {
+    "description": "Body of the confirm dialog shown when leaving the app mid-upload."
+  },
+  "uploadLeaveStay": "ابقَ",
+  "@uploadLeaveStay": {
+    "description": "Keeps the app open so the upload can finish."
+  },
+  "uploadLeaveQuit": "اخرج",
+  "@uploadLeaveQuit": {
+    "description": "Leaves the app and abandons the upload."
+  },
+  "uploadStartedBackground": "سيكمل الرفع في الخلفية",
+  "@uploadStartedBackground": {
+    "description": "Toast when a composer hands a video to the background queue and closes."
+  },
+  "uploadBannerCancel": "إلغاء",
+  "@uploadBannerCancel": {
+    "description": "Button on the upload banner that stops a transfer in progress."
+  },
+  "uploadBannerCancelled": "أُلغي الرفع",
+  "@uploadBannerCancelled": {
+    "description": "Upload banner title after the person cancelled the transfer."
+  },
+  "courseSaveAndAddLessons": "حفظ ومتابعة للمحاضرات",
+  "@courseSaveAndAddLessons": {
+    "description": "Button on the course editor that saves the course and opens the lessons screen."
+  },
+  "courseLessonsTitle": "محاضرات الدورة",
+  "@courseLessonsTitle": {
+    "description": "Title of the screen listing a course's lessons."
+  },
+  "courseLessonsEmpty": "لا محاضرات بعد. أضف أول محاضرة لتبدأ.",
+  "@courseLessonsEmpty": {
+    "description": "Empty state on the course lessons screen."
+  },
+  "courseLessonsNextStep": "حُفظت الدورة. أضف محاضراتها الآن.",
+  "@courseLessonsNextStep": {
+    "description": "Toast shown when the editor saves a course and moves to the lessons screen."
+  },
+  "courseLessonUploadingChip": "جارٍ الرفع",
+  "@courseLessonUploadingChip": {
+    "description": "Chip on a lesson row whose video is being uploaded right now."
+  },
+  "courseLessonUploadIncomplete": "لم يكتمل رفع الملف — المس لإعادة المحاولة",
+  "@courseLessonUploadIncomplete": {
+    "description": "Subtitle on a lesson row saved before its file and left without one."
+  },
+  "courseLessonUploadQueued": "في انتظار الرفع",
+  "@courseLessonUploadQueued": {
+    "description": "Subtitle on a pending lesson row while another upload holds the queue."
+  },
+  "courseLessonServerOutdated": "الخادم الحالي لا يدعم حفظ الدرس قبل اكتمال رفع الملف. أعد تشغيل الخادم بعد آخر تحديث.",
+  "@courseLessonServerOutdated": {
+    "description": "Shown when the server refuses a lesson saved ahead of its upload, which only an out-of-date server does."
+  },
+  "toastReelReposted": "أُعيد نشر الريل لمتابعيك",
+  "@toastReelReposted": {
+    "description": "Toast after reposting a reel."
+  },
+  "toastReelUnreposted": "أُلغيت إعادة النشر",
+  "@toastReelUnreposted": {
+    "description": "Toast after undoing a reel repost."
+  },
+  "postOriginalUnavailable": "المنشور الأصلي لم يعد متاحًا.",
+  "@postOriginalUnavailable": {
+    "description": "Shown inside a repost whose original post was deleted."
+  },
+  "cropAvatarTitle": "قصّ الصورة الشخصية",
+  "@cropAvatarTitle": {
+    "description": "Title of the crop screen for the profile photo."
+  },
+  "cropBannerTitle": "قصّ صورة الغلاف",
+  "@cropBannerTitle": {
+    "description": "Title of the crop screen for the profile banner."
+  },
+  "cropDone": "تم",
+  "@cropDone": {
+    "description": "Confirm button on the crop screen."
+  },
+  "cropCancel": "إلغاء",
+  "@cropCancel": {
+    "description": "Cancel button on the crop screen."
+  },
+  "reelOptions": "خيارات الريل",
+  "@reelOptions": {
+    "description": "Tooltip of the ⋯ button on your own reel."
+  },
+  "reelDelete": "حذف الريل",
+  "@reelDelete": {
+    "description": "Sheet row that deletes your own reel."
+  },
+  "reelUndoRepost": "إلغاء إعادة النشر",
+  "@reelUndoRepost": {
+    "description": "Sheet row on your own repost of someone's reel."
+  },
+  "reelDeleteConfirm": "حذف هذا الريل نهائياً؟",
+  "@reelDeleteConfirm": {
+    "description": "Title of the delete-reel confirmation."
+  },
+  "reelDeleteConfirmBody": "سيختفي من ملفك ومن كل من أعاد نشره، ولا يمكن التراجع عن الحذف.",
+  "@reelDeleteConfirmBody": {
+    "description": "Body of the delete-reel confirmation."
+  },
+  "toastReelDeleted": "تم حذف الريل",
+  "@toastReelDeleted": {
+    "description": "Toast after a reel is deleted."
+  },
+  "settingsPrivacyPolicy": "سياسة الخصوصية",
+  "@settingsPrivacyPolicy": {
+    "description": "Settings row that opens the privacy policy web page."
+  },
+  "settingsAbout": "حول التطبيق",
+  "@settingsAbout": {
+    "description": "Settings section holding the privacy policy link."
+  },
+  "legalLinkFailed": "تعذّر فتح الصفحة. تحقق من اتصالك وحاول مجدداً.",
+  "@legalLinkFailed": {
+    "description": "Toast when the privacy policy page can't be opened."
+  },
+  "authTermsLead": "بمتابعتك فإنك توافق على ",
+  "@authTermsLead": {
+    "description": "Sign-in footer, text before the privacy policy link. Ends right before the link."
+  },
+  "authTermsPrivacy": "سياسة الخصوصية",
+  "@authTermsPrivacy": {
+    "description": "Tappable privacy policy link in the sign-in footer."
+  },
+  "authTermsTail": " الخاصة بمهندس",
+  "@authTermsTail": {
+    "description": "Sign-in footer, text after the privacy policy link."
+  },
+  "authGenderOptional": "الجنس (اختياري)",
+  "@authGenderOptional": {
+    "description": "Sign-up label above the optional gender chips."
+  },
+  "settingsDeleteAccount": "حذف الحساب",
+  "@settingsDeleteAccount": {
+    "description": "Settings row that permanently deletes the account."
+  },
+  "deleteAccountTitle": "حذف حسابك نهائياً؟",
+  "@deleteAccountTitle": {
+    "description": "Title of the delete-account confirmation."
+  },
+  "deleteAccountBody": "سيُحذف ملفك المهني ومنشوراتك وريلزك وتعليقاتك ومتابعاتك، ولن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى. لا يمكن التراجع عن ذلك.",
+  "@deleteAccountBody": {
+    "description": "Body of the delete-account confirmation."
+  },
+  "deleteAccountConfirm": "حذف الحساب نهائياً",
+  "@deleteAccountConfirm": {
+    "description": "Destructive confirm button in the delete-account dialog."
+  },
+  "toastAccountDeleted": "تم حذف حسابك",
+  "@toastAccountDeleted": {
+    "description": "Toast after the account is deleted."
+  },
+  "authPhoneOrEmailHint": "أدخل رقم هاتفك أو بريدك الإلكتروني، يكفي أحدهما. سنرسل إليه رمز تأكيد.",
+  "@authPhoneOrEmailHint": {
+    "description": "Sign-up hint above the phone and email fields."
+  },
+  "authPhoneOrEmailRequired": "أدخل رقم الهاتف أو البريد الإلكتروني",
+  "@authPhoneOrEmailRequired": {
+    "description": "Sign-up error when both phone and email are empty."
+  },
+  "reportProfile": "الإبلاغ عن الحساب",
+  "@reportProfile": {
+    "description": "Option on someone else's profile."
+  },
+  "reportReel": "الإبلاغ عن الريل",
+  "@reportReel": {
+    "description": "Option on someone else's reel."
+  },
+  "reportComment": "الإبلاغ عن التعليق",
+  "@reportComment": {
+    "description": "Option on someone else's comment."
+  },
+  "reportMessage": "الإبلاغ عن الرسالة",
+  "@reportMessage": {
+    "description": "Option when long-pressing someone else's message."
+  },
+  "reportStory": "الإبلاغ عن القصة",
+  "@reportStory": {
+    "description": "Button on someone else's story."
+  },
+  "actionReport": "إبلاغ",
+  "@actionReport": {
+    "description": "Short report action under a comment."
+  },
+  "authTermsLink": "شروط الاستخدام",
+  "@authTermsLink": {
+    "description": "Tappable terms-of-use link in the sign-in footer."
+  },
+  "authTermsAnd": " و",
+  "@authTermsAnd": {
+    "description": "Joins the terms and privacy links in the sign-in footer."
+  },
+  "settingsTerms": "شروط الاستخدام",
+  "@settingsTerms": {
+    "description": "Settings row that opens the terms of use page."
+  },
+  "hashtagPostsEmpty": "لا توجد منشورات بهذا الوسم بعد",
+  "@hashtagPostsEmpty": {
+    "description": "Empty state of the hashtag posts page."
+  },
+  "storyReplyHint": "أرسل ردًّا…",
+  "@storyReplyHint": {
+    "description": "Hint in the story reply field"
+  },
+  "storyReplySend": "إرسال",
+  "storyReplySent": "تم إرسال ردّك في الرسائل",
+  "storyReplyFailed": "تعذّر إرسال الرد، حاول مجددًا",
+  "storyLike": "إعجاب",
+  "storyLikeFailed": "تعذّر تسجيل الإعجاب",
+  "activityLikedStory": "أعجب بقصتك",
+  "activityCommentedReel": "علّق على مقطعك",
+  "reelComment": "تعليق",
+  "@reelComment": {
+    "description": "Reel rail comment button label when there are no comments"
+  },
+  "reelCommentsTitle": "التعليقات",
+  "reelCommentsEmpty": "لا توجد تعليقات بعد. كن أول من يعلّق!",
+  "reelCommentsRetry": "إعادة المحاولة",
+  "reelCommentHint": "أضف تعليقًا…",
+  "reelCommentReply": "رد",
+  "reelCommentReplyingTo": "الرد على {name}",
+  "@reelCommentReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reelCommentDelete": "حذف",
+  "reelCommentDeleteTitle": "حذف التعليق؟",
+  "reelCommentDeleteBody": "سيُحذف التعليق وكل الردود عليه.",
+  "reelCommentDeleted": "تم حذف التعليق",
+  "reelCommentReport": "إبلاغ",
+  "composerAddPoll": "إضافة استطلاع",
+  "composerRemovePoll": "إزالة الاستطلاع",
+  "composerPollTitle": "استطلاع رأي",
+  "composerPollQuestionNote": "نص المنشور هو سؤال الاستطلاع.",
+  "composerPollOptionHint": "الخيار {n}",
+  "@composerPollOptionHint": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "composerPollAddOption": "إضافة خيار",
+  "composerPollRemoveOption": "حذف الخيار",
+  "pollDurationHour": "ساعة",
+  "pollDurationSixHours": "6 ساعات",
+  "pollDurationDay": "يوم",
+  "pollDurationThreeDays": "3 أيام",
+  "pollDurationWeek": "أسبوع",
+  "pollVotes": "{count} صوت",
+  "@pollVotes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pollLeftDays": "متبقٍ {n} يوم",
+  "@pollLeftDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pollLeftHours": "متبقٍ {n} ساعة",
+  "@pollLeftHours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pollLeftMinutes": "متبقٍ {n} دقيقة",
+  "@pollLeftMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pollClosed": "انتهى التصويت",
+  "pollVoteFailed": "تعذّر تسجيل صوتك",
+  "setupSecureTitle": "أمّن حسابك",
+  "setupSecureOptional": "اختياري",
+  "setupSecureBody": "أكّد بريدك الإلكتروني ليصبح وسيلة تحقق ثانية وطريقة لاستعادة حسابك إن فقدت رقمك.",
+  "setupSecureAction": "تأكيد البريد",
+  "setupSecureDismiss": "ليس الآن",
+  "emailVerifyTitle": "البريد الإلكتروني والتحقق بخطوتين",
+  "emailVerifyIntro": "أضف بريدك الإلكتروني وأكّده ليصبح وسيلة تحقق ثانية لحسابك، وطريقة للدخول إن فقدت رقم هاتفك. رقم الهاتف يبقى هو الأساس.",
+  "emailVerifySend": "إرسال رمز التأكيد",
+  "emailVerifyChangeAddress": "تغيير البريد",
+  "emailVerifyDone": "تم تأكيد بريدك الإلكتروني ✅",
   "setupSave": "متابعة",
   "setupSkip": "تخطٍّ الآن",
   "setupSaved": "تم حفظ ملفك 🎉",
@@ -468,8 +1595,7 @@
   "activityCalled": "اتصل بك",
   "activityOther": "أرسل إليك إشعارًا",
   "applyResumeNone": "لا توجد سيرة ذاتية مرفقة",
-  "applyResumeUploadHint": "اختر ملف PDF أو Word"
-,
+  "applyResumeUploadHint": "اختر ملف PDF أو Word",
   "actionDelete": "حذف",
   "actionAdd": "إضافة",
   "actionEdit": "تعديل",
@@ -502,22 +1628,24 @@
   "employmentInternship": "تدريب",
   "employmentFreelance": "عمل حر",
   "employmentSelfEmployed": "عمل خاص",
-  "employmentTemporary": "مؤقت"
-,
+  "employmentTemporary": "مؤقت",
   "editProfileChangePhoto": "تغيير الصورة الشخصية",
-  "editProfileChangeCover": "تغيير صورة الغلاف"
-,
+  "editProfileChangeCover": "تغيير صورة الغلاف",
   "profileActivity": "النشاط",
   "profileActivityPosts": "المنشورات",
   "profileActivityComments": "التعليقات",
   "profileActivityShowAll": "عرض الكل",
   "profileCreatePost": "إنشاء منشور",
   "profileFollowersCount": "{count} متابع",
-  "@profileFollowersCount": { "placeholders": { "count": { "type": "String" } } },
-  "profileCommentedOn": "علّق على منشور"
-,
-  "postSeeMore": "…المزيد"
-,
+  "@profileFollowersCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCommentedOn": "علّق على منشور",
+  "postSeeMore": "…المزيد",
   "settingsTitle": "الإعدادات",
   "settingsAppearance": "المظهر",
   "settingsThemeSystem": "حسب النظام",
@@ -550,9 +1678,21 @@
   "composerModeReel": "ريل",
   "composerSingleMediaOnly": "هذا النوع يأخذ ملفاً واحداً فقط",
   "composerVideoTooLarge": "الفيديو كبير جداً (الحد {max} ميجابايت)",
-  "@composerVideoTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "@composerVideoTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "composerDocumentTooLarge": "الملف كبير جداً (الحد {max} ميجابايت)",
-  "@composerDocumentTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "@composerDocumentTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "composerTitleStory": "قصة جديدة",
   "composerTitleReel": "ريل جديد",
   "composerHintStory": "أضف تعليقاً على القصة…",
@@ -567,7 +1707,13 @@
   "postOpenDocumentFailed": "تعذّر فتح الملف",
   "composerPhotoRetry": "إعادة المحاولة",
   "composerPhotoLimit": "يمكنك إرفاق {max} صور كحد أقصى",
-  "@composerPhotoLimit": { "placeholders": { "max": { "type": "int" } } },
+  "@composerPhotoLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "navMyJobs": "وظائفي",
   "navApplicants": "المتقدّمون",
   "navPage": "صفحتي",
@@ -597,28 +1743,68 @@
   "companyJobRequirements": "المتطلبات",
   "companyJobRequirementsHint": "متطلب واحد في كل سطر",
   "companyApplicantCount": "{count} متقدّم",
-  "@companyApplicantCount": { "placeholders": { "count": { "type": "String" } } },
+  "@companyApplicantCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "companyAppliedAgo": "قدّم {time}",
-  "@companyAppliedAgo": { "placeholders": { "time": { "type": "String" } } },
+  "@companyAppliedAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "companyOverview": "نظرة عامة",
   "companySize": "حجم الشركة",
   "companySizeSelf": "أنا فقط",
   "companyFounded": "تاريخ التأسيس",
   "companyFoundedOn": "تأسست في {date}",
-  "@companyFoundedOn": { "placeholders": { "date": { "type": "String" } } },
+  "@companyFoundedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companySpecialties": "التخصصات",
   "companySpecialtiesHint": "تخصص واحد في كل سطر",
   "companyJobCompanyWebsite": "الموقع الإلكتروني",
   "companyOpenJobs": "الوظائف المتاحة",
   "companyOpenJobsCount": "{count, plural, =1{وظيفة مفتوحة} =2{وظيفتان مفتوحتان} few{وظائف مفتوحة} many{وظيفة مفتوحة} other{وظيفة مفتوحة}}",
-  "@companyOpenJobsCount": { "placeholders": { "count": { "type": "num", "format": "compact" } } },
+  "@companyOpenJobsCount": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
   "companyWebsiteFailed": "تعذّر فتح الموقع",
   "companySeeAllJobs": "عرض كل الوظائف",
   "profilePosts": "منشور",
   "companySizeOver": "أكثر من {count} موظف",
-  "@companySizeOver": { "placeholders": { "count": { "type": "String" } } },
+  "@companySizeOver": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "companySizeRange": "من {from} إلى {to} موظف",
-  "@companySizeRange": { "placeholders": { "from": { "type": "String" }, "to": { "type": "String" } } },
+  "@companySizeRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "companyNoOpenJobs": "لا توجد وظائف متاحة حالياً",
   "courseTitle": "الدورة",
   "coursesEmpty": "لا توجد دورات بعد",
@@ -655,9 +1841,24 @@
   "assistantHint": "اكتب سؤالك…",
   "assistantStubNotice": "المساعد غير مفعّل بعد — أسئلتك محفوظة وسيصلك الرد فور تفعيل الخدمة.",
   "courseLectureCount": "{count} محاضرة",
-  "@courseLectureCount": { "placeholders": { "count": { "type": "String" } } },
+  "@courseLectureCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseLectureOf": "{current} من {total}",
-  "@courseLectureOf": { "placeholders": { "current": { "type": "String" }, "total": { "type": "String" } } },
+  "@courseLectureOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "courseLecturesSection": "المحاضرات",
   "courseLecturesEmpty": "لم تُضف محاضرات لهذه الدورة بعد",
   "courseLectureLocked": "أكمل المحاضرة السابقة أولاً",
@@ -666,7 +1867,13 @@
   "courseLectureMarkedDone": "تم تحديد المحاضرة كمكتملة",
   "coursePlayerError": "تعذّر تشغيل الفيديو",
   "courseLectureMinutes": "{minutes} دقيقة",
-  "@courseLectureMinutes": { "placeholders": { "minutes": { "type": "String" } } },
+  "@courseLectureMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionTitle": "الاشتراك",
   "subscriptionLockedTitle": "هذا القسم متاح للمشتركين",
   "subscriptionLockedBody": "اشترك للوصول إلى الدورات والمكتبة الهندسية والشؤون القانونية وأدواتك الشخصية.",
@@ -687,16 +1894,34 @@
   "subscriptionKeep": "تراجع",
   "subscriptionTrialBadge": "تجربة مجانية",
   "subscriptionTrialEndsIn": "تنتهي تجربتك المجانية بعد {days} يوماً",
-  "@subscriptionTrialEndsIn": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionTrialEndsIn": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionExpiresIn": "ينتهي بعد {days} يوماً",
-  "@subscriptionExpiresIn": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionExpiresIn": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionEndsToday": "ينتهي اليوم",
   "billingCycleMonthly": "شهري",
   "billingCycleAnnual": "سنوي",
   "billingPerMonth": "شهرياً",
   "billingPerYear": "سنوياً",
-  "billingSave": "وفّر {percent}٪",
-  "@billingSave": { "placeholders": { "percent": { "type": "String" } } },
+  "billingSave": "وفّر {percent}%",
+  "@billingSave": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionCycleUnavailable": "غير متاح على هذه الباقة",
   "subscriptionChangeAction": "تغيير الباقة",
   "subscriptionChangeTitle": "تغيير الباقة",
@@ -712,12 +1937,24 @@
   "subscriptionChangeCreditAmount": "محتسب من باقتك الحالية",
   "subscriptionChangeNoExtraCost": "بدون رسوم إضافية",
   "subscriptionChangeKeepsDate": "لا يتغيّر موعد انتهاء اشتراكك — متبقٍ {days} يوماً",
-  "@subscriptionChangeKeepsDate": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionChangeKeepsDate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionChangeImmediateNotice": "يبدأ التغيير فوراً، ويُحتسب الفرق على فاتورتك القادمة.",
   "subscriptionChangeDowngradeNotice": "ستفقد مزايا باقتك الحالية فور التأكيد، ولا يوجد استرداد للمبلغ المدفوع.",
   "subscriptionChangeDone": "تم تغيير باقتك",
   "subscriptionPerDays": "لكل {days} يوماً",
-  "@subscriptionPerDays": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionPerDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "courseLevelBeginner": "مبتدئ",
   "courseLevelIntermediate": "متوسط",
   "courseLevelAdvanced": "متقدم",
@@ -727,12 +1964,33 @@
   "courseLockedBody": "اشترك لفتح هذا القسم من الدورات. يمكنك مشاهدة المحاضرة الأولى مجاناً قبل ذلك.",
   "courseSubscribeToOpen": "اعرض خطط الاشتراك",
   "courseHours": "{hours} ساعة",
-  "@courseHours": { "placeholders": { "hours": { "type": "String" } } },
+  "@courseHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
   "courseEnrolledCount": "{count} ملتحق",
-  "@courseEnrolledCount": { "placeholders": { "count": { "type": "String" } } },
+  "@courseEnrolledCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseNoRatings": "لا توجد تقييمات بعد",
   "courseRatingOf": "{rating} ({count})",
-  "@courseRatingOf": { "placeholders": { "rating": { "type": "String" }, "count": { "type": "String" } } },
+  "@courseRatingOf": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseAbout": "عن الدورة",
   "courseOutcomes": "ما ستتعلمه",
   "courseRequirements": "المتطلبات",
@@ -748,7 +2006,7 @@
   "lessonOpenPdf": "فتح الملف",
   "lessonPdfFailed": "تعذّر فتح الملف",
   "coursesFilterAll": "الكل",
-  "coursesFilterFree": "المجانية",
+  "coursesFilterFree": "المتاحة لي",
   "planIncludes": "تشمل الخطة",
   "featureTheoryCourses": "الدورات النظرية",
   "featurePracticalCourses": "الدورات العملية",
@@ -757,9 +2015,40 @@
   "featureLegalAffairs": "الشؤون القانونية والاستشارات",
   "documentLocked": "يتطلب اشتراكاً",
   "subscriptionInvoiceNumber": "فاتورة رقم {number}",
-  "@subscriptionInvoiceNumber": { "placeholders": { "number": { "type": "String" } } },
+  "@subscriptionInvoiceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionAutoRenew": "التجديد التلقائي",
   "subscriptionAutoRenewOn": "سيبدأ اشتراك جديد تلقائياً عند انتهاء المدة الحالية.",
   "subscriptionAutoRenewOff": "سينتهي اشتراكك عند نهاية المدة الحالية ولن يُجدَّد.",
-  "subscriptionAutoRenewSaved": "تم حفظ إعداد التجديد"
+  "subscriptionAutoRenewSaved": "تم حفظ إعداد التجديد",
+  "profileFollowing": "يتابع",
+  "peopleConnectionsTitle": "الاتصالات",
+  "peopleFollowersTitle": "المتابِعون",
+  "peopleFollowingTitle": "المتابَعون",
+  "peopleRemove": "إزالة",
+  "peopleEmpty": "لا أحد هنا بعد",
+  "peopleRemoveConfirm": "إزالة {name} من اتصالاتك؟",
+  "@peopleRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleUnfollowConfirm": "إيقاف متابعة {name}؟",
+  "@peopleUnfollowConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postSuggestedFollowing": "تتابعه",
+  "reelMute": "كتم",
+  "reelUnmute": "تشغيل الصوت"
 }

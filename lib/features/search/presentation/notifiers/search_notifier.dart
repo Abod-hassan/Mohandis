@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_repository_impl.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/repositories/job_repository.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_repository_impl.dart';
+import 'package:mohandis/features/jobs/domain/entities/job.dart';
+import 'package:mohandis/features/jobs/domain/repositories/job_repository.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../data/repositories/search_repository_impl.dart';
 import '../../domain/entities/search_results.dart';
@@ -80,15 +81,33 @@ final searchResultsProvider =
   return result.when(success: (results) => results, failure: (e) => throw e);
 });
 
-/// The People tab — the paged `Profiles` slice. An empty query falls back to
-/// the directory so the tab always has something to show.
+/// Which kind of account the people tab shows — one chip per kind (مهندس،
+/// شركة، مقاول، حرفي، صاحب آلية) stands in for a single "people" chip.
+/// Meaningful only while [searchTabProvider] is [SearchTab.people].
+final searchAccountTypeProvider = StateProvider.autoDispose<AccountType>(
+  (ref) => AccountType.individual,
+);
+
+/// The people tab, for the kind in [searchAccountTypeProvider] — the paged
+/// `Profiles` slice. An empty query falls back to the directory so the tab
+/// always has something to show.
 final searchPeopleProvider =
     FutureProvider.autoDispose<List<Person>>((ref) async {
   final query = ref.watch(debouncedSearchQueryProvider).trim();
+  final type = ref.watch(searchAccountTypeProvider);
   final result = query.isEmpty
-      ? await ref.watch(peopleRepositoryProvider).search(query)
-      : await ref.watch(searchRepositoryProvider).people(query);
-  return result.when(success: (people) => people, failure: (e) => throw e);
+      ? await ref.watch(peopleRepositoryProvider).search(query, accountType: type)
+      : await ref.watch(searchRepositoryProvider).people(query, accountType: type);
+  return result.when(
+    // Filtered here too: a server that predates the `accountType` filter
+    // ignores it and answers with every kind, which would put companies under
+    // «حرفي». Costs nothing when the server already did it.
+    success: (people) => [
+      for (final p in people)
+        if (p.accountType == type) p,
+    ],
+    failure: (e) => throw e,
+  );
 });
 
 /// The Tags tab — trending until there is something to match against.

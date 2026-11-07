@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/post.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/widgets/post_card.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/posts/domain/entities/post.dart';
+import 'package:mohandis/features/posts/presentation/widgets/post_card.dart';
+import 'package:mohandis/features/posts/presentation/widgets/post_options_sheet.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../notifiers/profile_activity_notifier.dart';
 
@@ -48,6 +49,9 @@ class ActivityPostCard extends ConsumerWidget {
     // looking at their own profile, where the inlined copy goes stale the
     // moment they change their photo.
     final author = resolveAuthor(ref, post.authorId, post.author);
+    // In build, so the options sheet knows whose post this is the first time it
+    // is opened — see the note in feed_screen.
+    final myId = ref.watch(currentPersonProvider).valueOrNull?.id;
 
     return PostCard(
       post: post,
@@ -74,6 +78,14 @@ class ActivityPostCard extends ConsumerWidget {
               if (!context.mounted || !ok) return;
               showRungToast(context, l10n.toastReposted);
             },
+      onMore: () => showPostOptions(
+        context,
+        ref,
+        post: post,
+        isMine: myId != null && myId == post.authorId,
+        onChanged: (updated) => notifier().applyServerPost(updated),
+        onDeleted: () => notifier().removePost(post.id),
+      ),
       onSave: () async {
         final wasSaved = post.saved;
         final ok = await notifier().toggleSave(post.id);

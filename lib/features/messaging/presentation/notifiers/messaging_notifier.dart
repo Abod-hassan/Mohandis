@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/startup/startup_gate.dart';
 
 import '../../data/repositories/messaging_repository_impl.dart';
 import '../../domain/entities/message_thread.dart';
@@ -64,7 +65,14 @@ final threadsNotifierProvider =
 );
 
 /// Total unread messages across every conversation — drives the top-bar dot.
+///
+/// Gated on [startupSettledProvider]. There is no cheap "unread count" endpoint
+/// — the only way to know is to fetch the conversation list — so this cannot be
+/// made smaller, only moved off the launch path. Until the feed has settled,
+/// [threadsNotifierProvider] is not built and `GET /Conversations` is not sent;
+/// the Messages tab builds it on its own when opened.
 final unreadThreadCountProvider = Provider<int>((ref) {
+  if (!ref.watch(startupSettledProvider)) return 0;
   final threads = ref.watch(threadsNotifierProvider).valueOrNull;
   if (threads == null) return 0;
   return threads.fold<int>(0, (sum, t) => sum + t.unreadCount);

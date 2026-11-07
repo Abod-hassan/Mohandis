@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/activity/presentation/notifiers/activity_notifier.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/activity/presentation/notifiers/activity_notifier.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
-import 'package:flutter_mobile_template/features/subscription/domain/entities/subscription_entities.dart';
-import 'package:flutter_mobile_template/features/subscription/presentation/notifiers/subscription_notifier.dart';
-import 'package:flutter_mobile_template/features/subscription/presentation/widgets/subscription_gate.dart';
+import 'package:mohandis/features/subscription/domain/entities/subscription_entities.dart';
+import 'package:mohandis/features/subscription/presentation/notifiers/subscription_notifier.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
 import '../notifiers/dashboard_notifier.dart';
@@ -36,39 +35,40 @@ class DashboardScreen extends ConsumerWidget {
         child: Column(
           children: [
             const _DashboardHeader(),
-            // The header stays outside the gate: it is the tab's identity, and
-            // a paywall that replaced the whole screen would leave someone
-            // unsure they were still where they thought they were.
+            // NO whole-screen paywall. The panel is open to everyone: the
+            // sections that need a subscription carry their own padlock and
+            // send a tap to `/subscription`, which is a far better answer than
+            // a wall where a screen should be — somebody who cannot see what
+            // is behind a door has no reason to pay for the key.
             Expanded(
-              child: SubscriptionGate(
-                child: Column(
-                  children: [
-                    const _SubscriptionStrip(),
-                    Expanded(
-                      child: summary.when(
-                        loading: () => const LoadingView(),
-                        error: (e, _) => ErrorView(
-                          error: e,
-                          onRetry: () => ref
+              child: Column(
+                children: [
+                  const _SubscriptionStrip(),
+                  Expanded(
+                    child: summary.when(
+                      loading: () => const TileGridSkeleton(),
+                      error: (e, _) => ErrorView(
+                        error: e,
+                        onRetry: () => ref
+                            .read(dashboardNotifierProvider.notifier)
+                            .refresh(),
+                      ),
+                      data: (data) => RefreshIndicator(
+                        onRefresh: () async {
+                          // The subscription too, not just the numbers: a pull
+                          // is how somebody whose subscription was just
+                          // approved finds out, and nothing pushes at the
+                          // client.
+                          ref.read(subscriptionProvider.notifier).refresh();
+                          await ref
                               .read(dashboardNotifierProvider.notifier)
-                              .refresh(),
-                        ),
-                        data: (data) => RefreshIndicator(
-                          onRefresh: () async {
-                            // The gate too, not just the numbers: a pull is how
-                            // somebody whose subscription was just approved
-                            // finds out, and nothing pushes at the client.
-                            ref.read(subscriptionProvider.notifier).refresh();
-                            await ref
-                                .read(dashboardNotifierProvider.notifier)
-                                .refresh();
-                          },
-                          child: _Body(summary: data),
-                        ),
+                              .refresh();
+                        },
+                        child: _Body(summary: data),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -106,8 +106,13 @@ class _SubscriptionStrip extends ConsumerWidget {
           : l10n.subscriptionExpiresIn(
               ArabicNumbers.plain(current.daysRemaining),
             );
-    } else {
+    } else if (state.hasAccess) {
       text = l10n.subscriptionManage;
+    } else {
+      // Nothing running. The strip is the one line on an open panel that says
+      // why half of it is padlocked, so it asks rather than offering to
+      // "manage" a subscription this person does not have.
+      text = l10n.subscriptionLockedBody;
     }
 
     final tint = trial ? c.amber : c.accent;
@@ -172,6 +177,7 @@ class _DashboardHeader extends ConsumerWidget {
             child: RungAvatar(
               seed: me?.id ?? 'me',
               initials: me?.initials ?? '—',
+              icon: me?.accountType.icon,
               imageUrl: ref.watch(imageUrlResolverProvider)(me?.avatarUrl),
               size: 44,
             ),
@@ -216,15 +222,85 @@ class _DashboardHeader extends ConsumerWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerWidget {
   const _Body({required this.summary});
 
   final DashboardSummary summary;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.rung;
     final l10n = context.l10n;
+    final subscription = ref.watch(subscriptionProvider).valueOrNull;
+
+    // Whether to offer the teaching row at all. Defaults to NOT offering it
+    // while the profile is still loading: a row that appears a second late is
+    // a smaller mistake than one that appears and then fails on save.
+    final canTeach =
+        ref.watch(currentPersonProvider).valueOrNull?.canPublishCourses ?? false;
+
+    /// A row for a section this viewer may not open: padlock instead of the
+    /// badge, and a tap goes to the paywall rather than to a screen that would
+    /// answer 402. Fails OPEN when the subscription state is unknown — the
+    /// server checks every route anyway, and locking a subscriber out because
+    /// one request failed is the worse mistake.
+    Widget section({
+      required IconData icon,
+      required Color iconColor,
+      required Color iconBackground,
+      required String title,
+      required String subtitle,
+      required PlanFeature feature,
+      required String route,
+      Widget? badge,
+      bool enabled = true,
+    }) {
+      // A section that is not live yet ("coming soon") is not a section to
+      // sell: unavailability wins, so the row keeps its own badge and stays
+      // inert rather than inviting somebody to pay for an empty shelf.
+      final locked =
+          enabled && subscription != null && !subscription.allows(feature);
+      return RungNavRow(
+        icon: locked ? Icons.lock_outline_rounded : icon,
+        iconColor: locked ? c.ink3 : iconColor,
+        iconBackground: locked ? c.surface3 : iconBackground,
+        title: title,
+        subtitle: locked ? l10n.dashboardSectionLocked : subtitle,
+        badge: locked ? null : badge,
+        enabled: enabled,
+        onTap: () => context.push(locked ? '/subscription' : route),
+      );
+    }
+
+    /// A row for a TOOL rather than a shelf — the assistant, the notes.
+    ///
+    /// Gated on holding a subscription at all, not on a [PlanFeature]: the
+    /// plans sell named sections and these are not among them. Without this
+    /// they were the two rows in the panel that a non-subscriber could open,
+    /// which made the lock on everything around them look arbitrary.
+    Widget tool({
+      required IconData icon,
+      required Color iconColor,
+      required Color iconBackground,
+      required String title,
+      required String subtitle,
+      required String route,
+      Widget? titleSuffix,
+    }) {
+      // Fails OPEN while the subscription state is unknown, exactly like
+      // `section` — the server checks every route anyway, and shutting a
+      // subscriber out because one request failed is the worse mistake.
+      final locked = subscription != null && !subscription.opensPanelTools;
+      return RungNavRow(
+        icon: locked ? Icons.lock_outline_rounded : icon,
+        iconColor: locked ? c.ink3 : iconColor,
+        iconBackground: locked ? c.surface3 : iconBackground,
+        title: title,
+        subtitle: locked ? l10n.dashboardSectionLocked : subtitle,
+        titleSuffix: locked ? null : titleSuffix,
+        onTap: () => context.push(locked ? '/subscription' : route),
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.only(bottom: RungSpace.lg),
@@ -282,6 +358,11 @@ class _Body extends StatelessWidget {
         RungSectionLabel(l10n.dashboardSectionLearning),
         RungGroupedCard(
           children: [
+            // The three catalogues are the ONE thing a non-subscriber may
+            // walk into. Not generosity: every course inside carries its own
+            // padlock, and a locked list somebody can browse is what gives
+            // them a reason to subscribe. A locked ROW shows them nothing to
+            // want.
             RungNavRow(
               icon: Icons.menu_book_outlined,
               iconColor: c.accent,
@@ -309,78 +390,78 @@ class _Body extends StatelessWidget {
               badge: _NewBadge(count: summary.newTrainingCount),
               onTap: () => context.push('/panel/courses/training'),
             ),
+
+            // The teaching side of the catalogue. A plain row, NOT `section`:
+            // the three above are things a plan buys, and writing a course is
+            // not one of them — gating the author's own shelf behind the
+            // subscription would be charging somebody for the right to sell.
+            //
+            // Hidden from the kinds the server refuses a course from: a
+            // مقاول, حرفي or صاحب آلية tapping this would reach an empty list
+            // and a save that fails, which is worse than not offering it.
+            if (canTeach)
+              RungNavRow(
+                icon: Icons.cast_for_education_outlined,
+                iconColor: c.green,
+                iconBackground: c.greenSoft,
+                title: l10n.dashboardTeach,
+                subtitle: l10n.dashboardTeachSubtitle,
+                onTap: () => context.push('/panel/courses/mine'),
+              ),
           ],
         ),
         RungSectionLabel(l10n.dashboardSectionServices),
         RungGroupedCard(
           children: [
-            RungNavRow(
-              icon: Icons.smart_toy_outlined,
-              iconColor: c.accent,
-              iconBackground: c.accentSoft,
-              title: l10n.dashboardEngy,
-              subtitle: l10n.dashboardEngySubtitle,
-              titleSuffix: _AiTag(label: l10n.dashboardEngyBadge),
-              onTap: () => context.push('/panel/assistant'),
-            ),
-            RungNavRow(
+            // المهندسة إنجي is hidden until the assistant answers: the
+            // service stores questions but has no model behind it yet, and an
+            // "AI assistant" that replies "not activated" is a placeholder
+            // feature (App Store guideline 2.1). The route stays for when it
+            // is wired up.
+            section(
               icon: Icons.support_agent_outlined,
               iconColor: c.green,
               iconBackground: c.greenSoft,
               title: l10n.dashboardLegalRequest,
               subtitle: l10n.dashboardLegalRequestSubtitle,
-              onTap: () => context.push('/panel/legal-requests'),
+              feature: PlanFeature.legalAffairs,
+              route: '/panel/legal-requests',
             ),
-            RungNavRow(
+            section(
               icon: Icons.gavel_outlined,
               iconColor: c.amber,
               iconBackground: c.amberSoft,
               title: l10n.dashboardLegalAffairs,
               subtitle: l10n.dashboardLegalAffairsSubtitle,
-              onTap: () => context.push('/panel/documents/legal-affairs'),
+              feature: PlanFeature.legalAffairs,
+              route: '/panel/documents/legal-affairs',
             ),
           ],
         ),
         RungSectionLabel(l10n.dashboardSectionTools),
         RungGroupedCard(
           children: [
-            RungNavRow(
+            tool(
               icon: Icons.description_outlined,
               iconColor: c.amber,
               iconBackground: c.amberSoft,
               title: l10n.dashboardNotes,
               subtitle: l10n.dashboardNotesSubtitle,
-              onTap: () => context.push('/panel/notes'),
+              route: '/panel/notes',
             ),
-            RungNavRow(
-              icon: Icons.local_library_outlined,
-              iconColor: c.ink3,
-              iconBackground: c.surface3,
-              title: l10n.dashboardLibrary,
-              subtitle: l10n.dashboardLibrarySubtitle,
-              enabled: summary.libraryAvailable,
-              badge: summary.libraryAvailable
-                  ? null
-                  : Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: c.surface3,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        l10n.comingSoon,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: c.ink3,
-                        ),
-                      ),
-                    ),
-              onTap: () => context.push('/panel/documents/library'),
-            ),
+            // Only when the library has documents. It used to stay on the
+            // list greyed out with a "coming soon" badge, which is a
+            // placeholder feature (App Store guideline 2.1).
+            if (summary.libraryAvailable)
+              section(
+                icon: Icons.local_library_outlined,
+                iconColor: c.ink3,
+                iconBackground: c.surface3,
+                title: l10n.dashboardLibrary,
+                subtitle: l10n.dashboardLibrarySubtitle,
+                feature: PlanFeature.library,
+                route: '/panel/documents/library',
+              ),
           ],
         ),
       ],

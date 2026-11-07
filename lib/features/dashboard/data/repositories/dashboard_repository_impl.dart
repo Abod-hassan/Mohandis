@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
 import '../../domain/repositories/dashboard_repository.dart';

@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 import '../../domain/entities/activity_notification.dart';
 
@@ -22,6 +22,7 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
     this.text = '',
     this.isRead = false,
     this.actionable = false,
+    this.isFollowRequest = false,
   });
 
   factory ActivityNotificationDto.fromJson(Map<String, dynamic> json) {
@@ -39,15 +40,17 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
       text: '${json['text'] ?? ''}',
       isRead: json['isRead'] == true,
       createdAt: PostDto.parseDate(json['createdAt']),
-      // Only a CONNECTION request gets accept/ignore buttons. A follow
-      // request looks the same to the reader but is resolved by
-      // `Profiles/AcceptRequest`, a different flow the centre does not run —
-      // those rows stay a plain tap through to the profile.
-      //
-      // Nothing on the row says whether the request is still pending: once it
-      // has been answered elsewhere the buttons remain, and accepting again
-      // comes back as a rejected request rather than a duplicate connection.
-      actionable: _wireName(rawType) == 'connectionrequest',
+      // The server says whether the request is STILL pending (`isActionable`,
+      // computed from the live follow row). Deciding from the type alone is
+      // what kept Accept buttons on requests already answered from another
+      // device — and pressing one came back as a red "Request not found."
+      // An older server without the field falls back to the type. It says
+      // `followrequest`, not `connectionrequest`: connection rows are dropped
+      // by [isHidden], so a connection fallback could never light up a row.
+      actionable: json.containsKey('isActionable')
+          ? json['isActionable'] == true
+          : _wireName(rawType) == 'followrequest',
+      isFollowRequest: _wireName(rawType) == 'followrequest',
     );
   }
 
@@ -69,6 +72,7 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
   final bool isRead;
   final DateTime createdAt;
   final bool actionable;
+  final bool isFollowRequest;
 
   @override
   ActivityNotification toDomain() => ActivityNotification(
@@ -82,6 +86,7 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
     createdAt: createdAt,
     unread: !isRead,
     actionable: actionable,
+    isFollowRequest: isFollowRequest,
   );
 
   @override
@@ -121,6 +126,8 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
     'share',
     'incomingcall',
     'missedcall',
+    'storylike',
+    'reelcomment',
   ];
 
   /// Normalises either spelling of the enum to a lower-case name. An ordinal
@@ -133,7 +140,18 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
     return '$raw'.toLowerCase();
   }
 
-  /// Maps the module's fourteen kinds onto the ten the centre renders.
+  /// Whether this build shows the row at all.
+  ///
+  /// Connections were withdrawn from the app — following is the only
+  /// relationship it has — so the two connection kinds are dropped at the edge
+  /// rather than rendered as rows whose buttons lead nowhere. The server still
+  /// writes them for anything else reading its inbox.
+  static bool isHidden(Object? rawType) {
+    final wire = _wireName(rawType);
+    return wire == 'connectionrequest' || wire == 'connectionaccepted';
+  }
+
+  /// Maps the module's sixteen kinds onto the twelve the centre renders.
   ///
   /// The buckets are chosen so nothing is dropped: a reply reads as a comment,
   /// an accepted follow reads like an accepted connection, and both call kinds
@@ -152,6 +170,8 @@ class ActivityNotificationDto implements BaseDto<ActivityNotification> {
       'jobapplication' => ActivityType.job,
       'share' => ActivityType.share,
       'incomingcall' || 'missedcall' => ActivityType.call,
+      'storylike' => ActivityType.storyLike,
+      'reelcomment' => ActivityType.reelComment,
       _ => ActivityType.other,
     };
   }

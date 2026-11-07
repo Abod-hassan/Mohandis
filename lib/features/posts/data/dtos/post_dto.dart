@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
 
 import '../../domain/entities/post.dart';
 
@@ -19,6 +19,7 @@ class PostDto implements BaseDto<Post> {
     this.authorUsername,
     this.authorAvatarUrl,
     this.authorIsVerified = false,
+    this.authorIsSubscribed = false,
     this.media = const [],
     this.likeCount = 0,
     this.commentCount = 0,
@@ -29,6 +30,7 @@ class PostDto implements BaseDto<Post> {
     this.isShared = false,
     this.sharedPostId,
     this.sharedPost,
+    this.poll,
   });
 
   factory PostDto.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class PostDto implements BaseDto<Post> {
       authorUsername: json['authorUsername'] as String?,
       authorAvatarUrl: json['authorAvatarUrl'] as String?,
       authorIsVerified: json['authorIsVerified'] == true,
+      authorIsSubscribed: json['authorIsSubscribed'] == true,
       createdAt: parseDate(json['createdAt']),
       visibility: visibilityFromWire(json['visibility']),
       content: '${json['content'] ?? ''}',
@@ -52,7 +55,10 @@ class PostDto implements BaseDto<Post> {
       isSaved: json['isSaved'] == true,
       isShared: json['isShared'] == true,
       sharedPostId: json['sharedPostId'] as String?,
-      sharedPost: shared is Map<String, dynamic> ? quotedFrom(shared) : null,
+      sharedPost: shared is Map<String, dynamic>
+          ? quotedFrom(shared, fallbackId: json['sharedPostId'] as String?)
+          : null,
+      poll: pollFrom(json['poll']),
     );
   }
 
@@ -62,6 +68,7 @@ class PostDto implements BaseDto<Post> {
   final String? authorUsername;
   final String? authorAvatarUrl;
   final bool authorIsVerified;
+  final bool authorIsSubscribed;
   final DateTime createdAt;
   final PostVisibility visibility;
   final String content;
@@ -81,6 +88,7 @@ class PostDto implements BaseDto<Post> {
 
   final String? sharedPostId;
   final QuotedPost? sharedPost;
+  final Poll? poll;
 
   @override
   Post toDomain() => Post(
@@ -89,6 +97,7 @@ class PostDto implements BaseDto<Post> {
     authorName: authorName,
     authorAvatarUrl: authorAvatarUrl,
     authorVerified: authorIsVerified,
+    authorSubscribed: authorIsSubscribed,
     createdAt: createdAt,
     visibility: visibility,
     text: content,
@@ -103,6 +112,8 @@ class PostDto implements BaseDto<Post> {
     reposted: isShared,
     quoted: sharedPost,
     repostedById: sharedPost != null ? authorId : null,
+    sharedPostId: sharedPostId,
+    poll: poll,
   );
 
   @override
@@ -125,6 +136,34 @@ class PostDto implements BaseDto<Post> {
   };
 
   // ── Wire helpers, shared with FeedItemDto ────────────────────────────────
+
+  /// `PollDto` off the wire, or null when the post has no poll.
+  static Poll? pollFrom(Object? raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    final id = '${raw['id'] ?? ''}';
+    if (id.isEmpty) return null;
+    final options = raw['options'];
+    final mine = '${raw['myOptionId'] ?? ''}';
+    return Poll(
+      id: id,
+      options: [
+        if (options is List)
+          for (final o in options.whereType<Map<String, dynamic>>())
+            PollOption(
+              id: '${o['id'] ?? ''}',
+              text: '${o['text'] ?? ''}',
+              votes: asInt(o['votes']),
+            ),
+      ],
+      totalVotes: asInt(raw['totalVotes']),
+      myOptionId:
+          mine.isEmpty || mine == '00000000-0000-0000-0000-000000000000'
+          ? null
+          : mine,
+      endsAt: parseDate(raw['endsAt']),
+      isClosed: raw['isClosed'] == true,
+    );
+  }
 
   /// `PostVisibilityEnum` — `0` public, `1` followers, `2` private.
   ///
@@ -177,8 +216,15 @@ class PostDto implements BaseDto<Post> {
   }
 
   /// Builds the quote embed from a `PostSimplifiedDto` (`sharedPost`).
-  static QuotedPost quotedFrom(Map<String, dynamic> json) => QuotedPost(
-    id: '${json['id'] ?? ''}',
+  ///
+  /// [fallbackId] is the row's own `sharedPostId`: the embed is the only way
+  /// to open the original, so it must carry an id even if the projection
+  /// ever arrives without one.
+  static QuotedPost quotedFrom(
+    Map<String, dynamic> json, {
+    String? fallbackId,
+  }) => QuotedPost(
+    id: '${json['id'] ?? fallbackId ?? ''}',
     authorId: '${json['authorId'] ?? ''}',
     authorName: '${json['authorName'] ?? ''}',
     authorAvatarUrl: json['authorAvatarUrl'] as String?,
@@ -295,6 +341,7 @@ class FeedItemDto {
     this.title,
     this.companyName,
     this.boostId,
+    this.poll,
   });
 
   factory FeedItemDto.fromJson(Map<String, dynamic> json) => FeedItemDto(
@@ -316,7 +363,10 @@ class FeedItemDto {
     isSaved: json['isSaved'] == true,
     isShared: json['isShared'] == true,
     sharedPost: json['sharedPost'] is Map<String, dynamic>
-        ? PostDto.quotedFrom(json['sharedPost'] as Map<String, dynamic>)
+        ? PostDto.quotedFrom(
+            json['sharedPost'] as Map<String, dynamic>,
+            fallbackId: json['sharedPostId'] as String?,
+          )
         : null,
     seen: json['seen'] == true,
     createdAt: json['createdAt'] == null
@@ -325,6 +375,7 @@ class FeedItemDto {
     title: json['title'] as String?,
     companyName: json['companyName'] as String?,
     boostId: (json['boostId'] as num?)?.toInt(),
+    poll: PostDto.pollFrom(json['poll']),
   );
 
   /// `0` post, `1` repost, `2` reel, `3` job, `4` ad.
@@ -364,6 +415,8 @@ class FeedItemDto {
   /// Ad rows only.
   final int? boostId;
 
+  final Poll? poll;
+
   /// Whether this row can be rendered as a [Post].
   ///
   /// The feed also carries reels, job cards and ads. Those need their own
@@ -394,6 +447,7 @@ class FeedItemDto {
     // FanoutWrite, FanoutRead, Ad — all mean somebody the viewer chose, or an
     // ad, which carries its own labelling.
     suggested: source == 'Recommendation',
+    poll: poll,
   );
 }
 

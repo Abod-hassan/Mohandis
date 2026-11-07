@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Product name shown in the OS task switcher.
   ///
   /// In ar, this message translates to:
-  /// **'رنق'**
+  /// **'مهندس'**
   String get appTitle;
 
   /// No description provided for @actionRetry.
@@ -224,42 +224,6 @@ abstract class AppLocalizations {
   /// **'ابنِ ملفك المهني، وسّع شبكتك، شارك أعمالك، واعثر على دورك المهني القادم — في مكان واحد هادئ واحترافي.'**
   String get authHeroBody;
 
-  /// No description provided for @authStatProfessionalsValue.
-  ///
-  /// In ar, this message translates to:
-  /// **'+١٢ مليون'**
-  String get authStatProfessionalsValue;
-
-  /// No description provided for @authStatProfessionalsLabel.
-  ///
-  /// In ar, this message translates to:
-  /// **'مختص'**
-  String get authStatProfessionalsLabel;
-
-  /// No description provided for @authStatJobsValue.
-  ///
-  /// In ar, this message translates to:
-  /// **'٢٤٠ ألف'**
-  String get authStatJobsValue;
-
-  /// No description provided for @authStatJobsLabel.
-  ///
-  /// In ar, this message translates to:
-  /// **'وظيفة شاغرة'**
-  String get authStatJobsLabel;
-
-  /// No description provided for @authStatTrustValue.
-  ///
-  /// In ar, this message translates to:
-  /// **'٩٨٪'**
-  String get authStatTrustValue;
-
-  /// No description provided for @authStatTrustLabel.
-  ///
-  /// In ar, this message translates to:
-  /// **'درجة الثقة'**
-  String get authStatTrustLabel;
-
   /// No description provided for @authGetStarted.
   ///
   /// In ar, this message translates to:
@@ -299,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @authTerms.
   ///
   /// In ar, this message translates to:
-  /// **'بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة برنق'**
+  /// **'بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بمهندس'**
   String get authTerms;
 
   /// No description provided for @authWelcomeBack.
@@ -335,7 +299,7 @@ abstract class AppLocalizations {
   /// No description provided for @navNetwork.
   ///
   /// In ar, this message translates to:
-  /// **'شبكتي'**
+  /// **'الاشخاص'**
   String get navNetwork;
 
   /// No description provided for @topBarSearchHint.
@@ -743,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @networkTitle.
   ///
   /// In ar, this message translates to:
-  /// **'شبكتي'**
+  /// **'الاشخاص'**
   String get networkTitle;
 
   /// No description provided for @networkRequests.
@@ -773,7 +737,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchHint.
   ///
   /// In ar, this message translates to:
-  /// **'ابحث في رنق'**
+  /// **'ابحث في مهندس'**
   String get searchHint;
 
   /// No description provided for @searchTabTop.
@@ -1337,7 +1301,7 @@ abstract class AppLocalizations {
   /// No description provided for @authUserName.
   ///
   /// In ar, this message translates to:
-  /// **'اسم المستخدم'**
+  /// **'معرف المستخدم'**
   String get authUserName;
 
   /// Helper text under the username field at sign-up.
@@ -1433,14 +1397,140 @@ abstract class AppLocalizations {
   /// No description provided for @authPasswordTooShort.
   ///
   /// In ar, this message translates to:
-  /// **'كلمة المرور ٦ أحرف على الأقل'**
+  /// **'كلمة المرور 8 أحرف على الأقل'**
   String get authPasswordTooShort;
 
   /// No description provided for @authUserNameTooShort.
   ///
   /// In ar, this message translates to:
-  /// **'اسم المستخدم ٣ أحرف على الأقل'**
+  /// **'معرف المستخدم 3 أحرف على الأقل'**
   String get authUserNameTooShort;
+
+  /// No description provided for @authChecking.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ التحقق…'**
+  String get authChecking;
+
+  /// No description provided for @authAvailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'متاح'**
+  String get authAvailable;
+
+  /// No description provided for @authUserNameTaken.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا المعرف محجوز، جرّب غيره'**
+  String get authUserNameTaken;
+
+  /// No description provided for @authPhoneTaken.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الرقم مسجّل بحساب آخر'**
+  String get authPhoneTaken;
+
+  /// No description provided for @authPhoneHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'7701234567'**
+  String get authPhoneHint;
+
+  /// No description provided for @authSessionExpired.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.'**
+  String get authSessionExpired;
+
+  /// No description provided for @authPasswordWeak.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف رقمًا وحرفًا كبيرًا وحرفًا صغيرًا'**
+  String get authPasswordWeak;
+
+  /// No description provided for @authEmail.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني'**
+  String get authEmail;
+
+  /// No description provided for @authEmailOptional.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني (اختياري)'**
+  String get authEmailOptional;
+
+  /// No description provided for @authEmailHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'name@example.com'**
+  String get authEmailHint;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل بريدًا إلكترونيًا صحيحًا'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authEmailTaken.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا البريد مسجّل بحساب آخر'**
+  String get authEmailTaken;
+
+  /// No description provided for @authVerifyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد رقم هاتفك'**
+  String get authVerifyTitle;
+
+  /// Shown when the verify screen opens with no draft to verify.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت جلسة التسجيل. ابدأ من جديد.'**
+  String get authVerifyNoDraft;
+
+  /// No description provided for @authVerifyRestart.
+  ///
+  /// In ar, this message translates to:
+  /// **'البدء من جديد'**
+  String get authVerifyRestart;
+
+  /// Explains why there is no e-mail option on the sign-up code screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكنك تأكيد بريدك الإلكتروني بعد إنشاء الحساب لتفعيل التحقق بخطوتين.'**
+  String get authVerifyEmailLater;
+
+  /// No description provided for @authVerifyCodeTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز التأكيد'**
+  String get authVerifyCodeTitle;
+
+  /// No description provided for @authVerifyResend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة الإرسال'**
+  String get authVerifyResend;
+
+  /// No description provided for @authVerifyConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد'**
+  String get authVerifyConfirm;
+
+  /// No description provided for @authVerifyNoCode.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يصلك الرمز؟'**
+  String get authVerifyNoCode;
+
+  /// No description provided for @authVerifySentTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسلنا رمزًا من 6 أرقام إلى'**
+  String get authVerifySentTo;
 
   /// No description provided for @authPhoneInvalid.
   ///
@@ -1549,6 +1639,2232 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'يظهر شارة على ملفك'**
   String get setupOpenToWorkSubtitle;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسيت كلمة المرور؟'**
+  String get authForgotPassword;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة كلمة المرور'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر طريقة استلام رمز التحقق، ثم عيّن كلمة مرور جديدة.'**
+  String get forgotIntro;
+
+  /// No description provided for @forgotSend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال الرمز'**
+  String get forgotSend;
+
+  /// No description provided for @forgotNoAccountPhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد حساب بهذا الرقم. تحقق منه أو أنشئ حسابًا جديدًا.'**
+  String get forgotNoAccountPhone;
+
+  /// Only a CONFIRMED e-mail identifies an account, so an unconfirmed one reads as no account.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد حساب مؤكَّد بهذا البريد. جرّب رقم هاتفك.'**
+  String get forgotNoAccountEmail;
+
+  /// No description provided for @forgotChangeTarget.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الرقم أو البريد'**
+  String get forgotChangeTarget;
+
+  /// No description provided for @forgotLeaveTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء استعادة كلمة المرور؟'**
+  String get forgotLeaveTitle;
+
+  /// No description provided for @forgotLeaveBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'لن تتغيّر كلمة المرور وسيتم تسجيل خروجك. ستحتاج إلى رمز تحقق جديد للمحاولة مرة أخرى.'**
+  String get forgotLeaveBody;
+
+  /// No description provided for @forgotLeaveConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الاستعادة'**
+  String get forgotLeaveConfirm;
+
+  /// No description provided for @forgotSetTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة مرور جديدة'**
+  String get forgotSetTitle;
+
+  /// No description provided for @forgotSetSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر كلمة مرور لا تستخدمها في مكان آخر.'**
+  String get forgotSetSubtitle;
+
+  /// No description provided for @forgotNewPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الجديدة'**
+  String get forgotNewPassword;
+
+  /// No description provided for @forgotConfirmPassword.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد كلمة المرور'**
+  String get forgotConfirmPassword;
+
+  /// No description provided for @forgotPasswordMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمتا المرور غير متطابقتين'**
+  String get forgotPasswordMismatch;
+
+  /// No description provided for @forgotSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ كلمة المرور'**
+  String get forgotSave;
+
+  /// No description provided for @forgotDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تغيير كلمة المرور ✅'**
+  String get forgotDone;
+
+  /// No description provided for @setupCareerTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيرتك المهنية'**
+  String get setupCareerTitle;
+
+  /// No description provided for @setupCv.
+  ///
+  /// In ar, this message translates to:
+  /// **'السيرة الذاتية'**
+  String get setupCv;
+
+  /// No description provided for @setupCvOnFile.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفقة'**
+  String get setupCvOnFile;
+
+  /// No description provided for @notificationsFollowApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'وافقت على طلب المتابعة'**
+  String get notificationsFollowApproved;
+
+  /// No description provided for @notificationsRequestHandled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت معالجة هذا الطلب مسبقًا'**
+  String get notificationsRequestHandled;
+
+  /// No description provided for @toastFollowApproved.
+  ///
+  /// In ar, this message translates to:
+  /// **'أصبح {name} يتابعك'**
+  String toastFollowApproved(String name);
+
+  /// No description provided for @activityFollowRequested.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب متابعتك'**
+  String get activityFollowRequested;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخصوصية'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsPrivateAccount.
+  ///
+  /// In ar, this message translates to:
+  /// **'حساب خاص'**
+  String get settingsPrivateAccount;
+
+  /// No description provided for @settingsPrivateAccountOn.
+  ///
+  /// In ar, this message translates to:
+  /// **'منشوراتك تظهر لمتابعيك فقط، وتوافق على كل طلب متابعة جديد'**
+  String get settingsPrivateAccountOn;
+
+  /// No description provided for @settingsPrivateAccountOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكن لأي شخص رؤية منشوراتك ومتابعتك'**
+  String get settingsPrivateAccountOff;
+
+  /// No description provided for @profilePrivateTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الحساب خاص'**
+  String get profilePrivateTitle;
+
+  /// No description provided for @profilePrivateBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'تابِع هذا الحساب لرؤية منشوراته'**
+  String get profilePrivateBody;
+
+  /// No description provided for @profilePrivateRequested.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسل طلب المتابعة، وستظهر المنشورات بعد الموافقة'**
+  String get profilePrivateRequested;
+
+  /// No description provided for @postReplyingTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرد على {name}'**
+  String postReplyingTo(String name);
+
+  /// No description provided for @postCancelReply.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الرد'**
+  String get postCancelReply;
+
+  /// No description provided for @postWriteReply.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب ردًّا…'**
+  String get postWriteReply;
+
+  /// No description provided for @subscriptionApprovedToast.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت الموافقة على اشتراكك وأصبح فعّالًا'**
+  String get subscriptionApprovedToast;
+
+  /// No description provided for @feedRankingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ترتيب المنشورات'**
+  String get feedRankingTitle;
+
+  /// No description provided for @feedRankingSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ إعدادات الترتيب'**
+  String get feedRankingSaved;
+
+  /// No description provided for @feedRankingIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحدد هذه الأوزان كيف يرتّب التطبيق منشورات الصفحة الرئيسية لكل المستخدمين. الأوزان نسبية: المهم هو النسبة بينها. تسري التغييرات على الصفحات التي تُحمَّل بعد الحفظ.'**
+  String get feedRankingIntro;
+
+  /// No description provided for @feedRankingWeights.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأوزان'**
+  String get feedRankingWeights;
+
+  /// No description provided for @feedRankingAdvanced.
+  ///
+  /// In ar, this message translates to:
+  /// **'متقدم'**
+  String get feedRankingAdvanced;
+
+  /// No description provided for @feedRankingAffinity.
+  ///
+  /// In ar, this message translates to:
+  /// **'القرب من الكاتب'**
+  String get feedRankingAffinity;
+
+  /// No description provided for @feedRankingAffinityHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'كم يتفاعل المستخدم مع هذا الكاتب. الأعلى يجعل الصفحة أكثر شخصية.'**
+  String get feedRankingAffinityHint;
+
+  /// No description provided for @feedRankingRecency.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحداثة'**
+  String get feedRankingRecency;
+
+  /// No description provided for @feedRankingRecencyHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفضيل المنشورات الأحدث.'**
+  String get feedRankingRecencyHint;
+
+  /// No description provided for @feedRankingEngagement.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفاعل'**
+  String get feedRankingEngagement;
+
+  /// No description provided for @feedRankingEngagementHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعجابات والتعليقات والمشاركات بالنسبة لعمر المنشور.'**
+  String get feedRankingEngagementHint;
+
+  /// No description provided for @feedRankingUnseen.
+  ///
+  /// In ar, this message translates to:
+  /// **'مكافأة غير المُشاهَد'**
+  String get feedRankingUnseen;
+
+  /// No description provided for @feedRankingUnseenHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع المنشورات التي لم يرها المستخدم بعد.'**
+  String get feedRankingUnseenHint;
+
+  /// No description provided for @feedRankingRepeat.
+  ///
+  /// In ar, this message translates to:
+  /// **'عقوبة تكرار الكاتب'**
+  String get feedRankingRepeat;
+
+  /// No description provided for @feedRankingRepeatHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخفيض كل منشور إضافي من نفس الكاتب في الصفحة، حتى لا يستحوذ كاتب واحد عليها.'**
+  String get feedRankingRepeatHint;
+
+  /// No description provided for @feedRankingHalfLife.
+  ///
+  /// In ar, this message translates to:
+  /// **'نصف عمر الحداثة'**
+  String get feedRankingHalfLife;
+
+  /// No description provided for @feedRankingHalfLifeHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد هذه المدة تنخفض قيمة الحداثة إلى النصف. القيم القصيرة تجعل الصفحة زمنية أكثر.'**
+  String get feedRankingHalfLifeHint;
+
+  /// No description provided for @feedRankingOverfetch.
+  ///
+  /// In ar, this message translates to:
+  /// **'عدد المرشحين لكل خانة'**
+  String get feedRankingOverfetch;
+
+  /// No description provided for @feedRankingOverfetchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'كم منشورًا يُجلب لكل مكان في الصفحة قبل الترتيب. الأعلى أدق لكنه أبطأ وأكثر كلفة.'**
+  String get feedRankingOverfetchHint;
+
+  /// No description provided for @feedRankingTtl.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدة بقاء عناصر الصفحة'**
+  String get feedRankingTtl;
+
+  /// No description provided for @feedRankingTtlHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعدها تُحذف المنشورات غير المقروءة من صفحة المستخدم. صفر يعني بلا حذف.'**
+  String get feedRankingTtlHint;
+
+  /// No description provided for @feedRankingTtlForever.
+  ///
+  /// In ar, this message translates to:
+  /// **'دائم'**
+  String get feedRankingTtlForever;
+
+  /// No description provided for @feedRankingHours.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} ساعة'**
+  String feedRankingHours(int count);
+
+  /// No description provided for @feedRankingDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} يوم'**
+  String feedRankingDays(int count);
+
+  /// No description provided for @feedRankingReset.
+  ///
+  /// In ar, this message translates to:
+  /// **'استعادة القيم الافتراضية'**
+  String get feedRankingReset;
+
+  /// No description provided for @settingsAdmin.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإدارة'**
+  String get settingsAdmin;
+
+  /// No description provided for @panelAccessTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'صلاحية لوحتي'**
+  String get panelAccessTitle;
+
+  /// No description provided for @panelAccessIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدد ما إذا كانت لوحة المهندس تتطلب اشتراكًا، وأي أقسامها مفتوحة للجميع. تسري التغييرات فورًا على كل المستخدمين.'**
+  String get panelAccessIntro;
+
+  /// No description provided for @panelAccessGateSection.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاشتراك'**
+  String get panelAccessGateSection;
+
+  /// No description provided for @panelAccessGate.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب اشتراك للوحة'**
+  String get panelAccessGate;
+
+  /// No description provided for @panelAccessGateOn.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللوحة مغلقة إلا للمشتركين، عدا الأقسام المفتوحة أدناه.'**
+  String get panelAccessGateOn;
+
+  /// No description provided for @panelAccessGateOff.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللوحة مفتوحة للجميع بالكامل.'**
+  String get panelAccessGateOff;
+
+  /// No description provided for @panelAccessTrial.
+  ///
+  /// In ar, this message translates to:
+  /// **'مدة التجربة'**
+  String get panelAccessTrial;
+
+  /// No description provided for @panelAccessTrialHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام يحصل فيها الحساب الجديد على اللوحة كاملة، تُحسب من تاريخ إنشائه.'**
+  String get panelAccessTrialHint;
+
+  /// No description provided for @panelAccessTrialNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلا تجربة'**
+  String get panelAccessTrialNone;
+
+  /// No description provided for @panelAccessDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} يوم'**
+  String panelAccessDays(String count);
+
+  /// No description provided for @panelAccessSections.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأقسام'**
+  String get panelAccessSections;
+
+  /// No description provided for @panelAccessSectionsHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'القسم المفعّل هنا مفتوح لكل المستخدمين بلا اشتراك؛ البقية تحتاج اشتراكًا.'**
+  String get panelAccessSectionsHint;
+
+  /// No description provided for @panelAccessSectionsIgnored.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا أثر لهذه الخيارات ما دامت اللوحة مفتوحة للجميع.'**
+  String get panelAccessSectionsIgnored;
+
+  /// No description provided for @panelAccessSectionFree.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح بلا اشتراك'**
+  String get panelAccessSectionFree;
+
+  /// No description provided for @panelAccessSectionPaid.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتطلب اشتراكًا'**
+  String get panelAccessSectionPaid;
+
+  /// No description provided for @panelAccessSaved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ إعدادات اللوحة'**
+  String get panelAccessSaved;
+
+  /// No description provided for @dashboardSectionLocked.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتطلب اشتراكًا — اضغط للاشتراك'**
+  String get dashboardSectionLocked;
+
+  /// No description provided for @panelAccessLibraryLive.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل المكتبة الهندسية'**
+  String get panelAccessLibraryLive;
+
+  /// No description provided for @panelAccessLibraryLiveHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما دامت متوقفة تظهر في اللوحة بوسم «قريبًا» ولا تُفتح، مهما كانت إعدادات الاشتراك.'**
+  String get panelAccessLibraryLiveHint;
+
+  /// No description provided for @disciplinesTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختصاصات الهندسية'**
+  String get disciplinesTitle;
+
+  /// No description provided for @disciplinesIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختصاصات التي يختار منها المهندسون عند إنشاء ملفاتهم. اضغط على الشعار لرفع صورة، والمفتاح لإيقاف اختصاص دون حذفه — من اختاره يحتفظ به.'**
+  String get disciplinesIntro;
+
+  /// No description provided for @disciplineAdd.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة اختصاص'**
+  String get disciplineAdd;
+
+  /// No description provided for @disciplineRename.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الاسم'**
+  String get disciplineRename;
+
+  /// No description provided for @disciplineSetLogo.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع شعار'**
+  String get disciplineSetLogo;
+
+  /// No description provided for @disciplineClearLogo.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة الشعار'**
+  String get disciplineClearLogo;
+
+  /// No description provided for @disciplineNameTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم الاختصاص'**
+  String get disciplineNameTitle;
+
+  /// No description provided for @disciplineNameAr.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم بالعربية'**
+  String get disciplineNameAr;
+
+  /// No description provided for @disciplineNameEn.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاسم بالإنجليزية'**
+  String get disciplineNameEn;
+
+  /// No description provided for @disciplineLogoHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اضغط على المربع لرفع شعار'**
+  String get disciplineLogoHint;
+
+  /// No description provided for @disciplineLogoNoStorage.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع الصور غير مهيأ على هذا الخادم'**
+  String get disciplineLogoNoStorage;
+
+  /// No description provided for @disciplinePickerTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر اختصاصك'**
+  String get disciplinePickerTitle;
+
+  /// No description provided for @disciplinePickerHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر اختصاصك'**
+  String get disciplinePickerHint;
+
+  /// No description provided for @disciplinePickerSearch.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن اختصاص…'**
+  String get disciplinePickerSearch;
+
+  /// No description provided for @disciplinePickerClear.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلا اختصاص'**
+  String get disciplinePickerClear;
+
+  /// No description provided for @disciplinePickerFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تحميل قائمة الاختصاصات.'**
+  String get disciplinePickerFailed;
+
+  /// No description provided for @setupDiscipline.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختصاص'**
+  String get setupDiscipline;
+
+  /// No description provided for @setupDisciplineHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر اختصاصك الهندسي'**
+  String get setupDisciplineHint;
+
+  /// No description provided for @editProfileDiscipline.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاختصاص'**
+  String get editProfileDiscipline;
+
+  /// No description provided for @governoratePickerTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المحافظة'**
+  String get governoratePickerTitle;
+
+  /// No description provided for @governoratePickerHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر المحافظة'**
+  String get governoratePickerHint;
+
+  /// No description provided for @governoratePickerSearch.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث عن محافظة…'**
+  String get governoratePickerSearch;
+
+  /// No description provided for @governoratePickerClear.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلا محافظة'**
+  String get governoratePickerClear;
+
+  /// No description provided for @governoratePickerFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تحميل قائمة المحافظات.'**
+  String get governoratePickerFailed;
+
+  /// No description provided for @setupGovernorate.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحافظة'**
+  String get setupGovernorate;
+
+  /// No description provided for @setupGovernorateHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر محافظتك'**
+  String get setupGovernorateHint;
+
+  /// No description provided for @editProfileGovernorate.
+  ///
+  /// In ar, this message translates to:
+  /// **'المحافظة'**
+  String get editProfileGovernorate;
+
+  /// No description provided for @profileTabPosts.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنشورات'**
+  String get profileTabPosts;
+
+  /// No description provided for @profileTabReels.
+  ///
+  /// In ar, this message translates to:
+  /// **'ريلز'**
+  String get profileTabReels;
+
+  /// No description provided for @profileTabCv.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخبرة'**
+  String get profileTabCv;
+
+  /// No description provided for @profileNoPosts.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد منشورات بعد.'**
+  String get profileNoPosts;
+
+  /// No description provided for @profileNoReels.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد ريلز بعد.'**
+  String get profileNoReels;
+
+  /// No description provided for @profileMessage.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراسلة'**
+  String get profileMessage;
+
+  /// No description provided for @profileNoCv.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد سيرة ذاتية مرفوعة.'**
+  String get profileNoCv;
+
+  /// No description provided for @profileCvFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر فتح السيرة الذاتية.'**
+  String get profileCvFailed;
+
+  /// Predicate on a notification row: the actor approved the viewer's follow request
+  ///
+  /// In ar, this message translates to:
+  /// **'قبل طلب المتابعة'**
+  String get activityFollowAccepted;
+
+  /// Header of the post options sheet
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات المنشور'**
+  String get postOptionsTitle;
+
+  /// Option: edit your own post
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل المنشور'**
+  String get postOptionsEdit;
+
+  /// Option: delete your own post
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المنشور'**
+  String get postOptionsDelete;
+
+  /// Option: report somebody else's post
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن المنشور'**
+  String get postOptionsReport;
+
+  /// Option: bookmark a post
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ المنشور'**
+  String get postOptionsSave;
+
+  /// Option: remove a bookmarked post
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة من المحفوظات'**
+  String get postOptionsUnsave;
+
+  /// Confirmation question before deleting a post
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف هذا المنشور نهائياً؟'**
+  String get postDeleteConfirm;
+
+  /// Body of the delete confirmation dialog
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن التراجع عن الحذف.'**
+  String get postDeleteConfirmBody;
+
+  /// Toast after deleting a post
+  ///
+  /// In ar, this message translates to:
+  /// **'حُذف المنشور'**
+  String get toastPostDeleted;
+
+  /// Title of the edit-post sheet
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل المنشور'**
+  String get postEditTitle;
+
+  /// Hint of the edit-post text field
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب شيئاً…'**
+  String get postEditHint;
+
+  /// Validation message when the edited post has no text
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن ترك المنشور فارغاً'**
+  String get postEditEmpty;
+
+  /// Toast after editing a post
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث المنشور'**
+  String get toastPostUpdated;
+
+  /// Title of the report sheet
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الإبلاغ'**
+  String get postReportTitle;
+
+  /// Hint of the optional report details field
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل إضافية (اختياري)'**
+  String get postReportDetailsHint;
+
+  /// Submit button of the report sheet
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال البلاغ'**
+  String get postReportSend;
+
+  /// Toast after reporting a post
+  ///
+  /// In ar, this message translates to:
+  /// **'شكراً، وصلنا بلاغك'**
+  String get toastPostReported;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'محتوى مزعج أو إعلاني'**
+  String get reportReasonSpam;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'تحرّش أو تنمّر'**
+  String get reportReasonHarassment;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'خطاب كراهية'**
+  String get reportReasonHateSpeech;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'عنف أو تهديد'**
+  String get reportReasonViolence;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'محتوى جنسي أو عارٍ'**
+  String get reportReasonNudity;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'معلومات مضللة'**
+  String get reportReasonMisinformation;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'إيذاء النفس'**
+  String get reportReasonSelfHarm;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'انتحال شخصية'**
+  String get reportReasonImpersonation;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهاك حقوق ملكية'**
+  String get reportReasonIntellectualProperty;
+
+  /// Report reason
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب آخر'**
+  String get reportReasonOther;
+
+  /// Button on an applicant card that opens the attached résumé
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض السيرة الذاتية'**
+  String get companyApplicantOpenCv;
+
+  /// Shown when an application has no résumé file
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُرفق المتقدّم سيرة ذاتية'**
+  String get companyApplicantNoCv;
+
+  /// Toast when the résumé link cannot be opened
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر فتح الملف'**
+  String get companyApplicantCvFailed;
+
+  /// Heading above the cover letter on an applicant card
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظات المتقدّم'**
+  String get companyApplicantNotes;
+
+  /// Shown when an application has no cover letter
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يكتب المتقدّم أي ملاحظات'**
+  String get companyApplicantNoNotes;
+
+  /// Opens the full applicant sheet
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض التفاصيل'**
+  String get companyApplicantDetails;
+
+  /// Opens the applicant's profile from their application
+  ///
+  /// In ar, this message translates to:
+  /// **'الملف الشخصي'**
+  String get companyApplicantProfile;
+
+  /// Title of the company's home screen
+  ///
+  /// In ar, this message translates to:
+  /// **'لوحة الشركة'**
+  String get companyDashboardTitle;
+
+  /// Stat tile: postings still taking applications
+  ///
+  /// In ar, this message translates to:
+  /// **'وظائف مفتوحة'**
+  String get companyStatOpenJobs;
+
+  /// Stat tile: everyone who applied
+  ///
+  /// In ar, this message translates to:
+  /// **'إجمالي المتقدّمين'**
+  String get companyStatApplicants;
+
+  /// Stat tile: applications received in the last seven days
+  ///
+  /// In ar, this message translates to:
+  /// **'متقدّمون هذا الأسبوع'**
+  String get companyStatNewThisWeek;
+
+  /// Stat tile: followers of the company page
+  ///
+  /// In ar, this message translates to:
+  /// **'متابعو الصفحة'**
+  String get companyStatFollowers;
+
+  /// Section title: applications not yet decided
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار قرارك'**
+  String get companyPendingTitle;
+
+  /// Empty state of the pending-applications section
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات بانتظار قرار'**
+  String get companyPendingEmpty;
+
+  /// Link from the pending section to the applicants tab
+  ///
+  /// In ar, this message translates to:
+  /// **'كل المتقدّمين'**
+  String get companyPendingAll;
+
+  /// Section title: the company's active postings
+  ///
+  /// In ar, this message translates to:
+  /// **'وظائفك المفتوحة'**
+  String get companyOpenJobsTitle;
+
+  /// Empty state of the open-jobs section
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد وظائف مفتوحة الآن'**
+  String get companyOpenJobsEmpty;
+
+  /// Applicant count under a posting on the dashboard
+  ///
+  /// In ar, this message translates to:
+  /// **'المتقدّمون: {count}'**
+  String companyJobApplicants(String count);
+
+  /// Note under the open-jobs section about closed postings
+  ///
+  /// In ar, this message translates to:
+  /// **'وظائف مغلقة: {count}'**
+  String companyClosedJobs(String count);
+
+  /// Greeting at the top of the company dashboard
+  ///
+  /// In ar, this message translates to:
+  /// **'أهلاً، {name}'**
+  String companyDashboardGreeting(String name);
+
+  /// Section title above the company dashboard's shortcut tiles
+  ///
+  /// In ar, this message translates to:
+  /// **'إجراءات سريعة'**
+  String get companyQuickActions;
+
+  /// Shortcut that opens the company's page editor
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الصفحة'**
+  String get companyEditPage;
+
+  /// Label on the apply button when the viewer has no subscription
+  ///
+  /// In ar, this message translates to:
+  /// **'التقديم للمشتركين'**
+  String get jobApplyLocked;
+
+  /// Explains why the apply button is locked
+  ///
+  /// In ar, this message translates to:
+  /// **'اشترك لتتمكن من التقديم على الوظائف'**
+  String get jobApplyLockedBody;
+
+  /// Account type: an engineer, the account that looks for work
+  ///
+  /// In ar, this message translates to:
+  /// **'مهندس'**
+  String get authAccountEngineer;
+
+  /// Account type: a contractor
+  ///
+  /// In ar, this message translates to:
+  /// **'مقاول'**
+  String get authAccountContractor;
+
+  /// Account type: a tradesperson — carpenter, blacksmith, electrician
+  ///
+  /// In ar, this message translates to:
+  /// **'حرفي'**
+  String get authAccountCraftsman;
+
+  /// Account type: owns machinery and hires it out
+  ///
+  /// In ar, this message translates to:
+  /// **'صاحب آلية'**
+  String get authAccountEquipmentOwner;
+
+  /// Name field label for a contractor, craftsman or machinery-owner account
+  ///
+  /// In ar, this message translates to:
+  /// **'اسم النشاط'**
+  String get authBusinessName;
+
+  /// Hint under the business name field
+  ///
+  /// In ar, this message translates to:
+  /// **'كما تريد أن يظهر في صفحتك'**
+  String get authBusinessNameHint;
+
+  /// Label of the specialty picker for a craftsman account
+  ///
+  /// In ar, this message translates to:
+  /// **'الحرفة'**
+  String get profileTradeLabel;
+
+  /// Label of the specialty picker for a machinery-owner account
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع الآلية'**
+  String get profileEquipmentLabel;
+
+  /// Title of the bottom sheet that lists the five account types.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر نوع الحساب'**
+  String get authAccountTypeSheetTitle;
+
+  /// One-line description of the مهندس account type in the picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'حساب شخصي: تتقدّم على الوظائف وتبني ملفك المهني.'**
+  String get authAccountEngineerHint;
+
+  /// One-line description of the شركة account type in the picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنشر الوظائف وتستقبل طلبات المتقدّمين.'**
+  String get authAccountCompanyHint;
+
+  /// One-line description of the مقاول account type in the picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنفّذ المشاريع وتنشر فرص العمل.'**
+  String get authAccountContractorHint;
+
+  /// One-line description of the حرفي account type in the picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'صاحب مهنة: نجار، حدّاد، كهربائي وغيرها.'**
+  String get authAccountCraftsmanHint;
+
+  /// One-line description of the صاحب آلية account type in the picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'تؤجّر الآليات والمعدّات وتنشر فرص العمل.'**
+  String get authAccountEquipmentOwnerHint;
+
+  /// Title of the list of courses this viewer has authored.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوراتي'**
+  String get myCoursesTitle;
+
+  /// Empty state of the author's course list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تنشئ أي دورة بعد. ابدأ بدورة جديدة وأرسلها للمراجعة.'**
+  String get myCoursesEmpty;
+
+  /// Button that starts a new course.
+  ///
+  /// In ar, this message translates to:
+  /// **'دورة جديدة'**
+  String get myCoursesNew;
+
+  /// Opens the list of purchases of courses this viewer wrote.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرباح دوراتي'**
+  String get myCoursesEarnings;
+
+  /// Review state: not yet submitted.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسودة'**
+  String get courseStatusDraft;
+
+  /// Review state: with the reviewer.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المراجعة'**
+  String get courseStatusSubmitted;
+
+  /// Review state: rejected with a note.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُعادة للتعديل'**
+  String get courseStatusRejected;
+
+  /// Review state: approved and live.
+  ///
+  /// In ar, this message translates to:
+  /// **'منشورة'**
+  String get courseStatusApproved;
+
+  /// Title of the course editor when editing.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الدورة'**
+  String get courseEditorEdit;
+
+  /// Form field label.
+  ///
+  /// In ar, this message translates to:
+  /// **'عنوان الدورة'**
+  String get courseFieldTitle;
+
+  /// Form field label for the one-line card summary.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصف مختصر'**
+  String get courseFieldSummary;
+
+  /// Form field label.
+  ///
+  /// In ar, this message translates to:
+  /// **'الوصف الكامل'**
+  String get courseFieldDescription;
+
+  /// Form field label for the course category.
+  ///
+  /// In ar, this message translates to:
+  /// **'القسم'**
+  String get courseFieldCategory;
+
+  /// Form field label.
+  ///
+  /// In ar, this message translates to:
+  /// **'المستوى'**
+  String get courseFieldLevel;
+
+  /// Form field label for what the author charges.
+  ///
+  /// In ar, this message translates to:
+  /// **'السعر'**
+  String get courseFieldPrice;
+
+  /// Hint under the price field.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتركه صفرًا لتكون الدورة مجانية'**
+  String get courseFieldPriceHint;
+
+  /// Adds one bullet to an outcomes or requirements list.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة سطر'**
+  String get courseAddLine;
+
+  /// Section heading for the lesson list in the editor.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدروس'**
+  String get courseLessons;
+
+  /// Button in the course editor.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة درس'**
+  String get courseAddLesson;
+
+  /// Form field label.
+  ///
+  /// In ar, this message translates to:
+  /// **'عنوان الدرس'**
+  String get courseLessonTitle;
+
+  /// Form field label: video, PDF or article.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع الدرس'**
+  String get courseLessonKind;
+
+  /// Form field label.
+  ///
+  /// In ar, this message translates to:
+  /// **'المدة بالدقائق'**
+  String get courseLessonDuration;
+
+  /// Toggle: openable before buying.
+  ///
+  /// In ar, this message translates to:
+  /// **'درس تجريبي مجاني'**
+  String get courseLessonPreview;
+
+  /// Form field label for an article lesson's body.
+  ///
+  /// In ar, this message translates to:
+  /// **'نص الدرس'**
+  String get courseLessonBody;
+
+  /// Removes a lesson from a course.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الدرس'**
+  String get courseLessonDelete;
+
+  /// Hands the course to the reviewer.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال للمراجعة'**
+  String get courseSubmitForReview;
+
+  /// Confirmation after submitting.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسلت الدورة للمراجعة'**
+  String get courseSubmittedToast;
+
+  /// Confirmation after saving a draft.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ الدورة'**
+  String get courseSavedToast;
+
+  /// Heading over the rejection reason shown to the author.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة المراجع'**
+  String get courseReviewNote;
+
+  /// Explains why the editor is read-only.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدورة عند المراجع ولا يمكن تعديلها حتى يصدر القرار.'**
+  String get courseLockedUntilReview;
+
+  /// Explains why an approved course is read-only.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدورة منشورة ولا يمكن تعديلها.'**
+  String get courseLockedApproved;
+
+  /// Button on a paid course.
+  ///
+  /// In ar, this message translates to:
+  /// **'شراء الدورة'**
+  String get courseBuy;
+
+  /// State of a purchase request not yet confirmed.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار تأكيد الدفع'**
+  String get coursePurchasePending;
+
+  /// State of a confirmed purchase.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الشراء'**
+  String get coursePurchasePaid;
+
+  /// Toast after asking to buy.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال طلب الشراء. تُفتح الدورة فور تأكيد الدفع.'**
+  String get coursePurchaseAsked;
+
+  /// Badge on a price a subscriber gets a discount on.
+  ///
+  /// In ar, this message translates to:
+  /// **'خصم المشتركين {percent}%'**
+  String courseSubscriberDiscount(String percent);
+
+  /// Title of the admin review queue.
+  ///
+  /// In ar, this message translates to:
+  /// **'مراجعة الدورات'**
+  String get courseReviewTitle;
+
+  /// Empty state of the review queue.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد دورات بانتظار المراجعة.'**
+  String get courseReviewEmpty;
+
+  /// Approves a submitted course.
+  ///
+  /// In ar, this message translates to:
+  /// **'موافقة'**
+  String get courseApprove;
+
+  /// Rejects a submitted course with a reason.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفض'**
+  String get courseReject;
+
+  /// The commission the platform takes from this course.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة المنصة %'**
+  String get coursePlatformPercent;
+
+  /// Hint under the commission field.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُحتسب من المبلغ المدفوع فعليًا، وتُثبّت على كل عملية شراء لهذه الدورة.'**
+  String get coursePlatformPercentHint;
+
+  /// Required note on a rejection.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الإعادة'**
+  String get courseRejectReason;
+
+  /// Toast after approving.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت الموافقة ونُشرت الدورة'**
+  String get courseApprovedToast;
+
+  /// Toast after rejecting.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُعيدت الدورة إلى ناشرها'**
+  String get courseRejectedToast;
+
+  /// Label over the profile that wrote a course.
+  ///
+  /// In ar, this message translates to:
+  /// **'الناشر'**
+  String get courseAuthorLabel;
+
+  /// Title of the admin screen holding the two tenant-wide numbers.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسعير الدورات'**
+  String get courseCommerceTitle;
+
+  /// Intro on the course pricing screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقمان يسريان على كل الدورات: نسبة المنصة المقترحة عند المراجعة، وخصم المشتركين على السعر.'**
+  String get courseCommerceIntro;
+
+  /// Settings field: what the review screen pre-fills.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة المنصة الافتراضية %'**
+  String get courseCommissionDefault;
+
+  /// Hint under the default commission field.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيمة مقترحة فقط؛ النسبة المُلزِمة هي ما يُثبَّت على كل دورة عند الموافقة.'**
+  String get courseCommissionDefaultHint;
+
+  /// Settings field.
+  ///
+  /// In ar, this message translates to:
+  /// **'خصم المشتركين على الدورات %'**
+  String get courseDiscountPercent;
+
+  /// Hint under the subscriber discount field.
+  ///
+  /// In ar, this message translates to:
+  /// **'يُخصم من سعر كل دورة مدفوعة لصاحب الاشتراك الفعّال. صفر يوقف الخصم.'**
+  String get courseDiscountPercentHint;
+
+  /// Toast after saving the two numbers.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حفظ إعدادات التسعير'**
+  String get courseCommerceSaved;
+
+  /// Title of the admin purchase queue.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات شراء الدورات'**
+  String get coursePurchasesTitle;
+
+  /// Empty state of the purchase queue.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات شراء.'**
+  String get coursePurchasesEmpty;
+
+  /// Admin action that opens the course for the buyer.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الدفع'**
+  String get purchaseConfirm;
+
+  /// Admin action that cancels a pending request.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء الطلب'**
+  String get purchaseCancelRequest;
+
+  /// What the learner owes.
+  ///
+  /// In ar, this message translates to:
+  /// **'المبلغ'**
+  String get purchaseAmountDue;
+
+  /// The commission on one purchase.
+  ///
+  /// In ar, this message translates to:
+  /// **'حصة المنصة'**
+  String get purchasePlatformShare;
+
+  /// What the author is owed for one purchase.
+  ///
+  /// In ar, this message translates to:
+  /// **'حصة الناشر'**
+  String get purchaseAuthorShare;
+
+  /// Toast after confirming a purchase.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد الدفع'**
+  String get purchaseConfirmedToast;
+
+  /// Toast after cancelling a purchase.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُلغي الطلب'**
+  String get purchaseCancelledToast;
+
+  /// Free-text note on a purchase decision, e.g. a transfer reference.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة'**
+  String get purchaseNote;
+
+  /// Empty state of the author's earnings list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُبَع أي من دوراتك بعد.'**
+  String get courseEarningsEmpty;
+
+  /// Panel row that opens the author's own course list.
+  ///
+  /// In ar, this message translates to:
+  /// **'دوراتي كمدرّب'**
+  String get dashboardTeach;
+
+  /// Subtitle of the teach row on the panel.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنشئ دورة، حدّد سعرها، وأرسلها للمراجعة'**
+  String get dashboardTeachSubtitle;
+
+  /// Label over the course cover picker in the editor.
+  ///
+  /// In ar, this message translates to:
+  /// **'صورة الغلاف'**
+  String get courseCoverLabel;
+
+  /// Empty state of the cover picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف صورة غلاف للدورة'**
+  String get courseCoverAdd;
+
+  /// Hint under the cover picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'تظهر على بطاقة الدورة في الكتالوج'**
+  String get courseCoverHint;
+
+  /// Replaces an already-chosen cover.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير الصورة'**
+  String get courseCoverChange;
+
+  /// Clears the chosen cover.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة الصورة'**
+  String get courseCoverRemove;
+
+  /// Label over the lesson file picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملف الدرس'**
+  String get courseLessonFile;
+
+  /// Opens the video picker for a lesson.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار فيديو'**
+  String get courseLessonPickVideo;
+
+  /// Opens the file picker for a PDF lesson.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختيار ملف PDF'**
+  String get courseLessonPickPdf;
+
+  /// Shown once a lesson's file is on the CDN.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم رفع الملف'**
+  String get courseLessonFileReady;
+
+  /// Empty state of the lesson file picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُرفع ملف بعد'**
+  String get courseLessonFileMissing;
+
+  /// Progress text while a course file uploads.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الرفع… {percent}%'**
+  String courseUploading(String percent);
+
+  /// Explains why the lessons section is empty on a course that has never been saved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تُحفظ الدورة تلقائيًا عند إضافة أول درس.'**
+  String get courseLessonsAutoSave;
+
+  /// Tag on a catalogue card for a course published recently that this viewer has not opened.
+  ///
+  /// In ar, this message translates to:
+  /// **'جديد'**
+  String get courseNewTag;
+
+  /// Button on an empty profile banner, shown only to its owner.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف صورة غلاف'**
+  String get profileBannerAdd;
+
+  /// Action on a profile banner that already has an image.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير صورة الغلاف'**
+  String get profileBannerChange;
+
+  /// Clears the profile's cover image.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة صورة الغلاف'**
+  String get profileBannerRemove;
+
+  /// Toast after the cover image is saved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث صورة الغلاف'**
+  String get profileBannerSaved;
+
+  /// Shown when a reel cannot be published because the Bunny Stream library is not configured.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر الريلز غير متاح على هذا الخادم حالياً'**
+  String get composerReelsStreamOff;
+
+  /// Shown when a course lesson video cannot be uploaded because the Bunny Stream library is not configured.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفع فيديو المحاضرات غير متاح على هذا الخادم حالياً'**
+  String get courseLessonStreamOff;
+
+  /// Background upload banner, while bytes are transferring.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ رفع الفيديو'**
+  String get uploadBannerUploading;
+
+  /// Background upload banner, after the transfer and while the publish call runs.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ النشر…'**
+  String get uploadBannerFinishing;
+
+  /// Background upload banner, on success.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم الرفع والنشر'**
+  String get uploadBannerDone;
+
+  /// Background upload banner, on failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'فشل الرفع'**
+  String get uploadBannerFailed;
+
+  /// Shown when a second video upload is requested while one is running.
+  ///
+  /// In ar, this message translates to:
+  /// **'هناك فيديو قيد الرفع بالفعل، انتظر حتى ينتهي'**
+  String get uploadBannerBusy;
+
+  /// Title of the confirm dialog shown when leaving the app mid-upload.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرفع لم ينتهِ'**
+  String get uploadLeaveTitle;
+
+  /// Body of the confirm dialog shown when leaving the app mid-upload.
+  ///
+  /// In ar, this message translates to:
+  /// **'إغلاق التطبيق الآن سيلغي رفع الفيديو. هل تريد الخروج؟'**
+  String get uploadLeaveBody;
+
+  /// Keeps the app open so the upload can finish.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابقَ'**
+  String get uploadLeaveStay;
+
+  /// Leaves the app and abandons the upload.
+  ///
+  /// In ar, this message translates to:
+  /// **'اخرج'**
+  String get uploadLeaveQuit;
+
+  /// Toast when a composer hands a video to the background queue and closes.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيكمل الرفع في الخلفية'**
+  String get uploadStartedBackground;
+
+  /// Button on the upload banner that stops a transfer in progress.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء'**
+  String get uploadBannerCancel;
+
+  /// Upload banner title after the person cancelled the transfer.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُلغي الرفع'**
+  String get uploadBannerCancelled;
+
+  /// Button on the course editor that saves the course and opens the lessons screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ ومتابعة للمحاضرات'**
+  String get courseSaveAndAddLessons;
+
+  /// Title of the screen listing a course's lessons.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاضرات الدورة'**
+  String get courseLessonsTitle;
+
+  /// Empty state on the course lessons screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا محاضرات بعد. أضف أول محاضرة لتبدأ.'**
+  String get courseLessonsEmpty;
+
+  /// Toast shown when the editor saves a course and moves to the lessons screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت الدورة. أضف محاضراتها الآن.'**
+  String get courseLessonsNextStep;
+
+  /// Chip on a lesson row whose video is being uploaded right now.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الرفع'**
+  String get courseLessonUploadingChip;
+
+  /// Subtitle on a lesson row saved before its file and left without one.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يكتمل رفع الملف — المس لإعادة المحاولة'**
+  String get courseLessonUploadIncomplete;
+
+  /// Subtitle on a pending lesson row while another upload holds the queue.
+  ///
+  /// In ar, this message translates to:
+  /// **'في انتظار الرفع'**
+  String get courseLessonUploadQueued;
+
+  /// Shown when the server refuses a lesson saved ahead of its upload, which only an out-of-date server does.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخادم الحالي لا يدعم حفظ الدرس قبل اكتمال رفع الملف. أعد تشغيل الخادم بعد آخر تحديث.'**
+  String get courseLessonServerOutdated;
+
+  /// Toast after reposting a reel.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُعيد نشر الريل لمتابعيك'**
+  String get toastReelReposted;
+
+  /// Toast after undoing a reel repost.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُلغيت إعادة النشر'**
+  String get toastReelUnreposted;
+
+  /// Shown inside a repost whose original post was deleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنشور الأصلي لم يعد متاحًا.'**
+  String get postOriginalUnavailable;
+
+  /// Title of the crop screen for the profile photo.
+  ///
+  /// In ar, this message translates to:
+  /// **'قصّ الصورة الشخصية'**
+  String get cropAvatarTitle;
+
+  /// Title of the crop screen for the profile banner.
+  ///
+  /// In ar, this message translates to:
+  /// **'قصّ صورة الغلاف'**
+  String get cropBannerTitle;
+
+  /// Confirm button on the crop screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم'**
+  String get cropDone;
+
+  /// Cancel button on the crop screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء'**
+  String get cropCancel;
+
+  /// Tooltip of the ⋯ button on your own reel.
+  ///
+  /// In ar, this message translates to:
+  /// **'خيارات الريل'**
+  String get reelOptions;
+
+  /// Sheet row that deletes your own reel.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الريل'**
+  String get reelDelete;
+
+  /// Sheet row on your own repost of someone's reel.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء إعادة النشر'**
+  String get reelUndoRepost;
+
+  /// Title of the delete-reel confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف هذا الريل نهائياً؟'**
+  String get reelDeleteConfirm;
+
+  /// Body of the delete-reel confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيختفي من ملفك ومن كل من أعاد نشره، ولا يمكن التراجع عن الحذف.'**
+  String get reelDeleteConfirmBody;
+
+  /// Toast after a reel is deleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف الريل'**
+  String get toastReelDeleted;
+
+  /// Settings row that opens the privacy policy web page.
+  ///
+  /// In ar, this message translates to:
+  /// **'سياسة الخصوصية'**
+  String get settingsPrivacyPolicy;
+
+  /// Settings section holding the privacy policy link.
+  ///
+  /// In ar, this message translates to:
+  /// **'حول التطبيق'**
+  String get settingsAbout;
+
+  /// Toast when the privacy policy page can't be opened.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر فتح الصفحة. تحقق من اتصالك وحاول مجدداً.'**
+  String get legalLinkFailed;
+
+  /// Sign-in footer, text before the privacy policy link. Ends right before the link.
+  ///
+  /// In ar, this message translates to:
+  /// **'بمتابعتك فإنك توافق على شروط الاستخدام و'**
+  String get authTermsLead;
+
+  /// Tappable privacy policy link in the sign-in footer.
+  ///
+  /// In ar, this message translates to:
+  /// **'سياسة الخصوصية'**
+  String get authTermsPrivacy;
+
+  /// Sign-in footer, text after the privacy policy link.
+  ///
+  /// In ar, this message translates to:
+  /// **' الخاصة بمهندس'**
+  String get authTermsTail;
+
+  /// Sign-up label above the optional gender chips.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجنس (اختياري)'**
+  String get authGenderOptional;
+
+  /// Settings row that permanently deletes the account.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الحساب'**
+  String get settingsDeleteAccount;
+
+  /// Title of the delete-account confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف حسابك نهائياً؟'**
+  String get deleteAccountTitle;
+
+  /// Body of the delete-account confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُحذف ملفك المهني ومنشوراتك وريلزك وتعليقاتك ومتابعاتك، ولن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى. لا يمكن التراجع عن ذلك.'**
+  String get deleteAccountBody;
+
+  /// Destructive confirm button in the delete-account dialog.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الحساب نهائياً'**
+  String get deleteAccountConfirm;
+
+  /// Toast after the account is deleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف حسابك'**
+  String get toastAccountDeleted;
+
+  /// Sign-up hint above the phone and email fields.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رقم هاتفك أو بريدك الإلكتروني، يكفي أحدهما. سنرسل إليه رمز تأكيد.'**
+  String get authPhoneOrEmailHint;
+
+  /// Sign-up error when both phone and email are empty.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رقم الهاتف أو البريد الإلكتروني'**
+  String get authPhoneOrEmailRequired;
+
+  /// Option on someone else's profile.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن الحساب'**
+  String get reportProfile;
+
+  /// Option on someone else's reel.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن الريل'**
+  String get reportReel;
+
+  /// Option on someone else's comment.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن التعليق'**
+  String get reportComment;
+
+  /// Option when long-pressing someone else's message.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن الرسالة'**
+  String get reportMessage;
+
+  /// Button on someone else's story.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإبلاغ عن القصة'**
+  String get reportStory;
+
+  /// Short report action under a comment.
+  ///
+  /// In ar, this message translates to:
+  /// **'إبلاغ'**
+  String get actionReport;
+
+  /// Tappable terms-of-use link in the sign-in footer.
+  ///
+  /// In ar, this message translates to:
+  /// **'شروط الاستخدام'**
+  String get authTermsLink;
+
+  /// Joins the terms and privacy links in the sign-in footer.
+  ///
+  /// In ar, this message translates to:
+  /// **' و'**
+  String get authTermsAnd;
+
+  /// Settings row that opens the terms of use page.
+  ///
+  /// In ar, this message translates to:
+  /// **'شروط الاستخدام'**
+  String get settingsTerms;
+
+  /// Empty state of the hashtag posts page.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد منشورات بهذا الوسم بعد'**
+  String get hashtagPostsEmpty;
+
+  /// Hint in the story reply field
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسل ردًّا…'**
+  String get storyReplyHint;
+
+  /// No description provided for @storyReplySend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get storyReplySend;
+
+  /// No description provided for @storyReplySent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال ردّك في الرسائل'**
+  String get storyReplySent;
+
+  /// No description provided for @storyReplyFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إرسال الرد، حاول مجددًا'**
+  String get storyReplyFailed;
+
+  /// No description provided for @storyLike.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعجاب'**
+  String get storyLike;
+
+  /// No description provided for @storyLikeFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تسجيل الإعجاب'**
+  String get storyLikeFailed;
+
+  /// No description provided for @activityLikedStory.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعجب بقصتك'**
+  String get activityLikedStory;
+
+  /// No description provided for @activityCommentedReel.
+  ///
+  /// In ar, this message translates to:
+  /// **'علّق على مقطعك'**
+  String get activityCommentedReel;
+
+  /// Reel rail comment button label when there are no comments
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليق'**
+  String get reelComment;
+
+  /// No description provided for @reelCommentsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'التعليقات'**
+  String get reelCommentsTitle;
+
+  /// No description provided for @reelCommentsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد تعليقات بعد. كن أول من يعلّق!'**
+  String get reelCommentsEmpty;
+
+  /// No description provided for @reelCommentsRetry.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المحاولة'**
+  String get reelCommentsRetry;
+
+  /// No description provided for @reelCommentHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف تعليقًا…'**
+  String get reelCommentHint;
+
+  /// No description provided for @reelCommentReply.
+  ///
+  /// In ar, this message translates to:
+  /// **'رد'**
+  String get reelCommentReply;
+
+  /// No description provided for @reelCommentReplyingTo.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرد على {name}'**
+  String reelCommentReplyingTo(String name);
+
+  /// No description provided for @reelCommentDelete.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف'**
+  String get reelCommentDelete;
+
+  /// No description provided for @reelCommentDeleteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف التعليق؟'**
+  String get reelCommentDeleteTitle;
+
+  /// No description provided for @reelCommentDeleteBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُحذف التعليق وكل الردود عليه.'**
+  String get reelCommentDeleteBody;
+
+  /// No description provided for @reelCommentDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف التعليق'**
+  String get reelCommentDeleted;
+
+  /// No description provided for @reelCommentReport.
+  ///
+  /// In ar, this message translates to:
+  /// **'إبلاغ'**
+  String get reelCommentReport;
+
+  /// No description provided for @composerAddPoll.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة استطلاع'**
+  String get composerAddPoll;
+
+  /// No description provided for @composerRemovePoll.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة الاستطلاع'**
+  String get composerRemovePoll;
+
+  /// No description provided for @composerPollTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'استطلاع رأي'**
+  String get composerPollTitle;
+
+  /// No description provided for @composerPollQuestionNote.
+  ///
+  /// In ar, this message translates to:
+  /// **'نص المنشور هو سؤال الاستطلاع.'**
+  String get composerPollQuestionNote;
+
+  /// No description provided for @composerPollOptionHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'الخيار {n}'**
+  String composerPollOptionHint(String n);
+
+  /// No description provided for @composerPollAddOption.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة خيار'**
+  String get composerPollAddOption;
+
+  /// No description provided for @composerPollRemoveOption.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الخيار'**
+  String get composerPollRemoveOption;
+
+  /// No description provided for @pollDurationHour.
+  ///
+  /// In ar, this message translates to:
+  /// **'ساعة'**
+  String get pollDurationHour;
+
+  /// No description provided for @pollDurationSixHours.
+  ///
+  /// In ar, this message translates to:
+  /// **'6 ساعات'**
+  String get pollDurationSixHours;
+
+  /// No description provided for @pollDurationDay.
+  ///
+  /// In ar, this message translates to:
+  /// **'يوم'**
+  String get pollDurationDay;
+
+  /// No description provided for @pollDurationThreeDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'3 أيام'**
+  String get pollDurationThreeDays;
+
+  /// No description provided for @pollDurationWeek.
+  ///
+  /// In ar, this message translates to:
+  /// **'أسبوع'**
+  String get pollDurationWeek;
+
+  /// No description provided for @pollVotes.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} صوت'**
+  String pollVotes(String count);
+
+  /// No description provided for @pollLeftDays.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبقٍ {n} يوم'**
+  String pollLeftDays(String n);
+
+  /// No description provided for @pollLeftHours.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبقٍ {n} ساعة'**
+  String pollLeftHours(String n);
+
+  /// No description provided for @pollLeftMinutes.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبقٍ {n} دقيقة'**
+  String pollLeftMinutes(String n);
+
+  /// No description provided for @pollClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهى التصويت'**
+  String get pollClosed;
+
+  /// No description provided for @pollVoteFailed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تسجيل صوتك'**
+  String get pollVoteFailed;
+
+  /// No description provided for @setupSecureTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أمّن حسابك'**
+  String get setupSecureTitle;
+
+  /// No description provided for @setupSecureOptional.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختياري'**
+  String get setupSecureOptional;
+
+  /// No description provided for @setupSecureBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكّد بريدك الإلكتروني ليصبح وسيلة تحقق ثانية وطريقة لاستعادة حسابك إن فقدت رقمك.'**
+  String get setupSecureBody;
+
+  /// No description provided for @setupSecureAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد البريد'**
+  String get setupSecureAction;
+
+  /// No description provided for @setupSecureDismiss.
+  ///
+  /// In ar, this message translates to:
+  /// **'ليس الآن'**
+  String get setupSecureDismiss;
+
+  /// No description provided for @emailVerifyTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني والتحقق بخطوتين'**
+  String get emailVerifyTitle;
+
+  /// No description provided for @emailVerifyIntro.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف بريدك الإلكتروني وأكّده ليصبح وسيلة تحقق ثانية لحسابك، وطريقة للدخول إن فقدت رقم هاتفك. رقم الهاتف يبقى هو الأساس.'**
+  String get emailVerifyIntro;
+
+  /// No description provided for @emailVerifySend.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال رمز التأكيد'**
+  String get emailVerifySend;
+
+  /// No description provided for @emailVerifyChangeAddress.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيير البريد'**
+  String get emailVerifyChangeAddress;
+
+  /// No description provided for @emailVerifyDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد بريدك الإلكتروني ✅'**
+  String get emailVerifyDone;
 
   /// No description provided for @setupSave.
   ///
@@ -3011,7 +5327,7 @@ abstract class AppLocalizations {
   /// No description provided for @billingSave.
   ///
   /// In ar, this message translates to:
-  /// **'وفّر {percent}٪'**
+  /// **'وفّر {percent}%'**
   String billingSave(String percent);
 
   /// No description provided for @subscriptionCycleUnavailable.
@@ -3293,7 +5609,7 @@ abstract class AppLocalizations {
   /// No description provided for @coursesFilterFree.
   ///
   /// In ar, this message translates to:
-  /// **'المجانية'**
+  /// **'المتاحة لي'**
   String get coursesFilterFree;
 
   /// No description provided for @planIncludes.
@@ -3367,6 +5683,72 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم حفظ إعداد التجديد'**
   String get subscriptionAutoRenewSaved;
+
+  /// No description provided for @profileFollowing.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتابع'**
+  String get profileFollowing;
+
+  /// No description provided for @peopleConnectionsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الاتصالات'**
+  String get peopleConnectionsTitle;
+
+  /// No description provided for @peopleFollowersTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابِعون'**
+  String get peopleFollowersTitle;
+
+  /// No description provided for @peopleFollowingTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابَعون'**
+  String get peopleFollowingTitle;
+
+  /// No description provided for @peopleRemove.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة'**
+  String get peopleRemove;
+
+  /// No description provided for @peopleEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا أحد هنا بعد'**
+  String get peopleEmpty;
+
+  /// No description provided for @peopleRemoveConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'إزالة {name} من اتصالاتك؟'**
+  String peopleRemoveConfirm(String name);
+
+  /// No description provided for @peopleUnfollowConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'إيقاف متابعة {name}؟'**
+  String peopleUnfollowConfirm(String name);
+
+  /// No description provided for @postSuggestedFollowing.
+  ///
+  /// In ar, this message translates to:
+  /// **'تتابعه'**
+  String get postSuggestedFollowing;
+
+  /// No description provided for @reelMute.
+  ///
+  /// In ar, this message translates to:
+  /// **'كتم'**
+  String get reelMute;
+
+  /// No description provided for @reelUnmute.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشغيل الصوت'**
+  String get reelUnmute;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/post.dart';
 

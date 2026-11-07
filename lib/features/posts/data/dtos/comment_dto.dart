@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
 
 import '../../domain/entities/comment.dart';
 import 'post_dto.dart';
@@ -18,6 +18,8 @@ class CommentDto implements BaseDto<Comment> {
     required this.createdAt,
     this.authorName = '',
     this.authorAvatarUrl,
+    this.authorUsername,
+    this.authorIsSubscribed = false,
     this.parentCommentId,
     this.likeCount = 0,
     this.replyCount = 0,
@@ -30,6 +32,8 @@ class CommentDto implements BaseDto<Comment> {
     authorId: '${json['authorId'] ?? ''}',
     authorName: '${json['authorName'] ?? ''}',
     authorAvatarUrl: json['authorAvatarUrl'] as String?,
+    authorUsername: json['authorUsername'] as String?,
+    authorIsSubscribed: json['authorIsSubscribed'] == true,
     parentCommentId: json['parentCommentId'] as String?,
     content: '${json['content'] ?? ''}',
     likeCount: PostDto.asInt(json['likeCount']),
@@ -43,6 +47,8 @@ class CommentDto implements BaseDto<Comment> {
   final String authorId;
   final String authorName;
   final String? authorAvatarUrl;
+  final String? authorUsername;
+  final bool authorIsSubscribed;
   final String? parentCommentId;
   final String content;
   final int likeCount;
@@ -57,6 +63,8 @@ class CommentDto implements BaseDto<Comment> {
     authorId: authorId,
     authorName: authorName,
     authorAvatarUrl: authorAvatarUrl,
+    authorUsername: authorUsername,
+    authorSubscribed: authorIsSubscribed,
     parentCommentId: parentCommentId,
     text: content,
     createdAt: createdAt,
@@ -73,6 +81,8 @@ class CommentDto implements BaseDto<Comment> {
     'authorId': authorId,
     'authorName': authorName,
     'authorAvatarUrl': authorAvatarUrl,
+    'authorUsername': authorUsername,
+    'authorIsSubscribed': authorIsSubscribed,
     'parentCommentId': parentCommentId,
     'content': content,
     'likeCount': likeCount,

@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 /// The lecture the engineer last left off in, shown as the continue-learning
 /// card at the top of the panel.

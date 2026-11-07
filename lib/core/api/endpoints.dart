@@ -60,6 +60,10 @@ class EndPoints {
   /// **Request:** `refreshToken` as **form data** (`[FromForm]`), not JSON.
   static const String authLogout = '/api/Auth/Logout';
 
+  /// `DELETE /api/Auth/Account` — removes the caller's login (anonymised and
+  /// disabled). Called after [profilesMe] DELETE has removed the social data.
+  static const String authAccount = '/api/Auth/Account';
+
   /// `POST /api/Contact` — creates the contact record. **Step 1 of 2** in
   /// registration.
   ///
@@ -81,26 +85,58 @@ class EndPoints {
   /// no tokens, so the client signs in afterwards.
   static const String authRegister = '/api/Auth/Register';
 
-  /// `POST /api/Auth/ForgotPassword` — `{ email }`, sends a reset link.
+  /// `POST /api/Auth/ResetPassword` — `{ password, confirmPassword }`.
   ///
-  /// Not wired into the app: the module has no email column, so there is
-  /// nothing to send to. Listed so the next person doesn't go looking.
-  static const String authForgotPassword = '/api/Auth/ForgotPassword';
+  /// The end of the forgot-password flow, and authorized: the bearer is the
+  /// session that proving a recovery channel just produced, which carries the
+  /// `RecoveryVerified` role. That role is what lets the account's own
+  /// password be replaced WITHOUT the old one — for that user only, since the
+  /// target is taken from the token, never from the body.
+  ///
+  /// `POST /api/Auth/ForgotPassword` no longer exists. The module removed the
+  /// link-based flow (it never sent, pointed at a hardcoded internal IP, and
+  /// leaked account existence) in favour of prove-a-channel-then-reset.
+  static const String authResetPassword = '/api/Auth/ResetPassword';
 
-  /// `POST /api/Auth/SignUp` — creates the contact AND its login in one
-  /// transaction, and returns tokens: one call instead of
-  /// contact → register → login.
+  // `POST /api/Auth/SignUp` does not exist on this backend and never did —
+  // the constant and its documentation were removed with the client's
+  // one-shot sign-up path. The two-step flow below replaces it.
+
+  // ── Self-service registration (RoboByte.Auth 1.14.1, guide §5) ───────────
+  //
+  // Two steps, always: PROVE an identity to get a registration token
+  // (`isNewUser: true`), then spend that token on CreateWithContact to create
+  // the account and receive a real session. There is no one-shot sign-up, and
+  // `POST /api/Contact` is `[Authorize]`d — which is what used to answer 401
+  // on the first call of a registration.
+
+  /// Anonymous pre-check the sign-up form calls while the person types.
+  /// `GET ?userName=&phone=&email=` → `{exists, userNameTaken, phoneTaken,
+  /// emailTaken}`. One call covers all three; omit the ones you are not asking
+  /// about.
+  static const String authExists = '/api/Auth/Exists';
+
+  /// Phone channel. Both take QUERY parameters, not a body.
+  /// `isSms=false` is the WhatsApp→SMS cascade; true forces plain SMS.
+  static const String authGenerateOtp = '/api/Auth/GenerateOTP';
+  static const String authValidateOtp = '/api/Auth/ValidateOTP';
+
+  /// E-mail channel. These two take a JSON body.
+  static const String authEmailSendCode = '/api/Auth/Email/SendCode';
+  static const String authEmailVerifyCode = '/api/Auth/Email/VerifyCode';
+
+  /// `POST /api/Auth/Email/Change` — `{ email, code }`. Sets AND confirms the
+  /// CALLER's address in one call, acting on the JWT's user only.
   ///
-  /// **Added in RoboByte.Auth after 1.11.1.** A host still on the older
-  /// package answers 404, and `AuthRepositoryImpl` falls back to the
-  /// three-call sequence — see the note there before deleting either path.
-  ///
-  /// **Request:** `{ name, userName, password, phone, gender?, imageUrl?,
-  /// address?, dateOfBirth? }`. There is deliberately no `userType`: the
-  /// endpoint is anonymous, and a caller-supplied role would make Admin
-  /// self-service.
-  /// **Response:** the same bare `LoginResultDto` login returns.
-  static const String authSignUp = '/api/Auth/SignUp';
+  /// Authorized, which is what makes it the right endpoint for the optional
+  /// second factor: [authEmailVerifyCode] is the anonymous sign-in path and
+  /// answers a registration token for an address with no account behind it,
+  /// which is the opposite of attaching an address to the account in hand.
+  /// The code itself comes from the same [authEmailSendCode] either way.
+  static const String authEmailChange = '/api/Auth/Email/Change';
+
+  /// Spends the registration token. Authorized — the bearer IS the proof.
+  static const String authCreateWithContact = '/api/Auth/CreateWithContact';
 
   // There is no `/api/auth/me`. Cold-start session validation uses
   // [profilesMe] instead — it needs a valid bearer token, which is exactly the
@@ -112,15 +148,26 @@ class EndPoints {
 
   // ── Device / notifications ──────────────────────────────────────────────
 
-  /// `POST /api/device/register-token` — persist the FCM device token
-  /// on the user's profile so the backend can target this device.
-  ///
-  /// **Request:** `{ fcmToken, platform: "android" | "ios" }`.
-  static const String deviceRegisterToken = '/api/device/register-token';
+  // These belong to the Notification module (RoboByte.Notification 1.0.7,
+  // `NotificationController`, `[Route("api/[controller]")]`). The client used
+  // to post to `/api/device/register-token`, which no module on this backend
+  // has ever served — so no device was ever registered, and every push the
+  // server tried to send had nowhere to go.
+  //
+  // Both act on the caller: the contact comes from the JWT ("no contact id in
+  // token" otherwise) and the device from `X-Device-SN`, which is how one
+  // person on two phones gets two rows in `notification.NotificationTokens`.
 
-  /// `POST /api/device/unregister-token` — clear the FCM token on
-  /// logout so the device stops receiving push for this account.
-  static const String deviceUnregisterToken = '/api/device/unregister-token';
+  /// `POST /api/Notification/UpdateNID?nid=<token>` — this device's FCM token
+  /// ("NID"). The parameter is a bare string, so it binds from the query.
+  static const String deviceRegisterToken = '/api/Notification/UpdateNID';
+
+  /// `GET /api/Notification/RemoveNID` — forget this device's token, so a
+  /// signed-out phone stops receiving someone else's notifications.
+  ///
+  /// A GET that writes, which is the module's choice, not this app's — see
+  /// `NotificationController.RemoveNID`. Sent as POST it answers 405.
+  static const String deviceUnregisterToken = '/api/Notification/RemoveNID';
 
   // ══ RoboByte.SocialMedia module ═════════════════════════════════════════
   //
@@ -166,6 +213,18 @@ class EndPoints {
 
   /// `POST /api/social/Feed/Unhide?itemId=<guid>&scope=<0|1>` — undoes [feedHide].
   static const String feedUnhide = '/api/social/Feed/Unhide';
+
+  /// `POST /api/social/Reports` — reports a post, reel, comment, message,
+  /// story or profile.
+  ///
+  /// **Request:** `{ targetType, targetId, reason, details? }`, both enums as
+  /// their integer value — `targetType` 0 is a post, and `reason` runs
+  /// 0 spam, 1 harassment, 2 hate speech, 3 violence, 4 nudity,
+  /// 5 misinformation, 6 self-harm, 7 impersonation, 8 IP, 9 other.
+  ///
+  /// Open to any signed-in caller: reporting is safe by construction, and
+  /// acting on a report is a separate, gated surface.
+  static const String reports = '/api/social/Reports';
 
   // ── Posts ───────────────────────────────────────────────────────────────
 
@@ -236,6 +295,10 @@ class EndPoints {
   /// **Failure:** `400` `"Parent comment not found."` when the parent id is not
   /// a comment on that post.
   static const String commentsAdd = '/api/social/Comments/Add';
+
+  /// `POST /api/social/Posts/Vote?pollId=&optionId=` — votes in a post's poll,
+  /// moves the vote, or (same option again) takes it back. Answers `PollDto`.
+  static const String postsVote = '/api/social/Posts/Vote';
 
   /// `POST /api/social/Comments/Like?commentId=<guid>` — toggle a comment like.
   static const String commentsLike = '/api/social/Comments/Like';
@@ -384,6 +447,14 @@ class EndPoints {
   /// `POST /api/social/Stories/View?storyId=<guid>` — marks it seen.
   static const String storiesView = '/api/social/Stories/View';
 
+  /// `POST /api/social/Stories/Like?storyId=` — toggles the caller's like.
+  /// Answers `{ liked, likeCount }`.
+  static const String storiesLike = '/api/social/Stories/Like';
+
+  /// `POST /api/social/Stories/Reply` `{ storyId, content }` — sends the reply
+  /// as a direct message to the story's author. Answers the conversation id.
+  static const String storiesReply = '/api/social/Stories/Reply';
+
   /// `GET /api/social/Stories/{id}/viewers?page=&size=` — who has seen it.
   static String storyViewers(String id) => '/api/social/Stories/$id/viewers';
 
@@ -413,9 +484,26 @@ class EndPoints {
   /// `POST /api/social/Reels/Save?reelId=<guid>` — toggles; returns the reel.
   static const String reelsSave = '/api/social/Reels/Save';
 
+  /// `POST /api/social/Reels/Share?reelId=<id>` — repost a reel to your own
+  /// followers, or undo a repost. Answers the ORIGINAL reel, with its repost
+  /// count and this viewer's state refreshed.
+  static const String reelsShare = '/api/social/Reels/Share';
+
   /// `POST /api/social/Reels/Play?reelId=<guid>` — counts a play. Distinct
   /// from a view: fire it when playback starts, not when the row scrolls past.
   static const String reelsPlay = '/api/social/Reels/Play';
+
+  /// `GET /api/social/Reels/Comments?reelId=&page=&size=` — a reel's
+  /// comments, oldest first, replies included (each carries its parent).
+  static const String reelsComments = '/api/social/Reels/Comments';
+
+  /// `POST /api/social/Reels/Comment` — body `{reelId, content,
+  /// parentCommentId?}`. Answers the new `ReelCommentDto`.
+  static const String reelsComment = '/api/social/Reels/Comment';
+
+  /// `DELETE /api/social/Reels/Comment/<guid>` — the comment's author or the
+  /// reel's author. Its replies go with it.
+  static String reelCommentById(String id) => '$reelsComment/$id';
 
   // ── Notifications (the activity centre) ─────────────────────────────────
 
@@ -568,6 +656,60 @@ class EndPoints {
   static String jobApplicationStatus(String applicationId) =>
       '/api/social/Jobs/applications/$applicationId/status';
 
+  // ── Engineering disciplines ─────────────────────────────────────────────
+
+  /// `GET /api/social/Disciplines` — the engineering disciplines (الاختصاص) a
+  /// profile can choose from, in the tenant's order.
+  ///
+  /// **Anonymous-safe on purpose**, like the storage zone: the profile step of
+  /// sign-up offers the list before there is an account. `?includeInactive=true`
+  /// is admin-only and answers 403 to everyone else.
+  ///
+  /// **Response:** `data` = `[{ id, nameAr, nameEn, iconUrl, sortOrder,
+  /// isActive }]`, where `iconUrl` is host-less like every other upload.
+  ///
+  /// `POST` creates one and `PUT /{id}` edits it — both admin only.
+  static const String disciplines = '/api/social/Disciplines';
+
+  /// `PUT /api/social/Disciplines/{id}` — rename, reorder, switch on or off, or
+  /// set the logo. Only the fields sent are changed; an empty `iconUrl` clears
+  /// the logo. Admin only.
+  static String discipline(int id) => '/api/social/Disciplines/$id';
+
+  /// `GET /api/social/Governorates` — the governorates (المحافظة) a profile can
+  /// choose from, in the tenant's order. **Anonymous-safe**, like the
+  /// disciplines list and for the same reason.
+  ///
+  /// **Response:** `data` = `[{ id, nameAr, nameEn, sortOrder, isActive }]`.
+  ///
+  /// `POST` creates one and `PUT /{id}` edits it — both admin only.
+  static const String governorates = '/api/social/Governorates';
+
+  // No client-side write helper: the app reads this list and the server's
+  // admin POST/PUT are reachable from the API for whoever curates it. Add one
+  // here alongside a governorates admin screen if that moves into the app.
+
+  // ── Tenant settings (admin) ─────────────────────────────────────────────
+
+  /// `GET` / `PUT /api/social/Settings/FeedRanking` — the tenant's feed-ranking
+  /// weights. Admin only (the JWT's `UserType` is `Admin` / `SystemAdmin`);
+  /// anyone else gets 403.
+  ///
+  /// **Request (PUT):** `{ affinityWeight, recencyWeight, recencyHalfLifeHours,
+  /// engagementWeight, unseenBonus, authorRepeatPenalty,
+  /// candidateOverfetchFactor, newsFeedRowTtlDays }` — validated server-side.
+  /// **Response:** `data` = the same shape, as saved.
+  static const String settingsFeedRanking = '/api/social/Settings/FeedRanking';
+
+  /// `GET` / `PUT /api/social/Settings/PanelAccess` — who the engineer panel is
+  /// open to: whether it is gated at all, the trial length, and which sections
+  /// are free regardless. Admin only; anyone else gets 403.
+  ///
+  /// **Request (PUT):** `{ subscriptionRequired, trialDays, freeSections[] }`,
+  /// where a section is a `PlanFeatureEnum` NAME (`"TheoryCourses"`).
+  /// **Response:** `data` = the same shape, as saved.
+  static const String settingsPanelAccess = '/api/social/Settings/PanelAccess';
+
   // ── Kernel generic write ────────────────────────────────────────────────
 
   /// `POST /api/GenericWrite/Save` — the Kernel's generic create/update/delete
@@ -607,6 +749,18 @@ class EndPoints {
   /// an account exists, so this is fetched with `X-Tenant-Id` when there is no
   /// bearer yet, exactly like login and sign-up.
   static const String storageZone = '/api/social/Storage/Zone';
+
+  /// `GET /api/social/Storage/Stream` — the Bunny **Stream** video library
+  /// reels are published to.
+  ///
+  /// **Response:** `data` = `{ libraryId, apiKey, cdnHostname }`, or
+  /// `error: true` with "Video streaming is not configured on this server."
+  ///
+  /// Stream rather than the storage zone because a storage zone serves a file
+  /// byte for byte: it has no poster frame to offer. Stream transcodes on
+  /// ingest and publishes a thumbnail at a predictable path, which is the only
+  /// way a reel can show a still while its video buffers.
+  static const String streamLibrary = '/api/social/Storage/Stream';
 
   // ── Engineer dashboard ──────────────────────────────────────────────────
 
@@ -700,6 +854,56 @@ class EndPoints {
   /// `POST /api/social/Courses/{id}/Rate` — `{ stars, comment? }`. Rating again
   /// edits rather than stacks, and the server refuses it without enrolment.
   static String courseRate(String id) => '/api/social/Courses/$id/Rate';
+
+  // ── Panel: the course marketplace ───────────────────────────────────────
+  //
+  // Authoring, review and purchase. Three different callers on one controller,
+  // separated by route rather than by header: `Mine/…` is the author's,
+  // `Purchases/…` is the money, and `Approve`/`Reject`/`Commerce` (on PUT) are
+  // admin-gated server-side on the token's UserType claim.
+
+  /// `POST` — creates or edits one of this viewer's own courses.
+  static const String courseSaveMine = '/api/social/Courses/Mine/Save';
+
+  /// `POST` adds or edits a lesson; `DELETE …/{lessonId}` removes one.
+  static String courseLessons(String id) => '/api/social/Courses/$id/Lessons';
+
+  static String courseLesson(String id, String lessonId) =>
+      '/api/social/Courses/$id/Lessons/$lessonId';
+
+  /// `POST` — hands the course to the reviewer.
+  static String courseSubmit(String id) => '/api/social/Courses/$id/Submit';
+
+  /// `POST` — admin only. Fixes the commission and publishes.
+  static String courseApprove(String id) => '/api/social/Courses/$id/Approve';
+
+  /// `POST` — admin only. Sends it back; the reason is required.
+  static String courseReject(String id) => '/api/social/Courses/$id/Reject';
+
+  /// `POST` — asks to buy. Creates a pending row; an administrator confirms
+  /// the money separately, and only that opens the course.
+  static String coursePurchase(String id) => '/api/social/Courses/$id/Purchase';
+
+  /// `POST` — the administrator's queue over the whole tenant.
+  static const String coursePurchases = '/api/social/Courses/Purchases';
+
+  /// `POST` — this viewer's own purchases.
+  static const String coursePurchasesMine =
+      '/api/social/Courses/Purchases/Mine';
+
+  /// `POST` — what this viewer has earned from courses they wrote.
+  static const String coursePurchaseEarnings =
+      '/api/social/Courses/Purchases/Earnings';
+
+  static String coursePurchaseConfirm(String id) =>
+      '/api/social/Courses/Purchases/$id/Confirm';
+
+  static String coursePurchaseCancel(String id) =>
+      '/api/social/Courses/Purchases/$id/Cancel';
+
+  /// `GET` reads the commission default and the subscriber discount; `PUT`
+  /// writes them, admin only.
+  static const String courseCommerce = '/api/social/Courses/Commerce';
 
   // ── Panel: notes ────────────────────────────────────────────────────────
 

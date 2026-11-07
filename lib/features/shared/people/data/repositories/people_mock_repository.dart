@@ -1,5 +1,6 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/person.dart';
 import '../../domain/repositories/people_repository.dart';
@@ -113,9 +114,15 @@ class PeopleMockRepository implements PeopleRepository {
   }
 
   @override
-  Future<Result<List<Person>, AppException>> search(String query) async {
+  Future<Result<List<Person>, AppException>> search(
+    String query, {
+    AccountType? accountType,
+  }) async {
     await _wait();
-    return Result.success(_match(query));
+    return Result.success([
+      for (final p in _match(query))
+        if (accountType == null || p.accountType == accountType) p,
+    ]);
   }
 
   List<Person> _match(String query) {

@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import 'base_entity.dart';
 import 'base_repository.dart';

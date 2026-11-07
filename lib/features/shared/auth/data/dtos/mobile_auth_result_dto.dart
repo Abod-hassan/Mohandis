@@ -25,6 +25,9 @@ class MobileAuthResultDto {
     this.userType,
     this.tenantId,
     this.roles = const [],
+    this.isNewUser = false,
+    this.requiresTwoFactor = false,
+    this.email,
   });
 
   factory MobileAuthResultDto.fromJson(Map<String, dynamic> json) {
@@ -39,6 +42,9 @@ class MobileAuthResultDto {
       // StringEnumConverter — so this arrives as "User" / "Admin", not 2.
       userType: json['userType']?.toString(),
       tenantId: (json['tenantId'] as num?)?.toInt(),
+      isNewUser: json['isNewUser'] == true,
+      requiresTwoFactor: json['requiresTwoFactor'] == true,
+      email: json['email'] as String?,
       roles: json['roles'] is List
           ? (json['roles'] as List)
                 .map((e) => '$e')
@@ -63,6 +69,26 @@ class MobileAuthResultDto {
   final int? tenantId;
 
   final List<String> roles;
+
+  /// True when this is a REGISTRATION token rather than a session.
+  ///
+  /// The identity was proved — an OTP, an e-mail code — but no account exists
+  /// behind it yet, so only [accessToken] (and sometimes [email]) are set and
+  /// [refreshToken] is empty. It authorises exactly one call,
+  /// `CreateWithContact`, which trades it for a real session.
+  ///
+  /// Branch on this BEFORE treating a response as a sign-in: the three states
+  /// share one wire shape, and storing a registration token as a session
+  /// strands the app holding a bearer that every other endpoint rejects.
+  final bool isNewUser;
+
+  /// True when this is a 2FA challenge rather than a session — a five-minute
+  /// token spendable only on `TwoFactor/Verify`. Same trap as [isNewUser].
+  final bool requiresTwoFactor;
+
+  /// Present on an e-mail-verified registration token, echoing the address
+  /// that was proved.
+  final String? email;
 
   AuthSession toDomain() {
     final user = User(

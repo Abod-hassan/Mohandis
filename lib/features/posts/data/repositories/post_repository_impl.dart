@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/comment.dart';
 import '../../domain/entities/feed_page.dart';
@@ -59,6 +59,7 @@ class PostRepositoryImpl implements PostRepository {
         bucket: page.bucket.isEmpty ? sent.bucket : page.bucket,
         beforeEventTime: page.nextBeforeEventTime,
         recommendationOffset: page.nextRecommendationOffset,
+        seed: sent.seed,
       ),
       hasMore: page.hasMore,
     );
@@ -114,6 +115,15 @@ class PostRepositoryImpl implements PostRepository {
     int size = _defaultPageSize,
   }) {
     return _list({'onlySaved': true}, page: page, size: size);
+  }
+
+  @override
+  Future<Result<List<Post>, AppException>> byHashtag(
+    String tag, {
+    int page = 1,
+    int size = _defaultPageSize,
+  }) {
+    return _list({'hashtag': tag.replaceFirst('#', '')}, page: page, size: size);
   }
 
   @override
@@ -177,6 +187,7 @@ class PostRepositoryImpl implements PostRepository {
     required String text,
     required PostVisibility visibility,
     List<PostMedia> media = const [],
+    PollDraft? poll,
   }) {
     return apiCall(
       EndPoints.postsPublish,
@@ -186,9 +197,26 @@ class PostRepositoryImpl implements PostRepository {
           'content': text,
           'visibility': PostDto.visibilityToWire(visibility),
           if (media.isNotEmpty) 'media': _mediaInput(media),
+          if (poll != null) 'poll': poll.toJson(),
         },
       ),
       _post,
+    );
+  }
+
+  @override
+  Future<Result<Poll, AppException>> votePoll(String pollId, String optionId) {
+    return apiCall(
+      EndPoints.postsVote,
+      () => _api.dio.post<dynamic>(
+        EndPoints.postsVote,
+        queryParameters: {'pollId': pollId, 'optionId': optionId},
+      ),
+      (envelope) {
+        final poll = PostDto.pollFrom(envelope.object);
+        if (poll == null) throw const NotFoundException('Poll not found');
+        return poll;
+      },
     );
   }
 
@@ -279,6 +307,50 @@ class PostRepositoryImpl implements PostRepository {
     return apiCall(path, () => _api.dio.delete<dynamic>(path), (_) {});
   }
 
+  @override
+  Future<Result<Post, AppException>> edit(
+    String postId, {
+    required String text,
+    PostVisibility? visibility,
+  }) {
+    final path = EndPoints.postById(postId);
+    return apiCall(
+      path,
+      () => _api.dio.put<dynamic>(path, data: {
+        'content': text,
+        // Omitted, not defaulted: the server keeps the post's current audience
+        // when this is absent, and sending `public` because the sheet did not
+        // ask would quietly widen a followers-only post.
+        if (visibility != null)
+          'visibility': PostDto.visibilityToWire(visibility),
+      }),
+      _post,
+    );
+  }
+
+  @override
+  Future<Result<bool, AppException>> report(
+    String postId, {
+    required PostReportReason reason,
+    String? details,
+  }) {
+    return apiCall(
+      EndPoints.reports,
+      () => _api.dio.post<dynamic>(
+        EndPoints.reports,
+        data: {
+          // 0 = Post on `ReportTargetTypeEnum`.
+          'targetType': 0,
+          'targetId': postId,
+          'reason': reason.wire,
+          if (details != null && details.trim().isNotEmpty)
+            'details': details.trim(),
+        },
+      ),
+      (envelope) => envelope.data != false,
+    );
+  }
+
   // ── Comments ─────────────────────────────────────────────────────────────
 
   @override
@@ -340,14 +412,19 @@ class PostRepositoryImpl implements PostRepository {
     visibility: PostDto.visibilityFromWire(body['visibility']),
   );
 
-  /// The module has no post-edit endpoint — a published post is immutable.
+  /// The generic form of [edit] — `body` carries `text`/`content`, and
+  /// `visibility` when the caller wants to change it.
   @override
   Future<Result<Post, AppException>> update(
     String id,
     Map<String, dynamic> body,
-  ) async {
-    return const Result.failure(
-      ForbiddenException('Posts cannot be edited after publishing'),
+  ) {
+    return edit(
+      id,
+      text: '${body['text'] ?? body['content'] ?? ''}',
+      visibility: body.containsKey('visibility')
+          ? PostDto.visibilityFromWire(body['visibility'])
+          : null,
     );
   }
 

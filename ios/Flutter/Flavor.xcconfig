@@ -1,0 +1,16 @@
+// Which Dart entrypoint Xcode builds for RELEASE and PROFILE — which is what
+// Product ▸ Archive and `flutter build ipa` use, i.e. what goes to the App
+// Store and TestFlight. Pinned to PROD on purpose and not meant to be edited:
+// pointing it at dev once (to run dev from Xcode) is exactly how a store
+// build shipped talking to https://localhost:7199.
+//
+// Debug builds (Run from Xcode, `flutter run`) read Flavor.dev.xcconfig
+// instead — change that one to run another flavor while developing.
+//
+// Why a pin at all: Flutter writes FLUTTER_TARGET into Generated.xcconfig from
+// the last `flutter run` / `flutter build`, and Xcode never rewrites it, so an
+// Archive started from Xcode would silently inherit whichever flavor the last
+// command line used. This file is included AFTER Generated.xcconfig, and in an
+// xcconfig the last assignment wins.
+
+FLUTTER_TARGET = lib/flavors/main_prod.dart

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 void main() {
   setUpAll(() => initializeDateFormatting('ar'));
@@ -36,7 +36,7 @@ void main() {
     test('falls back to the compact form from three units up', () {
       expect(
         relativeTimeArabic(now.subtract(const Duration(hours: 5)), now: now),
-        '٥ س',
+        '5 س',
       );
     });
 
@@ -49,19 +49,42 @@ void main() {
   });
 
   group('ArabicNumbers', () {
-    test('renders counts with Arabic-Indic digits', () {
-      expect(ArabicNumbers.plain(42), '٤٢');
-      expect(ArabicNumbers.count(4208), '٤٬٢٠٨');
-      expect(ArabicNumbers.count(4208), isNot(contains(',')));
+    // The app shows Western ("English") digits everywhere.
+    test('renders counts with Western digits', () {
+      expect(ArabicNumbers.plain(42), '42');
+      expect(ArabicNumbers.count(4208), '4,208');
+      expect(ArabicNumbers.count(4208), isNot(contains(RegExp(r'[٠-٩]'))));
     });
 
     test('compact keeps small numbers exact and abbreviates large ones', () {
-      expect(ArabicNumbers.compact(342), '٣٤٢');
-      expect(ArabicNumbers.compact(12400), isNot(contains(RegExp(r'[0-9]'))));
+      expect(ArabicNumbers.compact(342), '342');
+      expect(ArabicNumbers.compact(12400), contains('12'));
+      expect(ArabicNumbers.compact(12400), isNot(contains(RegExp(r'[٠-٩]'))));
     });
 
-    test('percent rounds and appends the Arabic percent sign', () {
-      expect(ArabicNumbers.percent(0.62), '٦٢٪');
+    test('percent rounds and appends a percent sign', () {
+      expect(ArabicNumbers.percent(0.62), '62%');
+    });
+  });
+
+  group('toWesternDigits', () {
+    test('converts Arabic-Indic and Persian digits and separators', () {
+      expect(toWesternDigits('٤٬٢٠٨'), '4,208');
+      expect(toWesternDigits('۱۲۳'), '123');
+      expect(toWesternDigits('٦٢٪'), '62%');
+      expect(toWesternDigits('٣٫٥'), '3.5');
+    });
+
+    test('leaves letters and Western digits alone', () {
+      expect(toWesternDigits('منذ 5 س'), 'منذ 5 س');
+      expect(toWesternDigits('abc 123'), 'abc 123');
+    });
+  });
+
+  group('date formatters', () {
+    test('month and day use Western digits, zero-padded', () {
+      expect(formatMonthYearArabic(DateTime(2022, 3)), '03/2022');
+      expect(formatDayArabic(DateTime(2015, 3, 1)), '01/03/2015');
     });
   });
 

@@ -12,6 +12,7 @@ void showRungToast(
   BuildContext context,
   String message, {
   bool success = true,
+  Duration duration = const Duration(milliseconds: 2200),
 }) {
   final c = context.rung;
   final messenger = ScaffoldMessenger.maybeOf(context);
@@ -45,7 +46,7 @@ void showRungToast(
         backgroundColor: c.ink,
         behavior: SnackBarBehavior.floating,
         elevation: 0,
-        duration: const Duration(milliseconds: 2200),
+        duration: duration,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         shape: const RoundedRectangleBorder(borderRadius: RungRadius.mdAll),

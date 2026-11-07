@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 import '../../domain/entities/job_application.dart';
 
@@ -18,6 +18,7 @@ class JobApplicationDto implements BaseDto<JobApplication> {
     required this.status,
     required this.createdAt,
     this.applicantName = '',
+    this.applicantHeadline = '',
     this.applicantAvatarUrl,
     this.coverLetter,
     this.resumeUrl,
@@ -29,6 +30,7 @@ class JobApplicationDto implements BaseDto<JobApplication> {
         jobId: '${json['jobId'] ?? ''}',
         applicantId: '${json['applicantId'] ?? ''}',
         applicantName: '${json['applicantName'] ?? ''}',
+        applicantHeadline: '${json['applicantHeadline'] ?? ''}',
         applicantAvatarUrl: json['applicantAvatarUrl'] as String?,
         coverLetter: json['coverLetter'] as String?,
         resumeUrl: json['resumeUrl'] as String?,
@@ -40,6 +42,7 @@ class JobApplicationDto implements BaseDto<JobApplication> {
   final String jobId;
   final String applicantId;
   final String applicantName;
+  final String applicantHeadline;
   final String? applicantAvatarUrl;
   final String? coverLetter;
   final String? resumeUrl;
@@ -55,6 +58,7 @@ class JobApplicationDto implements BaseDto<JobApplication> {
     resumeUrl: resumeUrl ?? '',
     coverLetter: coverLetter ?? '',
     applicantId: applicantId,
+    applicantHeadline: applicantHeadline,
     applicantName: applicantName,
     applicantAvatarUrl: applicantAvatarUrl,
   );
@@ -65,6 +69,7 @@ class JobApplicationDto implements BaseDto<JobApplication> {
     'jobId': jobId,
     'applicantId': applicantId,
     'applicantName': applicantName,
+    'applicantHeadline': applicantHeadline,
     'applicantAvatarUrl': applicantAvatarUrl,
     'coverLetter': coverLetter,
     'resumeUrl': resumeUrl,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/panel_entities.dart';
 
@@ -86,7 +86,7 @@ class CourseCover extends ConsumerWidget {
   }
 }
 
-/// "٤٫٦ (٢٣)", or the no-ratings line. Never a lone star on zero reviews — an
+/// "4.6 (23)", or the no-ratings line. Never a lone star on zero reviews — an
 /// average of nothing is not a rating of zero.
 class CourseRating extends StatelessWidget {
   const CourseRating({super.key, required this.course, this.compact = false});
@@ -139,10 +139,16 @@ class CoursePriceBadge extends StatelessWidget {
     final c = context.rung;
     final l10n = context.l10n;
 
-    final (String text, Color tint, IconData? icon) = course.isFree
-        ? (l10n.courseFree, c.green, null)
-        : course.isLocked
+    // `isLocked` FIRST, and `isFree` only for a course that is genuinely open.
+    //
+    // A platform course is the subscription's product now, so `isFree` on one
+    // of those says nothing about whether this viewer can open it — and the
+    // old order read that flag first, putting a green "مجاني" on a course that
+    // answers every tap with a padlock.
+    final (String text, Color tint, IconData? icon) = course.isLocked
         ? (l10n.courseLockedBadge, c.ink3, Icons.lock_outline)
+        : course.isFree
+        ? (l10n.courseFree, c.green, null)
         : (l10n.subscriptionTitle, c.accent, Icons.workspace_premium_outlined);
 
     return Container(
@@ -172,7 +178,7 @@ class CoursePriceBadge extends StatelessWidget {
   }
 }
 
-/// "٢٤ محاضرة · ١٨ ساعة · متوسط" — the one-line spec every card and page shows.
+/// "24 محاضرة · 18 ساعة · متوسط" — the one-line spec every card and page shows.
 String courseMeta(BuildContext context, Course course) {
   final l10n = context.l10n;
   final parts = <String>[

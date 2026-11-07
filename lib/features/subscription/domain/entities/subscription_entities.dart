@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_mobile_template/l10n/l10n.dart';
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 /// Where a subscription is — the backend's `SubscriptionStatusEnum`, in order.
 enum SubscriptionStatus { pending, active, expired, cancelled }
@@ -32,12 +33,25 @@ enum PlanFeature {
 /// the DTO maps them by hand rather than indexing [values].
 enum BillingCycle { monthly, annual }
 
+/// The cycles this app SELLS, whatever the backend offers.
+///
+/// The paywall is otherwise driven entirely by the tenant's price rows, which
+/// is the right way round — a cycle can be added or withdrawn without a
+/// release. This is the deliberate exception: the product is sold annually
+/// only, so a monthly price row left in the database (or re-added later) must
+/// not put a monthly tab back in front of a customer. Prices for anything not
+/// listed here are dropped as the plans are decoded.
+///
+/// An existing monthly subscription is unaffected: it is read from the
+/// subscription itself, not from this list, and still shows its own term.
+const Set<BillingCycle> kSoldBillingCycles = {BillingCycle.annual};
+
 /// One way to pay for a plan: a cycle, a price, and the term it buys.
 class PlanPrice {
   const PlanPrice({
     required this.cycle,
     this.price = 0,
-    this.currency = 'USD',
+    this.currency = kCurrencyCode,
     this.durationDays = 30,
   });
 
@@ -102,7 +116,7 @@ class SubscriptionPlan extends BaseEntity {
   ///
   /// Null — no badge — when either cycle is missing, when either price is zero
   /// (a free tier has no saving to show), and when the annual price is not
-  /// actually cheaper. Drawing "وفّر ٠٪" is worse than drawing nothing.
+  /// actually cheaper. Drawing "وفّر 0%" is worse than drawing nothing.
   int? get annualSavingPercent {
     final monthly = priceFor(BillingCycle.monthly);
     final annual = priceFor(BillingCycle.annual);
@@ -142,7 +156,7 @@ class PlanChangeQuote {
     required this.currentPlanName,
     this.currentCycle,
     this.price = 0,
-    this.currency = 'USD',
+    this.currency = kCurrencyCode,
     this.durationDays = 0,
     this.remainingDays = 0,
     this.expiresAt,
@@ -208,7 +222,7 @@ class Subscription extends BaseEntity {
     this.expiresAt,
     this.cancelledAt,
     this.price = 0,
-    this.currency = 'USD',
+    this.currency = kCurrencyCode,
     this.durationDays = 0,
     this.cycle,
     this.creditedValue = 0,
@@ -321,6 +335,33 @@ class SubscriptionState {
     final left = ends.difference(DateTime.now()).inDays;
     return left <= 0 ? 0 : left;
   }
+
+  /// Whether this viewer may open [feature].
+  ///
+  /// The same question the server answers on every panel route: an ungated
+  /// tenant allows everything, and a gated one allows exactly what [features]
+  /// lists — which now includes the sections the tenant has opened to
+  /// everyone, so a free section reads as allowed without a subscription.
+  bool allows(PlanFeature feature) => !required || features.contains(feature);
+
+  /// Whether this viewer may apply for a job.
+  ///
+  /// Not a [PlanFeature]: the plans sell panel sections, and applying is gated
+  /// on holding a subscription AT ALL rather than on any one of them — which
+  /// is also the rule `JobService.Apply` enforces with `HasAccessAsync`. An
+  /// ungated tenant allows it, a trial allows it, and a section the tenant
+  /// gives away does NOT, because that is a free shelf rather than a
+  /// subscription.
+  bool get canApplyToJobs => !required || hasAccess;
+
+  /// Whether this viewer may open a panel TOOL — the assistant, the notes.
+  ///
+  /// Same shape as [canApplyToJobs] and for the same reason: the plans sell
+  /// named sections, and these are not among them, so the question is "do they
+  /// hold a subscription at all" rather than "which one". A trial allows them;
+  /// a tenant that does not charge allows them; a free SECTION does not, since
+  /// giving away one shelf is not the same as giving away the panel.
+  bool get opensPanelTools => !required || hasAccess;
 
   /// Whether to show subscription UI at all. A tenant that does not charge has
   /// no plans worth rendering and no state worth explaining.

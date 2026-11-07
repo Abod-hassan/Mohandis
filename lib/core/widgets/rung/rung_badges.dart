@@ -5,17 +5,76 @@ import '../../theme/rung_tokens.dart';
 
 /// The accent verification rosette shown beside a name.
 class VerifiedBadge extends StatelessWidget {
-  const VerifiedBadge({super.key, this.size = 14});
+  const VerifiedBadge({super.key, this.size = 14, this.color});
 
   final double size;
+
+  /// Overrides the accent — for the handful of surfaces that are dark whatever
+  /// the theme is, where a token picked for a light background disappears.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Icon(
       Icons.verified,
       size: size,
-      color: context.rung.accent,
+      color: color ?? context.rung.accent,
       semanticLabel: 'موثّق',
+    );
+  }
+}
+
+/// The mark beside a name, and the gap before it.
+///
+/// **One rosette for two different claims.** A staff-verified account and a
+/// subscribed one get the same [VerifiedBadge]: a reader cannot tell them
+/// apart, and that is the decision — the badge says "this account is marked",
+/// not which of the two reasons marked it. The alternative, a second glyph in
+/// its own colour, was built first and dropped; it is worth knowing why the
+/// choice exists at all, because the two facts really are unrelated.
+/// Verification is a person here deciding an account is who it says it is;
+/// a subscription is a billing state that ends the day a card is declined.
+/// Showing them identically means the older claim now also means "pays us",
+/// and that is not something a product can walk back once people have learnt
+/// it. Changing back is a one-line edit here and nowhere else.
+///
+/// Exists so the rule lives in ONE place. The badge is drawn on eighteen
+/// surfaces — feed cards, comments, the reels rail, message threads, search
+/// rows, two profile headers — and a condition written out eighteen times is
+/// one that holds in seventeen.
+///
+/// Renders nothing at all when neither applies, including the spacing, so a
+/// row of ordinary names has no stray gap in it.
+class NameBadges extends StatelessWidget {
+  const NameBadges({
+    super.key,
+    required this.verified,
+    required this.subscribed,
+    this.size = 14,
+    this.gap = 5,
+    this.onDark = false,
+  });
+
+  /// Staff-verified.
+  final bool verified;
+
+  /// Holds a live subscription. Draws the same mark as [verified].
+  final bool subscribed;
+
+  final double size;
+  final double gap;
+
+  /// For a surface that is dark whatever the theme is — a reel over video, a
+  /// story's scrim — where the accent token, picked against a light
+  /// background, disappears.
+  final bool onDark;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!verified && !subscribed) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsetsDirectional.only(start: gap),
+      child: VerifiedBadge(size: size, color: onDark ? Colors.white : null),
     );
   }
 }
@@ -145,7 +204,7 @@ class RungCountBadge extends StatelessWidget {
         border: Border.all(color: borderColor ?? c.surface, width: 1.5),
       ),
       child: Text(
-        count > 99 ? '٩٩+' : _arabic(count),
+        count > 99 ? '99+' : _arabic(count),
         style: const TextStyle(
           color: Colors.white,
           fontSize: 9.5,
@@ -156,9 +215,6 @@ class RungCountBadge extends StatelessWidget {
     );
   }
 
-  static String _arabic(int value) => value
-      .toString()
-      .split('')
-      .map((d) => String.fromCharCode(d.codeUnitAt(0) + 0x0660 - 0x30))
-      .join();
+  /// Western digits, like every number in the app — see `ArabicNumbers`.
+  static String _arabic(int value) => value.toString();
 }

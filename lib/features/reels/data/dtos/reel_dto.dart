@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 import '../../domain/entities/reel.dart';
 
@@ -18,6 +18,7 @@ class ReelDto implements BaseDto<Reel> {
     this.authorUsername,
     this.authorAvatarUrl,
     this.authorIsVerified = false,
+    this.authorIsSubscribed = false,
     this.videoUrl,
     this.thumbnailUrl,
     this.caption = '',
@@ -28,6 +29,12 @@ class ReelDto implements BaseDto<Reel> {
     this.saveCount = 0,
     this.isLiked = false,
     this.isSaved = false,
+    this.shareCount = 0,
+    this.commentCount = 0,
+    this.isShared = false,
+    this.sharedReelId,
+    this.sharedAuthorId,
+    this.sharedAuthorName,
   });
 
   factory ReelDto.fromJson(Map<String, dynamic> json) {
@@ -41,6 +48,7 @@ class ReelDto implements BaseDto<Reel> {
       authorUsername: json['authorUsername'] as String?,
       authorAvatarUrl: json['authorAvatarUrl'] as String?,
       authorIsVerified: json['authorIsVerified'] == true,
+      authorIsSubscribed: json['authorIsSubscribed'] == true,
       videoUrl: video.isEmpty ? null : video,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       caption: '${json['caption'] ?? ''}',
@@ -51,8 +59,25 @@ class ReelDto implements BaseDto<Reel> {
       saveCount: PostDto.asInt(json['saveCount']),
       isLiked: json['isLiked'] == true,
       isSaved: json['isSaved'] == true,
+      shareCount: PostDto.asInt(json['shareCount']),
+      commentCount: PostDto.asInt(json['commentCount']),
+      isShared: json['isShared'] == true,
+      sharedReelId: _optionalId(json['sharedReelId']),
+      sharedAuthorId: _optionalId(json['sharedAuthorId']),
+      sharedAuthorName: json['sharedAuthorName'] as String?,
       createdAt: PostDto.parseDate(json['createdAt']),
     );
+  }
+
+  /// A nullable guid off the wire. Empty and the all-zero guid both mean "not
+  /// set" — a repost field is absent on an ordinary reel, and some serialisers
+  /// write the default rather than omitting it.
+  static String? _optionalId(Object? raw) {
+    if (raw == null) return null;
+    final value = '$raw'.trim();
+    if (value.isEmpty) return null;
+    if (value == '00000000-0000-0000-0000-000000000000') return null;
+    return value;
   }
 
   final String id;
@@ -61,6 +86,7 @@ class ReelDto implements BaseDto<Reel> {
   final String? authorUsername;
   final String? authorAvatarUrl;
   final bool authorIsVerified;
+  final bool authorIsSubscribed;
   final String? videoUrl;
   final String? thumbnailUrl;
   final String caption;
@@ -71,6 +97,12 @@ class ReelDto implements BaseDto<Reel> {
   final int saveCount;
   final bool isLiked;
   final bool isSaved;
+  final int shareCount;
+  final int commentCount;
+  final bool isShared;
+  final String? sharedReelId;
+  final String? sharedAuthorId;
+  final String? sharedAuthorName;
   final DateTime createdAt;
 
   @override
@@ -81,6 +113,7 @@ class ReelDto implements BaseDto<Reel> {
     authorUsername: authorUsername,
     authorAvatarUrl: authorAvatarUrl,
     authorVerified: authorIsVerified,
+    authorSubscribed: authorIsSubscribed,
     createdAt: createdAt,
     caption: caption,
     // The module keeps hashtags in a table fed by post content only; a reel's
@@ -96,6 +129,12 @@ class ReelDto implements BaseDto<Reel> {
     saveCount: saveCount,
     liked: isLiked,
     saved: isSaved,
+    shareCount: shareCount,
+    commentCount: commentCount,
+    shared: isShared,
+    sharedReelId: sharedReelId,
+    sharedAuthorId: sharedAuthorId,
+    sharedAuthorName: sharedAuthorName,
   );
 
   @override
@@ -112,6 +151,12 @@ class ReelDto implements BaseDto<Reel> {
     'viewCount': viewCount,
     'playCount': playCount,
     'saveCount': saveCount,
+    'shareCount': shareCount,
+    'commentCount': commentCount,
+    'isShared': isShared,
+    'sharedReelId': sharedReelId,
+    'sharedAuthorId': sharedAuthorId,
+    'sharedAuthorName': sharedAuthorName,
     'isLiked': isLiked,
     'isSaved': isSaved,
     'createdAt': createdAt.toUtc().toIso8601String(),

@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 /// Notification kinds the centre knows how to render.
 ///
@@ -19,6 +19,12 @@ enum ActivityType {
   message,
   call,
 
+  /// Somebody liked your story.
+  storyLike,
+
+  /// Somebody commented on your reel (or replied to your comment on one).
+  reelComment,
+
   /// A kind the server added that this build has no rendering for. Kept
   /// distinct so an unknown notification reads as "sent you a notification"
   /// with a neutral bell, rather than being mislabelled as a like.
@@ -37,6 +43,7 @@ class ActivityNotification extends BaseEntity {
     this.postId,
     this.unread = true,
     this.actionable = false,
+    this.isFollowRequest = false,
   });
 
   @override
@@ -62,7 +69,7 @@ class ActivityNotification extends BaseEntity {
   /// to a monogram for everyone the directory happens not to hold.
   final String? actorAvatarUrl;
 
-  /// Server-composed predicate ("و٣٤١ آخرون أعجبوا بمنشورك"). Rendered after
+  /// Server-composed predicate ("و341 آخرون أعجبوا بمنشورك"). Rendered after
   /// the actor's bolded name.
   ///
   /// **Usually empty against the real backend** — the module only fills it for
@@ -78,8 +85,17 @@ class ActivityNotification extends BaseEntity {
   final DateTime createdAt;
   final bool unread;
 
-  /// True for inbound connection requests, which carry accept/ignore buttons.
+  /// True while the request behind this row can still be answered, which is
+  /// when it carries accept/ignore buttons. Decided by the SERVER from the
+  /// live request — see [ActivityNotificationDto].
   final bool actionable;
+
+  /// A request to follow a private account, as opposed to a connection
+  /// request. Both render as the same row with the same two buttons, but they
+  /// are answered by different endpoints: Profiles/AcceptRequest for this one,
+  /// Connections/Accept for the other. Sending one to the other's endpoint is
+  /// a guaranteed "Request not found."
+  final bool isFollowRequest;
 
   ActivityNotification copyWith({
     String? text,
@@ -97,6 +113,7 @@ class ActivityNotification extends BaseEntity {
       createdAt: createdAt,
       unread: unread ?? this.unread,
       actionable: actionable ?? this.actionable,
+      isFollowRequest: isFollowRequest,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -89,6 +90,20 @@ class FcmSetupService {
     await _initLocalNotifications();
     await _createAndroidChannel();
 
+    // iOS suppresses a notification while the app is in the foreground unless
+    // it is told otherwise, and firebase_messaging owns the
+    // UNUserNotificationCenter delegate — so a locally-drawn banner is simply
+    // never presented there. Asking FCM to present the remote one is the fix;
+    // `_showLocalBanner` then stands down on iOS so a message does not arrive
+    // twice.
+    if (Platform.isIOS) {
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+
     // Register the background handler. Idempotent across hot restart.
     FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
 
@@ -113,10 +128,15 @@ class FcmSetupService {
     // get a uniform shape.
     await _drainQueueIntoBus();
 
-    // Token + permission can race the rest — request first, then
-    // listen for rotation.
-    await _ensurePermission();
-    await _refreshTokenAndMaybeRegister();
+    // Permission and registration only for someone signed in. Prompting
+    // on the sign-in screen asks a stranger to trust an app they have not
+    // entered yet, and most people answer no — and on iOS, a "no" is
+    // permanent until they dig through Settings. Signing in reaches
+    // [setAuthenticated], which asks at the moment it makes sense.
+    if (_authenticated) {
+      await _ensurePermission();
+      await _refreshTokenAndMaybeRegister();
+    }
 
     _tokenSub = FirebaseMessaging.instance.onTokenRefresh.listen((token) {
       if (kDebugMode) debugPrint('[fcm] onTokenRefresh');
@@ -128,10 +148,10 @@ class FcmSetupService {
   /// backend. Called from the auth layer on explicit logout. The
   /// local cache stays — the same token is fine to reuse for the
   /// next user (it's just a device address, not a credential).
-  Future<void> handleLogout() async {
+  Future<void> handleLogout({String? bearer}) async {
     _authenticated = false;
     try {
-      await ref.read(deviceTokenRepositoryProvider).unregister();
+      await ref.read(deviceTokenRepositoryProvider).unregister(bearer: bearer);
     } catch (_) {
       // Best-effort — see DeviceTokenRepository.unregister doc.
     }
@@ -147,6 +167,19 @@ class FcmSetupService {
       debugPrint('[fcm] setAuthenticated: was=$was → authed=$authed');
     }
     if (!was && authed) {
+      // A build without Firebase config has no messaging to set up; this is
+      // called fire-and-forget from the auth layer, so a throw here would
+      // surface as an unhandled error on every sign-in.
+      if (Firebase.apps.isEmpty) return;
+      // Asked here, not only at boot — see init(). On Android 13+ this is the
+      // ONLY place the runtime prompt comes from for someone who signed in
+      // after launch; the iOS path in `_refreshTokenAndMaybeRegister` asks
+      // for itself, and asking twice is a no-op.
+      try {
+        await _ensurePermission();
+      } catch (e) {
+        if (kDebugMode) debugPrint('[fcm] permission request failed: $e');
+      }
       // Newly authenticated — push the token to the backend.
       await _refreshTokenAndMaybeRegister(forceRegister: true);
     }
@@ -315,11 +348,20 @@ class FcmSetupService {
             debugPrint(
                 '[fcm] APNs token never arrived after ${maxAttempts * interval.inMilliseconds}ms '
                 '(permission=$status)');
+            // Deliberately a list, not one guess. The earlier text blamed a
+            // stale provisioning profile, which is only one of the causes and
+            // is the easiest to rule out: look at the `[apns]` line the app
+            // delegate prints. Apple's own failure message appears there, and
+            // NOTHING at all on that line means the request never left the
+            // device.
             debugPrint(
-                '[fcm] permission was granted but APNs didn\'t deliver — '
-                'this is almost always a stale provisioning profile. '
-                'Xcode → Settings → Accounts → Download Manual Profiles, '
-                'then flutter clean && flutter run.');
+                '[fcm] permission was granted but APNs delivered nothing. '
+                'Check, in order: the [apns] line above (Apple\'s own error); '
+                'a simulator never gets a token — use a real device; '
+                'the device can reach Apple (try cellular, drop any VPN); '
+                'delete the app from the phone and reinstall; '
+                'Xcode → Settings → Accounts → Download Manual Profiles if '
+                'the entitlement is missing from the build.');
           }
           return;
         }
@@ -396,6 +438,10 @@ class FcmSetupService {
       RemoteMessage message, Map<String, String> data) async {
     final notif = message.notification;
     if (notif == null) return; // data-only payload — caller decides UI
+    // iOS presents the remote notification itself — see the foreground
+    // presentation options set in `init`. Drawing a local copy as well is how
+    // one message becomes two banners.
+    if (Platform.isIOS) return;
     final android = AndroidNotificationDetails(
       _kAndroidChannelId,
       _kAndroidChannelName,

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/services/media_upload_service.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/utils/pick_cropped_image.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/services/media_upload_service.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
+
+import '../widgets/account_type_labels.dart';
+import '../widgets/discipline_picker.dart';
+import '../widgets/governorate_picker.dart';
 
 import '../../domain/entities/profile.dart';
 import '../notifiers/profile_notifier.dart';
@@ -30,6 +34,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _name = TextEditingController();
   final _headline = TextEditingController();
   final _industry = TextEditingController();
+
+  /// The chosen discipline — الاختصاص. [_industry] still carries its NAME, for
+  /// everything that compares industries as text.
+  int? _disciplineId;
+
+  /// The chosen governorate — المحافظة. [_location] carries its NAME.
+  int? _governorateId;
   final _location = TextEditingController();
   final _about = TextEditingController();
   final _website = TextEditingController();
@@ -48,26 +59,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   /// on the wire, kept as the enum so the chip row has something to compare.
   CompanySize _companySize = CompanySize.unspecified;
 
-  /// Which form to draw. Read from the loaded profile rather than from
-  /// `isCompanyAccountProvider` so the fields and the values being hydrated
-  /// into them always come from the same record.
-  bool _isCompany = false;
+  /// Which kind of account this profile is. Read from the loaded profile
+  /// rather than from `isCompanyAccountProvider` so the fields and the values
+  /// being hydrated into them always come from the same record.
+  AccountType _accountType = AccountType.individual;
+
+  /// Which form to draw: a business page, or a person looking for work.
+  bool get _isCompany => _accountType.isBusiness;
 
   bool _openToWork = false;
   bool _isPrivate = false;
-  bool _hydrated = false;
+  /// Whose profile the fields were filled from — null until they have been.
+  ///
+  /// An id rather than a bool, because "already filled" is not the question;
+  /// "filled from THIS account" is. `profileNotifierProvider` is not
+  /// autoDispose, and signing in as someone else invalidates it rather than
+  /// discarding it — Riverpod rebuilds it carrying the previous value, and
+  /// `AsyncValue.when` shows that value while the new one loads (its
+  /// `skipLoadingOnRefresh` defaults to true). So the first frame after a
+  /// switch handed this screen the PREVIOUS account's profile, a bool flag
+  /// latched on it, and the fresh profile arriving a moment later was ignored:
+  /// the new account opened on the old one's headline and bio.
+  ///
+  /// Worse here than on the setup step: Save writes every field on this form,
+  /// so a form filled from the previous account and saved would copy that
+  /// person's headline, bio and location onto this one.
+  String? _hydratedFor;
   bool _saving = false;
 
-  /// Which image is mid-upload, so only that control shows a spinner.
+  /// True while the avatar is being uploaded, so the control shows a spinner.
   bool _uploadingAvatar = false;
-  bool _uploadingCover = false;
 
   /// Picks a photo, uploads it, and writes the resulting path to [field].
   ///
   /// Saved on its own rather than folded into the form's Save: the photo is
   /// already on the CDN by the time the picker closes, and leaving it unsaved
   /// would lose it if the person backed out. [field] is the key `updateMe`
-  /// maps — `avatarUrl` or `coverUrl`.
+  /// maps — `avatarUrl`.
   Future<void> _pickAndSaveImage({
     required String field,
     required void Function(bool) setBusy,
@@ -77,25 +105,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     // so a future caller can't reach the picker without an uploader behind it.
     if (uploader == null) return;
 
-    final XFile? picked;
+    final String? localPath;
     try {
-      picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        // A banner is wider than an avatar, so this is sized for the larger of
-        // the two rather than per field — it is still a fraction of an original.
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 85,
-      );
+      // Square, under a round guide — see ImageCropShape.avatar.
+      localPath = await pickCroppedImage(context, shape: ImageCropShape.avatar);
     } catch (e) {
       if (!mounted) return;
       showRungToast(context, arabicMessageForException(e), success: false);
       return;
     }
-    if (picked == null || !mounted) return;
+    if (localPath == null || !mounted) return;
 
     setState(() => setBusy(true));
-    final upload = await uploader.uploadImage(picked.path);
+    final upload = await uploader.uploadImage(localPath);
     if (!mounted) return;
 
     if (upload.isFailure) {
@@ -140,19 +162,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   /// Seeds the form once, the first time both the person and profile land.
   /// Re-seeding on every rebuild would stomp on what the user is typing.
   void _hydrate(Profile profile) {
-    if (_hydrated) return;
+    if (_hydratedFor == profile.personId) return;
     final me = ref.read(currentPersonProvider).valueOrNull;
     if (me == null) return;
+    // Name, headline and location come from a SECOND provider, which goes
+    // stale across an account switch on its own schedule. Only fill from the
+    // pair once both describe the same person; the screen rebuilds when
+    // `currentPersonProvider` catches up.
+    if (me.id != profile.personId) return;
 
     _name.text = me.name;
     _headline.text = me.headline;
     _location.text = me.location;
     _industry.text = profile.industry;
+    _disciplineId = profile.disciplineId;
+    _governorateId = profile.governorateId;
     _about.text = profile.about;
     _openToWork = profile.openToWork;
     _isPrivate = profile.isPrivate;
 
-    _isCompany = profile.isCompany;
+    _accountType = profile.accountType;
     _website.text = profile.website ?? '';
     _foundedOn = profile.foundedOn;
     // Joined with newlines, which is how the field is edited and how the
@@ -160,11 +189,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _specialties.text = profile.specialties.join('\n');
     _companySize = profile.companySize;
 
-    _hydrated = true;
+    _hydratedFor = profile.personId;
   }
 
   Future<void> _save() async {
     if (_saving) return;
+    // Nothing has been filled yet — every controller is empty, and saving now
+    // would erase the profile rather than edit it.
+    if (_hydratedFor == null) return;
     setState(() => _saving = true);
 
     final result =
@@ -172,7 +204,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       'name': _name.text.trim(),
       'headline': _headline.text.trim(),
       'industry': _industry.text.trim(),
+      'disciplineId': _disciplineId,
       'location': _location.text.trim(),
+      'governorateId': _governorateId,
       'about': _about.text.trim(),
       'isPrivate': _isPrivate,
       // A company is never "open to work"; sending the flag would set a
@@ -239,8 +273,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ),
         ],
       ),
-      body: profile.when(
-        loading: () => const LoadingView(),
+      // See the setup step: `isLoading` also covers a refresh carrying the
+      // previous account's profile.
+      body: profile.isLoading
+          ? const FormSkeleton(fields: 6)
+          : profile.when(
+        loading: () => const FormSkeleton(fields: 6),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () =>
@@ -251,105 +289,77 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           return ListView(
             padding: EdgeInsets.zero,
             children: [
-              SizedBox(
-                height: 110,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    const DecoratedBox(
-                      decoration: BoxDecoration(gradient: RungGradients.brand),
-                    ),
-                    if (data.coverUrl != null)
-                      Image.network(
-                        ref.watch(imageUrlResolverProvider)(data.coverUrl) ?? '',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    if (canPickPhoto)
-                      Center(
-                        child: _uploadingCover
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : _CircleAction(
-                                icon: Icons.photo_camera_outlined,
-                                onTap: () => _pickAndSaveImage(
-                                  field: 'coverUrl',
-                                  setBusy: (v) => _uploadingCover = v,
-                                ),
-                                tooltip: l10n.editProfileChangeCover,
-                              ),
-                      ),
-                  ],
+              // The cover banner used to sit here. The profile does not show
+              // one any more, so editing it was a control for something
+              // nobody sees — the form opens on the avatar instead.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  RungSpace.gutter,
+                  RungSpace.md,
+                  RungSpace.gutter,
+                  0,
                 ),
-              ),
-              Transform.translate(
-                offset: const Offset(0, -34),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: RungSpace.gutter,
-                  ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        RungAvatar(
-                          seed: me?.id ?? 'me',
-                          initials: me?.initials ?? '—',
-                          size: 76,
-                          borderColor: c.surface,
-                          borderWidth: 4,
-                          imageUrl: ref.watch(imageUrlResolverProvider)(
-                            data.avatarUrl,
-                          ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      RungAvatar(
+                        seed: me?.id ?? 'me',
+                        initials: me?.initials ?? '—',
+                        icon: me?.accountType.icon,
+                        size: 76,
+                        borderColor: c.surface,
+                        borderWidth: 4,
+                        imageUrl: ref.watch(imageUrlResolverProvider)(
+                          data.avatarUrl,
                         ),
-                        if (canPickPhoto)
-                          PositionedDirectional(
-                            bottom: 0,
-                            end: 0,
-                            // Was a bare Container — it looked like a button
-                            // and did nothing.
-                            child: Semantics(
-                            button: true,
-                            label: l10n.editProfileChangePhoto,
-                            child: InkWell(
-                              onTap: _uploadingAvatar
-                                  ? null
-                                  : () => _pickAndSaveImage(
-                                        field: 'avatarUrl',
-                                        setBusy: (v) => _uploadingAvatar = v,
-                                      ),
-                              customBorder: const CircleBorder(),
-                              child: Container(
-                                width: 26,
-                                height: 26,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: c.accent,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: c.surface, width: 2),
-                                ),
-                                child: _uploadingAvatar
-                                    ? const SizedBox(
-                                        width: 12,
-                                        height: 12,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.edit,
-                                        size: 13,
+                      ),
+                      if (canPickPhoto)
+                        PositionedDirectional(
+                          bottom: 0,
+                          end: 0,
+                          // Was a bare Container — it looked like a button
+                          // and did nothing.
+                          child: Semantics(
+                          button: true,
+                          label: l10n.editProfileChangePhoto,
+                          child: InkWell(
+                            onTap: _uploadingAvatar
+                                ? null
+                                : () => _pickAndSaveImage(
+                                      field: 'avatarUrl',
+                                      setBusy: (v) => _uploadingAvatar = v,
+                                    ),
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: c.accent,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: c.surface, width: 2),
+                              ),
+                              child: _uploadingAvatar
+                                  ? const SizedBox(
+                                      width: 12,
+                                      height: 12,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
                                         color: Colors.white,
                                       ),
-                              ),
+                                    )
+                                  : const Icon(
+                                      Icons.edit,
+                                      size: 13,
+                                      color: Colors.white,
+                                    ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -376,17 +386,48 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: RungField(
-                            label: l10n.editProfileIndustry,
-                            controller: _industry,
-                          ),
+                          // A company and a contractor describe themselves in
+                          // their own words; an engineer, a craftsman and a
+                          // machinery owner each pick from a list of their own.
+                          child: _accountType.disciplineLabel(context) == null
+                              ? RungField(
+                                  label: l10n.editProfileIndustry,
+                                  controller: _industry,
+                                )
+                              : DisciplineField(
+                                  accountType: _accountType,
+                                  label: _accountType.disciplineLabel(context)!,
+                                  selectedId: _disciplineId,
+                                  selectedName: _industry.text,
+                                  onChanged: (discipline) => setState(() {
+                                    _disciplineId = discipline?.id;
+                                    // Clearing leaves any free text that was
+                                    // there before the list existed alone.
+                                    if (discipline != null) {
+                                      _industry.text = discipline.nameAr;
+                                    }
+                                  }),
+                                ),
                         ),
                         const SizedBox(width: RungSpace.sm),
                         Expanded(
-                          child: RungField(
-                            label: l10n.editProfileLocation,
-                            controller: _location,
-                          ),
+                          child: _isCompany
+                              ? RungField(
+                                  label: l10n.editProfileLocation,
+                                  controller: _location,
+                                )
+                              : GovernorateField(
+                                  label: l10n.editProfileGovernorate,
+                                  selectedId: _governorateId,
+                                  selectedName: _location.text,
+                                  onChanged: (governorate) => setState(() {
+                                    _governorateId = governorate?.id;
+                                    // Clearing leaves any typed address alone.
+                                    if (governorate != null) {
+                                      _location.text = governorate.nameAr;
+                                    }
+                                  }),
+                                ),
                         ),
                       ],
                     ),
@@ -461,40 +502,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-class _CircleAction extends StatelessWidget {
-  const _CircleAction({
-    required this.icon,
-    required this.onTap,
-    required this.tooltip,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: Container(
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: Color(0x40FFFFFF),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 20, color: Colors.white),
-        ),
       ),
     );
   }

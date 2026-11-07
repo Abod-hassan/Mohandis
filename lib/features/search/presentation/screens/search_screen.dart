@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/network/presentation/notifiers/network_notifier.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/widgets/job_card.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/network/presentation/notifiers/network_notifier.dart';
+import 'package:mohandis/features/jobs/presentation/widgets/job_card.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/trending_tag.dart';
 import '../notifiers/search_notifier.dart';
@@ -38,6 +40,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final c = context.rung;
     final l10n = context.l10n;
     final tab = ref.watch(searchTabProvider);
+    final accountType = ref.watch(searchAccountTypeProvider);
+
+    // One chip per kind of account in place of a single «أشخاص» chip — the
+    // people tab, scoped to that kind.
+    void selectTab(SearchTab next) =>
+        ref.read(searchTabProvider.notifier).state = next;
+    void selectType(AccountType type) {
+      ref.read(searchAccountTypeProvider.notifier).state = type;
+      selectTab(SearchTab.people);
+    }
+
+    final chips = <(String, bool, VoidCallback)>[
+      (l10n.searchTabTop, tab == SearchTab.top, () => selectTab(SearchTab.top)),
+      for (final type in AccountType.values)
+        (
+          type.label(context),
+          tab == SearchTab.people && accountType == type,
+          () => selectType(type),
+        ),
+      (l10n.searchTabJobs, tab == SearchTab.jobs, () => selectTab(SearchTab.jobs)),
+      (l10n.searchTabTags, tab == SearchTab.tags, () => selectTab(SearchTab.tags)),
+    ];
 
     return Scaffold(
       backgroundColor: c.surface,
@@ -91,20 +115,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  for (final entry in [
-                    (SearchTab.top, l10n.searchTabTop),
-                    (SearchTab.people, l10n.searchTabPeople),
-                    (SearchTab.jobs, l10n.searchTabJobs),
-                    (SearchTab.tags, l10n.searchTabTags),
-                  ])
+                  for (final (label, selected, onTap) in chips)
                     Padding(
                       padding: const EdgeInsetsDirectional.only(end: 6),
                       child: RungFilterChip(
-                        label: entry.$2,
-                        selected: tab == entry.$1,
+                        label: label,
+                        selected: selected,
                         outlined: false,
-                        onTap: () => ref.read(searchTabProvider.notifier).state =
-                            entry.$1,
+                        onTap: onTap,
                       ),
                     ),
                 ],
@@ -160,7 +178,9 @@ class _Results extends ConsumerWidget {
           ),
         ],
         if (tab == SearchTab.people) ...[
-          _SectionHeader(label: l10n.searchSectionPeople),
+          _SectionHeader(
+            label: ref.watch(searchAccountTypeProvider).label(context),
+          ),
           ..._rows(
             ref.watch(searchPeopleProvider),
             (people) => _personRows(people, l10n),
@@ -256,7 +276,9 @@ class _TagRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.rung;
     return InkWell(
-      onTap: () => showRungToast(context, context.l10n.comingSoon),
+      onTap: () => context.push(
+        '/hashtags/${Uri.encodeComponent(tag.tag.replaceFirst('#', ''))}',
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: RungSpace.gutter,
@@ -337,6 +359,7 @@ class _PersonRow extends ConsumerWidget {
             RungAvatar(
               seed: person.id,
               initials: person.initials,
+              icon: person.accountType.icon,
               imageUrl: ref.watch(imageUrlResolverProvider)(person.avatarUrl),
               size: 48,
             ),
@@ -345,14 +368,24 @@ class _PersonRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    person.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          person.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      NameBadges(
+                        verified: person.verified,
+                        subscribed: person.subscribed,
+                      ),
+                    ],
                   ),
                   Text(
                     person.headline,
@@ -363,11 +396,10 @@ class _PersonRow extends ConsumerWidget {
                 ],
               ),
             ),
-            // A company row has no Connect: a company is followed, and the
-            // server refuses the request. People search is the one list that
-            // mixes the two — the network grid filters companies out entirely,
-            // and a profile page knows what it is showing.
-            if (!person.isCompany) ...[
+            // Follow — for a person and a company alike. This row used to
+            // offer Connect to people only; connections were withdrawn from
+            // the app, and following is what both kinds answer to.
+            ...[
             const SizedBox(width: 8),
             OutlinedButton(
               onPressed: sent
@@ -376,12 +408,12 @@ class _PersonRow extends ConsumerWidget {
                       final l10n = context.l10n;
                       final result = await ref
                           .read(networkNotifierProvider.notifier)
-                          .connect(person.id);
+                          .follow(person.id);
                       if (!context.mounted) return;
                       result.when(
                         success: (_) => showRungToast(
                           context,
-                          l10n.toastConnectRequestSent(person.firstName),
+                          l10n.toastFollowing(person.firstName),
                         ),
                         failure: (e) => showRungToast(
                           context,
@@ -399,9 +431,11 @@ class _PersonRow extends ConsumerWidget {
                 ),
               ),
               child: Text(
+                // The button is disabled once the follow landed, so the
+                // settled label belongs here, not "unfollow".
                 sent
-                    ? context.l10n.networkAddSent
-                    : context.l10n.profileConnect,
+                    ? context.l10n.postSuggestedFollowing
+                    : context.l10n.profileFollow,
               ),
             ),
           ],

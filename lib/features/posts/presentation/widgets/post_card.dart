@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
+import '../notifiers/suggested_action_notifier.dart';
 import '../../domain/entities/post.dart';
+import 'mention_text.dart';
 import 'post_document_list.dart';
 import 'post_media_grid.dart';
+import 'post_poll.dart';
 import 'post_visibility_label.dart';
 
 /// Minimal job preview the feed needs to render a shared-job embed. The jobs
@@ -114,7 +120,7 @@ class PostCard extends StatelessWidget {
                   RungSpace.gutter,
                   0,
                 ),
-                child: Text(
+                child: MentionText(
                   post.text,
                   style: TextStyle(
                     fontSize: 14.5,
@@ -136,10 +142,17 @@ class PostCard extends StatelessWidget {
                 spacing: 6,
                 runSpacing: 4,
                 children: [
-                  for (final tag in post.tags) RungHashtag(tag: tag),
+                  for (final tag in post.tags)
+                    RungHashtag(
+                      tag: tag,
+                      onTap: () => context.push(
+                        '/hashtags/${Uri.encodeComponent(tag.replaceFirst('#', ''))}',
+                      ),
+                    ),
                 ],
               ),
             ),
+          if (post.poll != null) PostPoll(postId: post.id, poll: post.poll!),
           if (post.hasPictures)
             Padding(
               padding: const EdgeInsets.only(top: RungSpace.sm),
@@ -147,7 +160,12 @@ class PostCard extends StatelessWidget {
             ),
           PostDocumentList(media: post.media),
           if (post.quoted != null)
-            _QuoteEmbed(quote: post.quoted!, author: quoteAuthor),
+            QuotedPostEmbed(quote: post.quoted!, author: quoteAuthor),
+          // A repost whose original was deleted. Without this a PLAIN repost
+          // has nothing at all to draw — no text, no media, no embed — and the
+          // card is an author header over a blank space, which reads as a bug
+          // in somebody's post rather than as a post that was taken down.
+          if (post.originalUnavailable) const OriginalUnavailableNotice(),
           if (jobEmbed != null)
             _JobEmbed(job: jobEmbed!, onTap: onOpenJob),
           _Counts(post: post),
@@ -259,6 +277,7 @@ class _Header extends ConsumerWidget {
             child: RungAvatar(
               seed: author.id,
               initials: author.initials,
+              icon: author.accountType.icon,
               size: 44,
               imageUrl: ref.watch(imageUrlResolverProvider)(author.avatarUrl),
             ),
@@ -285,9 +304,21 @@ class _Header extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    if (author.verified) ...[
-                      const SizedBox(width: 5),
-                      const VerifiedBadge(),
+                    NameBadges(
+                      verified: author.verified,
+                      subscribed: author.subscribed,
+                    ),
+                    // Only on a suggestion. A row from someone you already
+                    // follow does not need a Follow button, and the feed marks
+                    // recommendations for exactly this reason.
+                    //
+                    // Not wrapped in Flexible: the name above it is, so when
+                    // space runs out the NAME ellipsizes and the button keeps
+                    // its full width. The other way round gives you a button
+                    // reading "Conn…", which is worse than a shortened name.
+                    if (post.suggested) ...[
+                      const SizedBox(width: 8),
+                      _SuggestedAction(author: author),
                     ],
                   ],
                 ),
@@ -310,22 +341,141 @@ class _Header extends ConsumerWidget {
               ],
             ),
           ),
-          IconButton(
-            onPressed: onMore,
-            icon: const Icon(Icons.more_horiz),
-            iconSize: 20,
-            color: c.ink3,
-            visualDensity: VisualDensity.compact,
-            tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
-          ),
+          // Hidden without a handler rather than shown disabled: a card in the
+          // profile's preview rail has no options sheet behind it, and a greyed
+          // "⋯" is a control that answers nothing.
+          if (onMore != null)
+            IconButton(
+              onPressed: onMore,
+              icon: const Icon(Icons.more_horiz),
+              iconSize: 20,
+              color: c.ink3,
+              visualDensity: VisualDensity.compact,
+              tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+            ),
         ],
       ),
     );
   }
 }
 
-class _QuoteEmbed extends ConsumerWidget {
-  const _QuoteEmbed({required this.quote, this.author});
+/// Follow, beside the name on a suggested post.
+///
+/// A suggestion is the one place in the feed where the author is by definition
+/// someone the viewer has no edge with, so the action is worth a tap's reach —
+/// anywhere else it would be a button that does nothing.
+class _SuggestedAction extends ConsumerWidget {
+  const _SuggestedAction({required this.author});
+
+  final Person author;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.rung;
+    final l10n = context.l10n;
+    // Watch the map, not just this id: Riverpod rebuilds on any change, and the
+    // map is tiny. Reading `.notifier` alone would not rebuild the button when
+    // its own state moved.
+    final status = ref.watch(suggestedActionsProvider)[author.id] ??
+        SuggestedActionState.idle;
+
+    // One label for both kinds. It used to read "تواصل" for a person and
+    // "متابعة" for a company; connections were withdrawn from the app, so
+    // everyone is followed.
+    final label = switch (status) {
+      SuggestedActionState.done => l10n.postSuggestedFollowing,
+      _ => l10n.profileFollow,
+    };
+
+    final settled = status == SuggestedActionState.done;
+    final busy = status == SuggestedActionState.busy;
+
+    return SizedBox(
+      height: 24,
+      child: OutlinedButton(
+        onPressed: settled || busy ? null : () => _act(context, ref),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+          // `shape` MUST be overridden, not just `side`. The app's
+          // outlinedButtonTheme sets RungRadius.pill, so without this the
+          // button inherits a full stadium and reads as a big lozenge next to
+          // a 14.5px name. 6 is a soft corner that still looks like a control.
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(6)),
+          ),
+          // Also lighter than the theme's 1.5: at this size a heavy outline is
+          // the loudest thing in the header, louder than the name it sits beside.
+          side: BorderSide(color: settled ? c.line : c.accent, width: 1),
+          foregroundColor: c.accent,
+          // A settled button stays on screen as a record of what you did, so it
+          // has to read as inert rather than as something still waiting.
+          disabledForegroundColor: c.ink3,
+        ),
+        child: busy
+            ? SizedBox(
+                width: 10,
+                height: 10,
+                child: CircularProgressIndicator(strokeWidth: 1.6, color: c.accent),
+              )
+            : Row(
+                // The button sizes to its content; without this the Row would
+                // try to fill the header.
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Only while the action is still offered. Once it is sent,
+                  // the label reads "Request sent" / "Following" and a plus in
+                  // front of that would be inviting an action already taken.
+                  //
+                  // No Directionality handling needed: Row lays out from the
+                  // START, so the plus sits to the RIGHT of the label in Arabic
+                  // and to the left in English, which is leading in both.
+                  if (!settled) ...[
+                    const Icon(Icons.add_rounded, size: 13),
+                    const SizedBox(width: 2),
+                  ],
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Future<void> _act(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final result = await ref
+        .read(suggestedActionsProvider.notifier)
+        .act(personId: author.id, isCompany: author.isCompany);
+    if (!context.mounted) return;
+
+    result.when(
+      success: (_) =>
+          showRungToast(context, l10n.toastFollowing(author.firstName)),
+      // The button is already back to idle — `act` resets it — so this only has
+      // to say why it did not take.
+      failure: (e) =>
+          showRungToast(context, arabicMessageForException(e), success: false),
+    );
+  }
+}
+
+/// The original post inside a repost or a quote — author, a preview of its
+/// text and its first image. Tapping it opens the original.
+///
+/// Shared by the feed card and the post detail screen, so a repost reads the
+/// same in both places.
+class QuotedPostEmbed extends ConsumerWidget {
+  const QuotedPostEmbed({
+    super.key,required this.quote, this.author});
 
   final QuotedPost quote;
 
@@ -345,7 +495,7 @@ class _QuoteEmbed extends ConsumerWidget {
     final resolve = ref.watch(imageUrlResolverProvider);
     final media = resolve(quote.firstMediaUrl);
 
-    return Container(
+    final embed = Container(
       margin: const EdgeInsets.fromLTRB(
         RungSpace.gutter,
         RungSpace.sm,
@@ -374,6 +524,7 @@ class _QuoteEmbed extends ConsumerWidget {
                       RungAvatar(
                         seed: quote.authorId,
                         initials: author?.initials ?? _initialOf(name),
+                        icon: author?.accountType.icon,
                         size: 32,
                         // Prefers the directory record the initials already
                         // come from, so a refreshed name and photo stay in
@@ -387,14 +538,30 @@ class _QuoteEmbed extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                // The quoted post's own projection carries no
+                                // flags, so this lights up only when the author
+                                // was resolved through the directory. Better
+                                // than nothing and never wrong: a miss shows no
+                                // badge rather than a false one.
+                                NameBadges(
+                                  verified: author?.verified ?? false,
+                                  subscribed: author?.subscribed ?? false,
+                                  size: 12,
+                                ),
+                              ],
                             ),
                             if (headline.isNotEmpty)
                               Text(
@@ -456,6 +623,15 @@ class _QuoteEmbed extends ConsumerWidget {
           ],
         ),
       ),
+    );
+
+    // Tapping the embed opens the ORIGINAL post, not the share around it —
+    // the share's own detail is reached from its text and media above.
+    if (quote.id.isEmpty) return embed;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.push('/feed/posts/${quote.id}'),
+      child: embed,
     );
   }
 }
@@ -726,6 +902,46 @@ class PostAction extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Stands in for a repost's original when that original has been deleted.
+///
+/// Without it a PLAIN repost has nothing at all to draw — no text, no media,
+/// no embed — and the post is an author header over a blank space, which
+/// reads as a bug in somebody's post rather than a post that was taken down.
+class OriginalUnavailableNotice extends StatelessWidget {
+  const OriginalUnavailableNotice({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.rung;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+        RungSpace.gutter,
+        RungSpace.sm,
+        RungSpace.gutter,
+        0,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: c.surface2,
+        borderRadius: RungRadius.mdAll,
+        border: Border.all(color: c.line),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.link_off_rounded, size: 18, color: c.ink3),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.l10n.postOriginalUnavailable,
+              style: TextStyle(fontSize: 13, color: c.ink3),
+            ),
+          ),
+        ],
       ),
     );
   }

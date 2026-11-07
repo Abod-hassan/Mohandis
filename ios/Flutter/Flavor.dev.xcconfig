@@ -1,0 +1,13 @@
+// Which Dart entrypoint DEBUG builds use — Run from Xcode and `flutter run`.
+// Release/Archive never read this file; they are pinned to prod in
+// Flavor.xcconfig.
+//
+// Change this line to run another flavor while developing:
+//     lib/flavors/main_dev.dart        https://localhost:7199 (or --dart-define=API_BASE_URL=...)
+//     lib/flavors/main_staging.dart    https://api-staging.rung.app
+//     lib/flavors/main_prod.dart       http://192.248.191.138:2028
+//
+// NOTE: it also overrides `flutter run -t <flavor>` in debug, because that
+// path reads FLUTTER_TARGET from the same merged settings.
+
+FLUTTER_TARGET = lib/flavors/main_dev.dart

@@ -1,4 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 /// `ConversationTypeEnum` — a thread is either one-to-one or a named group.
 ///
@@ -20,9 +21,15 @@ class ThreadParticipant {
     this.headline,
     this.avatarUrl,
     this.verified = false,
+    this.subscribed = false,
     this.isOnline = false,
     this.lastSeenAt,
+    this.accountType = AccountType.individual,
   });
+
+  /// What kind of account this is — drives the avatar mark when there is no
+  /// photo, as everywhere else in the app.
+  final AccountType accountType;
 
   /// The ProfileId — the module's user key, and what every messaging call
   /// addresses people by.
@@ -38,6 +45,10 @@ class ThreadParticipant {
 
   final String? avatarUrl;
   final bool verified;
+
+  /// Holds a live subscription — see `Person.subscribed`. A separate claim from
+  /// [verified] and drawn with its own mark.
+  final bool subscribed;
 
   /// Live presence, resolved server-side per request — a snapshot, not a
   /// subscription. It goes stale the moment the response lands.

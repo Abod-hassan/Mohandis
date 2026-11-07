@@ -1,6 +1,7 @@
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../entities/person.dart';
 
@@ -12,6 +13,10 @@ abstract class PeopleRepository extends BaseRepository<Person> {
   /// resolves it from the bearer token, not an id.
   Future<Result<Person, AppException>> me();
 
-  /// Free-text search across name and headline.
-  Future<Result<List<Person>, AppException>> search(String query);
+  /// Free-text search across name and headline, optionally limited to one
+  /// kind of account.
+  Future<Result<List<Person>, AppException>> search(
+    String query, {
+    AccountType? accountType,
+  });
 }

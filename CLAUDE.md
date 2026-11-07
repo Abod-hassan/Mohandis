@@ -1,4 +1,4 @@
-# Rung (رنق) — Conventions (Riverpod, Clean Architecture, multi-flavor)
+# Rung مهندس — Conventions (Riverpod, Clean Architecture, multi-flavor)
 
 Machine-readable rules for AI code assistants (Claude, Copilot, Cursor). Human-facing versions live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

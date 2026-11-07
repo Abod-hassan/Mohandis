@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/pull_refresh.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/panel_entities.dart';
 import '../notifiers/panel_notifiers.dart';
@@ -93,7 +93,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           ),
           Expanded(
             child: courses.when(
-              loading: () => const LoadingView(),
+              loading: () => const CardListSkeleton(height: 130, lines: 2),
               error: (e, _) => ErrorView(
                 error: e,
                 onRetry: () =>
@@ -103,27 +103,47 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                 // Filtered here rather than re-asked of the server: the section
                 // is one page, and a round trip to hide a handful of cards
                 // would blank the list on every chip tap.
+                // "Open to me", not "flagged free". The two used to be the same
+                // thing; now a platform course can be marked مجاني and still
+                // need a subscription, so filtering on the flag would offer a
+                // list of courses that cannot be opened.
                 final shown = _freeOnly
-                    ? list.where((course) => course.isFree).toList()
+                    ? list.where((course) => !course.isLocked).toList()
                     : list;
 
-                if (shown.isEmpty) {
-                  return EmptyView(
-                    icon: Icons.school_outlined,
-                    title: l10n.coursesEmpty,
-                    message: l10n.coursesEmptyHint,
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(
-                    RungSpace.gutter,
-                    6,
-                    RungSpace.gutter,
-                    28,
+                return RefreshIndicator(
+                  onRefresh: () => pullRefresh(
+                    ref.refresh(courseListProvider(widget.category).future),
                   ),
-                  itemCount: shown.length,
-                  itemBuilder: (_, i) => _CourseCard(course: shown[i]),
+                  // The empty state is scrollable too. A catalogue that is
+                  // empty because the section has nothing published yet looks
+                  // exactly like one that is empty because the request failed
+                  // quietly — and a pull is the only way to tell them apart.
+                  child: shown.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.sizeOf(context).height * 0.6,
+                              child: EmptyView(
+                                icon: Icons.school_outlined,
+                                title: l10n.coursesEmpty,
+                                message: l10n.coursesEmptyHint,
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(
+                            RungSpace.gutter,
+                            6,
+                            RungSpace.gutter,
+                            28,
+                          ),
+                          itemCount: shown.length,
+                          itemBuilder: (_, i) => _CourseCard(course: shown[i]),
+                        ),
                 );
               },
             ),
@@ -164,6 +184,34 @@ class _CourseCard extends ConsumerWidget {
                 start: 8,
                 child: CoursePriceBadge(course: course),
               ),
+
+              // The other end of the panel's "1 جديد" badge. Without something
+              // marking the cards, that badge sent people into a list of
+              // twenty courses to find the one it meant.
+              if (course.isNew)
+                PositionedDirectional(
+                  top: 8,
+                  end: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: c.accent,
+                      borderRadius: RungRadius.pill,
+                    ),
+                    child: Text(
+                      context.l10n.courseNewTag,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           Padding(

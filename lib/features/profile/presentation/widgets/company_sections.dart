@@ -3,24 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_repository_impl.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_repository_impl.dart';
+import 'package:mohandis/features/jobs/domain/entities/job.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/profile.dart';
 
 /// Human label for a headcount band.
 ///
 /// The bands are ranges of people, so they are written as digits rather than
-/// translated words — `١-١٠` reads the same to anyone and needs no plural
-/// agreement, which "من ١١ إلى ٥٠ موظفًا" would.
+/// translated words — `1-10` reads the same to anyone and needs no plural
+/// agreement, which "من 11 إلى 50 موظفًا" would.
 extension CompanySizeLabel on CompanySize {
   String? label(BuildContext context) {
     final l10n = context.l10n;
@@ -226,7 +225,7 @@ class CompanyJobsSection extends ConsumerWidget {
 
     return RungSection(
       // The count IN the heading, because this section now LEADS a company's
-      // page: "الوظائف المتاحة" over three rows says less than "٣ وظائف
+      // page: "الوظائف المتاحة" over three rows says less than "3 وظائف
       // مفتوحة" says before you have read a single one. Count first, and
       // through the plural form — Arabic needs "وظائف" for three and "وظيفة"
       // for thirty, and a fixed label gets one of them wrong.
@@ -354,7 +353,7 @@ class CompanyProfileJobsScreen extends ConsumerWidget {
       backgroundColor: c.bg,
       appBar: RungAppBar(title: l10n.companyOpenJobs),
       body: jobs.when(
-        loading: () => const LoadingView(),
+        loading: () => const CardListSkeleton(count: 3, height: 100),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(companyOpenJobsProvider(personId)),

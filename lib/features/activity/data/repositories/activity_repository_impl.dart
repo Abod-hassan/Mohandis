@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/activity_notification.dart';
 import '../../domain/repositories/activity_repository.dart';
@@ -39,7 +39,11 @@ class ActivityRepositoryImpl implements ActivityRepository {
         data: {if (unreadOnly) 'unreadOnly': true, 'descending': true},
         queryParameters: {'page': page, 'size': size},
       ),
+      // Connection rows are filtered out here rather than in the UI: the
+      // count, the "mark all read" and every list that reads this would
+      // otherwise still be counting rows nobody can see.
       (envelope) => envelope.list
+          .where((j) => !ActivityNotificationDto.isHidden(j['type']))
           .map((j) => ActivityNotificationDto.fromJson(j).toDomain())
           .toList(growable: false),
     );

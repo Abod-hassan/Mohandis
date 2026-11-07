@@ -11,7 +11,7 @@ We'll build a screen that lists products from `GET /api/products` and lets the u
 `lib/features/products/domain/entities/product.dart`
 
 ```dart
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 /// Pure domain — no Flutter, no JSON, no Dio.
 class Product extends BaseEntity {
@@ -34,7 +34,7 @@ class Product extends BaseEntity {
 `lib/features/products/domain/repositories/product_repository.dart`
 
 ```dart
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
+import 'package:mohandis/core/base/base_repository.dart';
 
 import '../entities/product.dart';
 
@@ -48,7 +48,7 @@ abstract class ProductRepository extends BaseRepository<Product> {}
 `lib/features/products/data/dtos/product_dto.dart`
 
 ```dart
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
 
 import '../../domain/entities/product.dart';
 
@@ -89,10 +89,10 @@ class ProductDto implements BaseDto<Product> {
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/base/rest_repository.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/base/rest_repository.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/product.dart';
 import '../dtos/product_dto.dart';
@@ -113,8 +113,8 @@ final productRepositoryProvider = Provider<BaseRepository<Product>>((ref) {
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/base/base_list_notifier.dart';
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
+import 'package:mohandis/core/base/base_list_notifier.dart';
+import 'package:mohandis/core/base/base_repository.dart';
 
 import '../../data/repositories/product_repository_impl.dart';
 import '../../domain/entities/product.dart';
@@ -139,8 +139,8 @@ final productsNotifierProvider =
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/loading_view.dart';
 
 import '../notifiers/products_notifier.dart';
 

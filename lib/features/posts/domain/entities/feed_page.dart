@@ -11,6 +11,7 @@ class FeedCursor {
     this.bucket,
     this.beforeEventTime,
     this.recommendationOffset = 0,
+    this.seed,
   });
 
   /// The `yyyy-MM` Cassandra partition the previous page was read from.
@@ -21,6 +22,15 @@ class FeedCursor {
   final String? beforeEventTime;
 
   final int recommendationOffset;
+
+  /// Per-refresh shuffle seed. Picked fresh on every pull-to-refresh and
+  /// carried unchanged through that refresh's pages, so each refresh reorders
+  /// the feed while paging within it stays consistent. Not a paging position,
+  /// so it plays no part in [isFirstPage].
+  final int? seed;
+
+  /// The first page of a refresh seeded with [seed].
+  static FeedCursor firstWithSeed(int seed) => FeedCursor(seed: seed);
 
   /// The first page: no cursors at all.
   static const FeedCursor first = FeedCursor();
@@ -33,6 +43,7 @@ class FeedCursor {
     if (beforeEventTime != null) 'beforeEventTime': beforeEventTime,
     'recommendationOffset': recommendationOffset,
     'pageSize': pageSize,
+    if (seed != null) 'seed': seed,
   };
 }
 

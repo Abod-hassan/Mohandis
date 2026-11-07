@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../domain/entities/activity_notification.dart';
 import '../../domain/repositories/activity_repository.dart';
@@ -38,13 +38,13 @@ class ActivityMockRepository implements ActivityRepository {
     // the people mock, so mock mode keeps exercising the directory lookup the
     // row falls back to.
     return [
-      n('n1', ActivityType.connect, 'sara', 'يريد التواصل معك',
+      n('n1', ActivityType.connect, 'sara', 'طلب متابعتك',
           const Duration(minutes: 12),
           unread: true, actionable: true),
-      n('n2', ActivityType.like, 'amal', 'و٣٤١ آخرون أعجبوا بمنشورك',
+      n('n2', ActivityType.like, 'amal', 'و341 آخرون أعجبوا بمنشورك',
           const Duration(hours: 1),
           unread: true),
-      n('n3', ActivityType.accepted, 'marwan', 'قبل طلب التواصل',
+      n('n3', ActivityType.accepted, 'marwan', 'قبل طلب المتابعة',
           const Duration(hours: 3),
           unread: true),
       n('n4', ActivityType.comment, 'reem', 'علّقت: «كيف تعاملتم مع الجدولة…»',

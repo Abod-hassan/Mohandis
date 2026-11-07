@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/dtos/person_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/shared/people/data/dtos/person_dto.dart';
 
 import '../../domain/entities/connection_request.dart';
 

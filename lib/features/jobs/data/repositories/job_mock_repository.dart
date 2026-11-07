@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../domain/entities/job.dart';
 import '../../domain/entities/job_application.dart';
@@ -28,14 +28,14 @@ class JobMockRepository implements JobRepository {
       location: 'جدة، السعودية',
       workMode: WorkMode.hybrid,
       employmentType: EmploymentType.fullTime,
-      salaryLabel: '١٥٠٬٠٠٠ – ١٨٥٬٠٠٠ USD',
+      salaryLabel: '150,000 – 185,000 USD',
       postedAt: _ago(days: 2),
       applicantCount: 47,
       description:
           'قيادة التصميم الكامل لمنتجات التمويل لدينا بالتعاون مع إدارة المنتج والهندسة، '
           'لتقديم تجربة هادئة وموثوقة يستخدمها الملايين.',
       requirements: [
-        'خبرة ٦ سنوات فأكثر في تصميم المنتجات',
+        'خبرة 6 سنوات فأكثر في تصميم المنتجات',
         'إتقان أنظمة التصميم والنماذج التفاعلية',
         'خبرة في التقنية المالية أو القطاعات المنظّمة',
         'مهارات تواصل كتابي قوية',
@@ -48,7 +48,7 @@ class JobMockRepository implements JobRepository {
       location: 'الخبر، السعودية',
       workMode: WorkMode.onsite,
       employmentType: EmploymentType.fullTime,
-      salaryLabel: '١٩٠٬٠٠٠ – ٢٣٠٬٠٠٠ USD',
+      salaryLabel: '190,000 – 230,000 USD',
       postedAt: _ago(hours: 5),
       applicantCount: 12,
       applied: true,
@@ -67,13 +67,13 @@ class JobMockRepository implements JobRepository {
       location: 'عن بُعد',
       workMode: WorkMode.remote,
       employmentType: EmploymentType.fullTime,
-      salaryLabel: '١٣٠٬٠٠٠ – ١٦٥٬٠٠٠ USD',
+      salaryLabel: '130,000 – 165,000 USD',
       postedAt: _ago(days: 1),
       applicantCount: 88,
       description:
           'بناء الواجهات التي يُحكم على منتجنا من خلالها. فريق صغير، مسؤولية عالية، وحرفية حقيقية.',
       requirements: [
-        'خبرة ٤ سنوات فأكثر في رياكت وتايب سكريبت',
+        'خبرة 4 سنوات فأكثر في رياكت وتايب سكريبت',
         'اهتمام بإمكانية الوصول والأداء',
         'القدرة على امتلاك الميزة من البداية للنهاية',
       ],
@@ -85,7 +85,7 @@ class JobMockRepository implements JobRepository {
       location: 'الدمام، السعودية',
       workMode: WorkMode.onsite,
       employmentType: EmploymentType.fullTime,
-      salaryLabel: '١٢٠٬٠٠٠ – ١٤٠٬٠٠٠ USD',
+      salaryLabel: '120,000 – 140,000 USD',
       postedAt: _ago(days: 3),
       applicantCount: 9,
       description:
@@ -121,32 +121,44 @@ class JobMockRepository implements JobRepository {
       location: 'الكويت',
       workMode: WorkMode.hybrid,
       employmentType: EmploymentType.fullTime,
-      salaryLabel: '١٣٥٬٠٠٠ – ١٦٠٬٠٠٠ USD',
+      salaryLabel: '135,000 – 160,000 USD',
       postedAt: _ago(days: 4),
       applicantCount: 61,
       applied: true,
       description:
           'امتلاك استراتيجية العلامة التجارية والحملات لشركة استهلاكية سريعة النمو.',
       requirements: [
-        'خبرة ٨ سنوات فأكثر في تسويق العلامات',
+        'خبرة 8 سنوات فأكثر في تسويق العلامات',
         'سجل حافل في إطلاق الحملات',
         'يفضّل خبرة في القطاع الاستهلاكي',
       ],
     ),
   ];
 
+  /// Filled in enough to exercise the poster's view: a headline, a note and a
+  /// résumé on one row, and a bare row beside it for the empty states.
   static List<JobApplication> _seedApplications() => [
         JobApplication(
           id: 'a1',
           jobId: 'j6',
           status: ApplicationStatus.inReview,
           submittedAt: _ago(days: 3),
+          applicantId: 'p2',
+          applicantName: 'أمل الحسن',
+          applicantHeadline: 'مهندسة برمجيات · هندسة البرمجيات',
+          coverLetter:
+              'خبرة أربع سنوات في تطوير الواجهات، وعملت على تطبيقين '
+              'بمليون مستخدم. أرفقت سيرتي الذاتية وسأسعد بالحديث عن '
+              'التفاصيل في مقابلة.',
+          resumeUrl: 'cv/mock-applicant.pdf',
         ),
         JobApplication(
           id: 'a2',
           jobId: 'j2',
           status: ApplicationStatus.submitted,
           submittedAt: _ago(days: 1),
+          applicantId: 'p3',
+          applicantName: 'مروان العبيدي',
         ),
       ];
 

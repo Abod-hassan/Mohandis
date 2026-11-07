@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 /// An inbound request to connect, keyed by the requesting person.
 ///
@@ -26,15 +26,15 @@ class ConnectionRequest extends BaseEntity {
   String get personId => person.id;
 }
 
-/// The network tab's full payload: pending requests plus suggestions.
+/// The network tab's payload: the suggestions grid.
+///
+/// Pending connection requests used to ride along here. Connections were
+/// withdrawn from the app, so the tab is the grid and the ids followed from it.
 class NetworkOverview {
   const NetworkOverview({
-    required this.requests,
     required this.suggestions,
     this.sentTo = const <String>{},
   });
-
-  final List<ConnectionRequest> requests;
 
   /// The "people you may know" grid.
   final List<Person> suggestions;
@@ -49,13 +49,8 @@ class NetworkOverview {
 
   bool hasSentTo(String personId) => sentTo.contains(personId);
 
-  NetworkOverview copyWith({
-    List<ConnectionRequest>? requests,
-    List<Person>? suggestions,
-    Set<String>? sentTo,
-  }) {
+  NetworkOverview copyWith({List<Person>? suggestions, Set<String>? sentTo}) {
     return NetworkOverview(
-      requests: requests ?? this.requests,
       suggestions: suggestions ?? this.suggestions,
       sentTo: sentTo ?? this.sentTo,
     );

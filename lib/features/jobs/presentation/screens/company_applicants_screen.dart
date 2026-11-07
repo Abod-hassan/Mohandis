@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/core/utils/pull_refresh.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/job.dart';
 import '../notifiers/company_jobs_notifier.dart';
@@ -35,7 +35,7 @@ class CompanyApplicantsScreen extends ConsumerWidget {
       backgroundColor: c.bg,
       appBar: RungAppBar(showBack: false, title: l10n.companyApplicantsTitle),
       body: jobs.when(
-        loading: () => const LoadingView(),
+        loading: () => const PeopleListSkeleton(count: 6),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(companyJobsProvider),
@@ -47,7 +47,8 @@ class CompanyApplicantsScreen extends ConsumerWidget {
                 icon: Icons.assignment_ind_outlined,
               )
             : RefreshIndicator(
-                onRefresh: () async => ref.invalidate(companyJobsProvider),
+                onRefresh: () =>
+                    pullRefresh(ref.refresh(companyJobsProvider.future)),
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: list.length,

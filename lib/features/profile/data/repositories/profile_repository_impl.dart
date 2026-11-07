@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -51,6 +51,27 @@ class ProfileRepositoryImpl implements ProfileRepository {
         ),
       );
     });
+  }
+
+  @override
+  Future<Result<String, AppException>> idForUsername(String username) {
+    // The server lower-cases the filter and matches exactly.
+    final handle = username.trim().replaceFirst(RegExp('^@'), '');
+    return apiCall(
+      EndPoints.profiles,
+      () => _api.dio.post<dynamic>(
+        EndPoints.profiles,
+        data: {'username': handle},
+        queryParameters: {'page': 1, 'size': 1},
+      ),
+      (envelope) {
+        final rows = envelope.list;
+        if (handle.isEmpty || rows.isEmpty) {
+          throw const NotFoundException('لم يُعثر على هذا الملف الشخصي');
+        }
+        return '${rows.first['id']}';
+      },
+    );
   }
 
   /// The three CV lists, in flight together.
@@ -169,6 +190,29 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<Result<void, AppException>> acceptFollowRequest(String followerId) =>
+      _followerAction(EndPoints.profileAcceptRequest, followerId);
+
+  @override
+  Future<Result<void, AppException>> rejectFollowRequest(String followerId) =>
+      _followerAction(EndPoints.profileRejectRequest, followerId);
+
+  Future<Result<void, AppException>> _followerAction(
+    String path,
+    String followerId,
+  ) async {
+    final result = await apiCall(
+      path,
+      () => _api.dio.post<dynamic>(
+        path,
+        queryParameters: {'followerId': followerId},
+      ),
+      (_) {},
+    );
+    return result.map<void>((_) {});
+  }
+
+  @override
   Future<Result<void, AppException>> block(String personId) =>
       _blockAction(EndPoints.profileBlock, personId);
 
@@ -209,25 +253,88 @@ class ProfileRepositoryImpl implements ProfileRepository {
     return acted.flatMapAsync((_) => byPerson(personId));
   }
 
+  /// The caller's ProfileId, and nothing else.
+  ///
+  /// `byPerson` would answer the same question, but it costs FOUR requests —
+  /// the profile plus its experience, education and skills — and a write needs
+  /// one GUID. Registration alone was spending nine requests to stamp a single
+  /// column this way.
+  Future<Result<String, AppException>> _myProfileId() => apiCall(
+    EndPoints.profilesMe,
+    () => _api.dio.get<dynamic>(EndPoints.profilesMe),
+    (envelope) {
+      final rows = envelope.list;
+      if (rows.isEmpty) {
+        throw const NotFoundException('لم يُعثر على هذا الملف الشخصي');
+      }
+      return ProfileDto.fromJson(rows.first).id;
+    },
+  );
+
+  /// Writes the named fields and stops there.
+  ///
+  /// [updateMe] re-reads the whole profile afterwards because its callers
+  /// publish the result; the ones that do not — registration stamping an
+  /// account type, say — were paying four requests for an answer they threw
+  /// away.
+  @override
+  Future<Result<void, AppException>> patchMe(Map<String, dynamic> body) async {
+    final fields = _writableFields(body);
+    if (fields.isEmpty) return const Result.success(null);
+
+    final id = await _myProfileId();
+    if (id.isFailure) {
+      return Result.failure(id.errorOrNull!);
+    }
+
+    final saved = await _write(id.valueOrNull!, fields);
+    return saved.map<void>((_) {});
+  }
+
   /// The module exposes no profile-update endpoint — profile rows are written
   /// through the Kernel's generic write engine.
   ///
   /// Two consequences worth knowing: the row id has to be resolved first
-  /// (hence the `Me` read), and `GenericWrite` writes exactly the columns it is
-  /// given with no module-level validation, so only edited fields are sent and
-  /// the column names must match `ProfileModel` — not the DTO.
+  /// (hence the `Me` read), and `GenericWrite` writes exactly the columns it
+  /// is given with no module-level validation, so only edited fields are sent
+  /// and the column names must match `ProfileModel` — not the DTO.
+  ///
+  /// Reads the profile back afterwards because callers publish the result.
+  /// Use [patchMe] when they do not.
   @override
   Future<Result<Profile, AppException>> updateMe(
     Map<String, dynamic> body,
   ) async {
-    final me = await byPerson(ProfileRepository.meSentinel);
-    if (me.isFailure) return me;
-    final profileId = me.valueOrNull!.personId;
+    final fields = _writableFields(body);
+    // Nothing to write: skip straight to the read, rather than resolving an id
+    // for a request that is not going to happen.
+    if (fields.isEmpty) return byPerson(ProfileRepository.meSentinel);
 
-    final fields = <String, dynamic>{
+    final id = await _myProfileId();
+    if (id.isFailure) return Result.failure(id.errorOrNull!);
+
+    final saved = await _write(id.valueOrNull!, fields);
+    if (saved.isFailure) return Result.failure(saved.errorOrNull!);
+    return byPerson(ProfileRepository.meSentinel);
+  }
+
+  /// The body's app-side keys translated to `ProfileModel` column names.
+  ///
+  /// Column names, NOT the DTO's: `GenericWrite` writes exactly what it is
+  /// given with no module-level validation, so a wrong name is a silent no-op.
+  Map<String, dynamic> _writableFields(Map<String, dynamic> body) {
+    return <String, dynamic>{
       if (body.containsKey('name')) 'DisplayName': body['name'],
       if (body.containsKey('headline')) 'Headline': body['headline'],
       if (body.containsKey('industry')) 'Industry': body['industry'],
+      // The structured الاختصاص. The client writes the discipline's NAME into
+      // Industry alongside it, so search and "people in your field" — which
+      // compare industries — keep working without knowing about the table.
+      if (body.containsKey('disciplineId')) 'DisciplineId': body['disciplineId'],
+      // Same shape as the discipline: the structured المحافظة, with its NAME
+      // written into Location beside it.
+      if (body.containsKey('governorateId'))
+        'GovernorateId': body['governorateId'],
       if (body.containsKey('location')) 'Location': body['location'],
       if (body.containsKey('about')) 'About': body['about'],
       if (body.containsKey('bio')) 'Bio': body['bio'],
@@ -263,9 +370,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
             : body['specialties'],
     };
 
-    if (fields.isEmpty) return me;
+  }
 
-    final saved = await apiCall(
+  /// One `GenericWrite` update against `ProfileModel`.
+  Future<Result<dynamic, AppException>> _write(
+    String profileId,
+    Map<String, dynamic> fields,
+  ) {
+    return apiCall(
       EndPoints.genericWriteSave,
       () => _api.dio.post<dynamic>(
         EndPoints.genericWriteSave,
@@ -288,10 +400,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
         ],
       ),
       (envelope) => envelope.data,
-    );
-
-    return saved.flatMapAsync(
-      (_) => byPerson(ProfileRepository.meSentinel),
     );
   }
 

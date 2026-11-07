@@ -1,4 +1,6 @@
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/features/profile/data/dtos/profile_dto.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/message_thread.dart';
 
@@ -115,8 +117,10 @@ class ThreadParticipantDto {
     this.headline,
     this.avatarUrl,
     this.isVerified = false,
+    this.isSubscribed = false,
     this.isOnline = false,
     this.lastSeenAt,
+    this.accountType = AccountType.individual,
   });
 
   factory ThreadParticipantDto.fromJson(Map<String, dynamic> json) =>
@@ -127,16 +131,20 @@ class ThreadParticipantDto {
         headline: json['headline'] as String?,
         avatarUrl: json['avatarUrl'] as String?,
         isVerified: json['isVerified'] == true,
+        isSubscribed: json['isSubscribed'] == true,
         isOnline: json['isOnline'] == true,
         lastSeenAt: ConversationDto.optionalDate(json['lastSeenAt']),
+        accountType: ProfileDto.accountTypeFromWire(json['accountType']),
       );
 
+  final AccountType accountType;
   final String id;
   final String username;
   final String displayName;
   final String? headline;
   final String? avatarUrl;
   final bool isVerified;
+  final bool isSubscribed;
   final bool isOnline;
   final DateTime? lastSeenAt;
 
@@ -149,8 +157,10 @@ class ThreadParticipantDto {
     headline: headline,
     avatarUrl: avatarUrl,
     verified: isVerified,
+    subscribed: isSubscribed,
     isOnline: isOnline,
     lastSeenAt: lastSeenAt,
+    accountType: accountType,
   );
 }
 

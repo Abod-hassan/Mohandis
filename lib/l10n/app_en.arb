@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Rung",
+  "appTitle": "Mohandis",
   "actionRetry": "Try again",
   "actionCancel": "Cancel",
   "actionSave": "Save",
@@ -21,12 +21,6 @@
   "themeToggleToLight": "Switch to light theme",
   "authHeroTitle": "Where professional paths meet.",
   "authHeroBody": "Build your professional profile, grow your network, share your work, and find your next role — all in one calm, professional place.",
-  "authStatProfessionalsValue": "12M+",
-  "authStatProfessionalsLabel": "professionals",
-  "authStatJobsValue": "240k",
-  "authStatJobsLabel": "open roles",
-  "authStatTrustValue": "98%",
-  "authStatTrustLabel": "trust score",
   "authGetStarted": "Get started",
   "authSignIn": "Sign in",
   "authCreateAccount": "Create account",
@@ -222,8 +216,29 @@
   "authSwitchToSignUp": "No account yet? Create one",
   "authSwitchToSignIn": "Already have an account? Sign in",
   "authRequiredField": "This field is required",
-  "authPasswordTooShort": "Password must be at least 6 characters",
+  "authPasswordTooShort": "Password must be at least 8 characters",
   "authUserNameTooShort": "Username must be at least 3 characters",
+  "authChecking": "Checking…",
+  "authAvailable": "Available",
+  "authUserNameTaken": "That username is taken",
+  "authPhoneTaken": "That number already has an account",
+  "authPhoneHint": "7701234567",
+  "authSessionExpired": "Your session expired. Please sign in again.",
+  "authPasswordWeak": "Add a digit, an uppercase and a lowercase letter",
+  "authEmail": "Email",
+  "authEmailOptional": "Email (optional)",
+  "authEmailHint": "name@example.com",
+  "authEmailInvalid": "Enter a valid email address",
+  "authEmailTaken": "That email already has an account",
+  "authVerifyTitle": "Confirm your phone",
+  "authVerifyNoDraft": "That sign-up session has ended. Start again.",
+  "authVerifyRestart": "Start again",
+  "authVerifyEmailLater": "You can confirm your email after your account is created, to turn on two-step verification.",
+  "authVerifyCodeTitle": "Enter your code",
+  "authVerifyResend": "Resend",
+  "authVerifyConfirm": "Confirm",
+  "authVerifyNoCode": "Didn't get the code?",
+  "authVerifySentTo": "We sent a 6-digit code to",
   "authPhoneInvalid": "Enter a valid phone number",
   "authAccountCreated": "Account created — welcome, {name} 🎉",
   "setupTitle": "Complete your profile",
@@ -243,6 +258,377 @@
   "setupOpenToWork": "Open to work",
   "setupOpenToWorkSubtitle": "Shows a badge on your profile",
   "setupSave": "Continue",
+  "authForgotPassword": "Forgot your password?",
+  "forgotTitle": "Reset your password",
+  "forgotIntro": "Pick where to receive the code, then set a new password.",
+  "forgotSend": "Send code",
+  "forgotNoAccountPhone": "No account uses that number. Check it, or create an account.",
+  "forgotNoAccountEmail": "No confirmed account uses that address. Try your phone number.",
+  "forgotChangeTarget": "Change number or email",
+  "forgotLeaveTitle": "Cancel the password reset?",
+  "forgotLeaveBody": "Your password will not change and you will be signed out. You will need a new code to try again.",
+  "forgotLeaveConfirm": "Cancel reset",
+  "forgotSetTitle": "New password",
+  "forgotSetSubtitle": "Pick one you do not use anywhere else.",
+  "forgotNewPassword": "New password",
+  "forgotConfirmPassword": "Confirm password",
+  "forgotPasswordMismatch": "The passwords do not match",
+  "forgotSave": "Save password",
+  "forgotDone": "Your password has been changed",
+  "setupCareerTitle": "Your career",
+  "setupCv": "CV / resume",
+  "setupCvOnFile": "Attached",
+  "notificationsFollowApproved": "You approved this follow request",
+  "notificationsRequestHandled": "This request was already handled",
+  "toastFollowApproved": "{name} now follows you",
+  "activityFollowRequested": "asked to follow you",
+  "settingsPrivacy": "Privacy",
+  "settingsPrivateAccount": "Private account",
+  "settingsPrivateAccountOn": "Only your followers see your posts, and you approve each new follower",
+  "settingsPrivateAccountOff": "Anyone can see your posts and follow you",
+  "profilePrivateTitle": "This account is private",
+  "profilePrivateBody": "Follow this account to see its posts",
+  "profilePrivateRequested": "Follow request sent. Posts appear once it is approved",
+  "postReplyingTo": "Replying to {name}",
+  "postCancelReply": "Cancel reply",
+  "postWriteReply": "Write a reply…",
+  "subscriptionApprovedToast": "Your subscription was approved and is now active",
+  "feedRankingTitle": "Feed ranking",
+  "feedRankingSaved": "Ranking settings saved",
+  "feedRankingIntro": "These weights decide how the home feed is ordered for everyone. They are relative — only their ratios matter. Changes apply to pages loaded after saving.",
+  "feedRankingWeights": "Weights",
+  "feedRankingAdvanced": "Advanced",
+  "feedRankingAffinity": "Author affinity",
+  "feedRankingAffinityHint": "How much the viewer engages with this author. Higher feels more personal.",
+  "feedRankingRecency": "Recency",
+  "feedRankingRecencyHint": "Preference for newer posts.",
+  "feedRankingEngagement": "Engagement",
+  "feedRankingEngagementHint": "Likes, comments and shares relative to the post's age.",
+  "feedRankingUnseen": "Unseen bonus",
+  "feedRankingUnseenHint": "Lift for posts the viewer hasn't seen yet.",
+  "feedRankingRepeat": "Author repeat penalty",
+  "feedRankingRepeatHint": "Discount for each extra post by the same author on a page, so one author can't take it over.",
+  "feedRankingHalfLife": "Recency half-life",
+  "feedRankingHalfLifeHint": "After this long, recency counts half. Short values feel more chronological.",
+  "feedRankingOverfetch": "Candidates per slot",
+  "feedRankingOverfetchHint": "How many posts are fetched per page slot before ranking. Higher is better but slower and costlier.",
+  "feedRankingTtl": "Feed row lifetime",
+  "feedRankingTtlHint": "After this, unread rows expire from a viewer's feed. Zero keeps them forever.",
+  "feedRankingTtlForever": "Forever",
+  "feedRankingHours": "{count} h",
+  "feedRankingDays": "{count} days",
+  "feedRankingReset": "Restore defaults",
+  "settingsAdmin": "Administration",
+  "panelAccessTitle": "Dashboard access",
+  "panelAccessIntro": "Decide whether the engineer dashboard needs a subscription, and which of its sections are open to everyone. Changes apply to all users immediately.",
+  "panelAccessGateSection": "Subscription",
+  "panelAccessGate": "Require a subscription",
+  "panelAccessGateOn": "The dashboard is for subscribers only, apart from the free sections below.",
+  "panelAccessGateOff": "The whole dashboard is open to everyone.",
+  "panelAccessTrial": "Trial length",
+  "panelAccessTrialHint": "Days a new account gets the whole dashboard, counted from when it was created.",
+  "panelAccessTrialNone": "No trial",
+  "panelAccessDays": "{count} days",
+  "panelAccessSections": "Sections",
+  "panelAccessSectionsHint": "A section switched on here is open to everyone with no subscription; the rest need one.",
+  "panelAccessSectionsIgnored": "These have no effect while the whole dashboard is open to everyone.",
+  "panelAccessSectionFree": "Open without a subscription",
+  "panelAccessSectionPaid": "Needs a subscription",
+  "panelAccessSaved": "Dashboard access saved",
+  "dashboardSectionLocked": "Needs a subscription — tap to subscribe",
+  "panelAccessLibraryLive": "Library is live",
+  "panelAccessLibraryLiveHint": "While off, the library shows as \"coming soon\" on the panel and cannot be opened, whatever the subscription settings say.",
+  "disciplinesTitle": "Engineering disciplines",
+  "disciplinesIntro": "The disciplines engineers pick from on their profile. Tap a logo to upload an image, and the switch to withdraw one without deleting it — whoever chose it keeps it.",
+  "disciplineAdd": "Add a discipline",
+  "disciplineRename": "Rename",
+  "disciplineSetLogo": "Upload a logo",
+  "disciplineClearLogo": "Remove the logo",
+  "disciplineNameTitle": "Discipline name",
+  "disciplineNameAr": "Arabic name",
+  "disciplineNameEn": "English name",
+  "disciplineLogoHint": "Tap the square to upload a logo",
+  "disciplineLogoNoStorage": "Image uploads are not configured on this server",
+  "disciplinePickerTitle": "Choose your discipline",
+  "disciplinePickerHint": "Choose your discipline",
+  "disciplinePickerSearch": "Search disciplines…",
+  "disciplinePickerClear": "No discipline",
+  "disciplinePickerFailed": "Couldn't load the list of disciplines.",
+  "setupDiscipline": "Discipline",
+  "setupDisciplineHint": "Choose your engineering discipline",
+  "editProfileDiscipline": "Discipline",
+  "governoratePickerTitle": "Choose a governorate",
+  "governoratePickerHint": "Choose a governorate",
+  "governoratePickerSearch": "Search governorates…",
+  "governoratePickerClear": "No governorate",
+  "governoratePickerFailed": "Couldn't load the list of governorates.",
+  "setupGovernorate": "Governorate",
+  "setupGovernorateHint": "Choose your governorate",
+  "editProfileGovernorate": "Governorate",
+  "profileTabPosts": "Posts",
+  "profileTabReels": "Reels",
+  "profileTabCv": "Experience",
+  "profileNoPosts": "No posts yet.",
+  "profileNoReels": "No reels yet.",
+  "profileMessage": "Message",
+  "profileNoCv": "No CV has been uploaded.",
+  "profileCvFailed": "Couldn't open the CV.",
+  "activityFollowAccepted": "accepted your follow request",
+  "postOptionsTitle": "Post options",
+  "postOptionsEdit": "Edit post",
+  "postOptionsDelete": "Delete post",
+  "postOptionsReport": "Report post",
+  "postOptionsSave": "Save post",
+  "postOptionsUnsave": "Remove from saved",
+  "postDeleteConfirm": "Delete this post permanently?",
+  "postDeleteConfirmBody": "This cannot be undone.",
+  "toastPostDeleted": "Post deleted",
+  "postEditTitle": "Edit post",
+  "postEditHint": "Write something…",
+  "postEditEmpty": "A post cannot be empty",
+  "toastPostUpdated": "Post updated",
+  "postReportTitle": "Reason for reporting",
+  "postReportDetailsHint": "More details (optional)",
+  "postReportSend": "Send report",
+  "toastPostReported": "Thanks — your report was sent",
+  "reportReasonSpam": "Spam",
+  "reportReasonHarassment": "Harassment",
+  "reportReasonHateSpeech": "Hate speech",
+  "reportReasonViolence": "Violence",
+  "reportReasonNudity": "Nudity or sexual content",
+  "reportReasonMisinformation": "Misinformation",
+  "reportReasonSelfHarm": "Self-harm",
+  "reportReasonImpersonation": "Impersonation",
+  "reportReasonIntellectualProperty": "Intellectual property",
+  "reportReasonOther": "Something else",
+  "companyApplicantOpenCv": "View CV",
+  "companyApplicantNoCv": "No CV attached",
+  "companyApplicantCvFailed": "Could not open the file",
+  "companyApplicantNotes": "Applicant's notes",
+  "companyApplicantNoNotes": "The applicant wrote no notes",
+  "companyApplicantDetails": "View details",
+  "companyApplicantProfile": "Profile",
+  "companyDashboardTitle": "Company dashboard",
+  "companyStatOpenJobs": "Open jobs",
+  "companyStatApplicants": "Total applicants",
+  "companyStatNewThisWeek": "New this week",
+  "companyStatFollowers": "Page followers",
+  "companyPendingTitle": "Waiting on you",
+  "companyPendingEmpty": "Nothing is waiting on a decision",
+  "companyPendingAll": "All applicants",
+  "companyOpenJobsTitle": "Your open jobs",
+  "companyOpenJobsEmpty": "No open jobs right now",
+  "companyJobApplicants": "Applicants: {count}",
+  "companyClosedJobs": "Closed jobs: {count}",
+  "companyDashboardGreeting": "Hello, {name}",
+  "companyQuickActions": "Quick actions",
+  "companyEditPage": "Edit page",
+  "jobApplyLocked": "Applying is for subscribers",
+  "jobApplyLockedBody": "Subscribe to apply for jobs",
+  "authAccountEngineer": "Engineer",
+  "authAccountContractor": "Contractor",
+  "authAccountCraftsman": "Craftsman",
+  "authAccountEquipmentOwner": "Machinery owner",
+  "authBusinessName": "Business name",
+  "authBusinessNameHint": "As it should appear on your page",
+  "profileTradeLabel": "Trade",
+  "profileEquipmentLabel": "Machinery type",
+  "authAccountTypeSheetTitle": "Choose account type",
+  "authAccountEngineerHint": "A personal account: apply to jobs and build your profile.",
+  "authAccountCompanyHint": "Post jobs and receive applications.",
+  "authAccountContractorHint": "Deliver projects and post work opportunities.",
+  "authAccountCraftsmanHint": "A trade: carpenter, blacksmith, electrician and the rest.",
+  "authAccountEquipmentOwnerHint": "Rent out machinery and equipment, and post work.",
+  "myCoursesTitle": "My courses",
+  "myCoursesEmpty": "You haven't created a course yet. Start one and send it for review.",
+  "myCoursesNew": "New course",
+  "myCoursesEarnings": "My earnings",
+  "courseStatusDraft": "Draft",
+  "courseStatusSubmitted": "In review",
+  "courseStatusRejected": "Sent back",
+  "courseStatusApproved": "Published",
+  "courseEditorEdit": "Edit course",
+  "courseFieldTitle": "Course title",
+  "courseFieldSummary": "Short summary",
+  "courseFieldDescription": "Full description",
+  "courseFieldCategory": "Section",
+  "courseFieldLevel": "Level",
+  "courseFieldPrice": "Price",
+  "courseFieldPriceHint": "Leave at zero to give the course away",
+  "courseAddLine": "Add a line",
+  "courseLessons": "Lessons",
+  "courseAddLesson": "Add a lesson",
+  "courseLessonTitle": "Lesson title",
+  "courseLessonKind": "Lesson type",
+  "courseLessonDuration": "Length in minutes",
+  "courseLessonPreview": "Free preview lesson",
+  "courseLessonBody": "Lesson text",
+  "courseLessonDelete": "Delete lesson",
+  "courseSubmitForReview": "Send for review",
+  "courseSubmittedToast": "Course sent for review",
+  "courseSavedToast": "Course saved",
+  "courseReviewNote": "Reviewer's note",
+  "courseLockedUntilReview": "This course is with the reviewer and can't be edited until a decision comes back.",
+  "courseLockedApproved": "This course is published and can no longer be edited.",
+  "courseBuy": "Buy this course",
+  "coursePurchasePending": "Awaiting payment confirmation",
+  "coursePurchasePaid": "Purchased",
+  "coursePurchaseAsked": "Purchase requested. The course opens as soon as payment is confirmed.",
+  "courseSubscriberDiscount": "{percent}% subscriber discount",
+  "courseReviewTitle": "Course review",
+  "courseReviewEmpty": "No courses are waiting for review.",
+  "courseApprove": "Approve",
+  "courseReject": "Send back",
+  "coursePlatformPercent": "Platform share %",
+  "coursePlatformPercentHint": "Taken from what the learner actually pays, and fixed on every purchase of this course.",
+  "courseRejectReason": "Reason",
+  "courseApprovedToast": "Approved and published",
+  "courseRejectedToast": "Sent back to the author",
+  "courseAuthorLabel": "Author",
+  "courseCommerceTitle": "Course pricing",
+  "courseCommerceIntro": "Two numbers that apply to every course: the commission suggested at review, and the discount subscribers get.",
+  "courseCommissionDefault": "Default platform share %",
+  "courseCommissionDefaultHint": "A suggestion only. The binding rate is the one fixed on each course at approval.",
+  "courseDiscountPercent": "Subscriber discount on courses %",
+  "courseDiscountPercentHint": "Comes off every paid course for anyone with an active plan. Zero turns it off.",
+  "courseCommerceSaved": "Pricing saved",
+  "coursePurchasesTitle": "Course purchases",
+  "coursePurchasesEmpty": "No purchase requests.",
+  "purchaseConfirm": "Confirm payment",
+  "purchaseCancelRequest": "Turn down",
+  "purchaseAmountDue": "Amount",
+  "purchasePlatformShare": "Platform share",
+  "purchaseAuthorShare": "Author share",
+  "purchaseConfirmedToast": "Payment confirmed",
+  "purchaseCancelledToast": "Request turned down",
+  "purchaseNote": "Note",
+  "courseEarningsEmpty": "None of your courses have sold yet.",
+  "dashboardTeach": "Teach a course",
+  "dashboardTeachSubtitle": "Create a course, price it, and send it for review",
+  "courseCoverLabel": "Cover image",
+  "courseCoverAdd": "Add a cover image",
+  "courseCoverHint": "Shown on the course card in the catalogue",
+  "courseCoverChange": "Change image",
+  "courseCoverRemove": "Remove image",
+  "courseLessonFile": "Lesson file",
+  "courseLessonPickVideo": "Choose a video",
+  "courseLessonPickPdf": "Choose a PDF",
+  "courseLessonFileReady": "File uploaded",
+  "courseLessonFileMissing": "No file uploaded yet",
+  "courseUploading": "Uploading… {percent}%",
+  "courseLessonsAutoSave": "The course is saved automatically when you add the first lesson.",
+  "courseNewTag": "New",
+  "profileBannerAdd": "Add a cover photo",
+  "profileBannerChange": "Change cover photo",
+  "profileBannerRemove": "Remove cover photo",
+  "profileBannerSaved": "Cover photo updated",
+  "composerReelsStreamOff": "Reel publishing is unavailable on this server right now",
+  "courseLessonStreamOff": "Lesson video upload is unavailable on this server right now",
+  "uploadBannerUploading": "Uploading video",
+  "uploadBannerFinishing": "Publishing…",
+  "uploadBannerDone": "Uploaded and published",
+  "uploadBannerFailed": "Upload failed",
+  "uploadBannerBusy": "A video is already uploading — wait for it to finish",
+  "uploadLeaveTitle": "Upload not finished",
+  "uploadLeaveBody": "Closing the app now will cancel the video upload. Leave anyway?",
+  "uploadLeaveStay": "Stay",
+  "uploadLeaveQuit": "Leave",
+  "uploadStartedBackground": "The upload will continue in the background",
+  "uploadBannerCancel": "Cancel",
+  "uploadBannerCancelled": "Upload cancelled",
+  "courseSaveAndAddLessons": "Save and add lessons",
+  "courseLessonsTitle": "Course lessons",
+  "courseLessonsEmpty": "No lessons yet. Add the first one to get started.",
+  "courseLessonsNextStep": "Course saved. Now add its lessons.",
+  "courseLessonUploadingChip": "Uploading",
+  "courseLessonUploadIncomplete": "Upload did not finish — tap to try again",
+  "courseLessonUploadQueued": "Waiting to upload",
+  "courseLessonServerOutdated": "This server cannot save a lesson before its file finishes uploading. Restart the API after its latest build.",
+  "toastReelReposted": "Reel reposted to your followers",
+  "toastReelUnreposted": "Repost removed",
+  "postOriginalUnavailable": "The original post is no longer available.",
+  "cropAvatarTitle": "Crop profile photo",
+  "cropBannerTitle": "Crop cover photo",
+  "cropDone": "Done",
+  "cropCancel": "Cancel",
+  "reelOptions": "Reel options",
+  "reelDelete": "Delete reel",
+  "reelUndoRepost": "Undo repost",
+  "reelDeleteConfirm": "Delete this reel permanently?",
+  "reelDeleteConfirmBody": "It will disappear from your profile and from everyone who reposted it. This can't be undone.",
+  "toastReelDeleted": "Reel deleted",
+  "settingsPrivacyPolicy": "Privacy policy",
+  "settingsAbout": "About",
+  "legalLinkFailed": "Couldn't open the page. Check your connection and try again.",
+  "authTermsLead": "By continuing you agree to the ",
+  "authTermsPrivacy": "Privacy Policy",
+  "authTermsTail": " of Mohandis",
+  "authGenderOptional": "Gender (optional)",
+  "settingsDeleteAccount": "Delete account",
+  "deleteAccountTitle": "Delete your account permanently?",
+  "deleteAccountBody": "Your profile, posts, reels, comments and follows will be deleted, and you won't be able to sign in to this account again. This can't be undone.",
+  "deleteAccountConfirm": "Delete permanently",
+  "toastAccountDeleted": "Your account was deleted",
+  "authPhoneOrEmailHint": "Enter your phone number or your email, either one is enough. We'll send a confirmation code to it.",
+  "authPhoneOrEmailRequired": "Enter a phone number or an email",
+  "reportProfile": "Report account",
+  "reportReel": "Report reel",
+  "reportComment": "Report comment",
+  "reportMessage": "Report message",
+  "reportStory": "Report story",
+  "actionReport": "Report",
+  "authTermsLink": "Terms of Use",
+  "authTermsAnd": " and ",
+  "settingsTerms": "Terms of use",
+  "hashtagPostsEmpty": "No posts with this hashtag yet",
+  "storyReplyHint": "Send a reply…",
+  "storyReplySend": "Send",
+  "storyReplySent": "Reply sent to messages",
+  "storyReplyFailed": "Couldn't send the reply, try again",
+  "storyLike": "Like",
+  "storyLikeFailed": "Couldn't save the like",
+  "activityLikedStory": "liked your story",
+  "activityCommentedReel": "commented on your reel",
+  "reelComment": "Comment",
+  "reelCommentsTitle": "Comments",
+  "reelCommentsEmpty": "No comments yet. Be the first!",
+  "reelCommentsRetry": "Retry",
+  "reelCommentHint": "Add a comment…",
+  "reelCommentReply": "Reply",
+  "reelCommentReplyingTo": "Replying to {name}",
+  "reelCommentDelete": "Delete",
+  "reelCommentDeleteTitle": "Delete comment?",
+  "reelCommentDeleteBody": "The comment and all its replies will be deleted.",
+  "reelCommentDeleted": "Comment deleted",
+  "reelCommentReport": "Report",
+  "composerAddPoll": "Add a poll",
+  "composerRemovePoll": "Remove the poll",
+  "composerPollTitle": "Poll",
+  "composerPollQuestionNote": "The post's text is the poll question.",
+  "composerPollOptionHint": "Option {n}",
+  "composerPollAddOption": "Add option",
+  "composerPollRemoveOption": "Remove option",
+  "pollDurationHour": "1 hour",
+  "pollDurationSixHours": "6 hours",
+  "pollDurationDay": "1 day",
+  "pollDurationThreeDays": "3 days",
+  "pollDurationWeek": "1 week",
+  "pollVotes": "{count} votes",
+  "pollLeftDays": "{n}d left",
+  "pollLeftHours": "{n}h left",
+  "pollLeftMinutes": "{n}m left",
+  "pollClosed": "Poll closed",
+  "pollVoteFailed": "Couldn't record your vote",
+  "setupSecureTitle": "Secure your account",
+  "setupSecureOptional": "Optional",
+  "setupSecureBody": "Confirm your email to add a second way to verify — and a way back in if you lose your number.",
+  "setupSecureAction": "Confirm email",
+  "setupSecureDismiss": "Not now",
+  "emailVerifyTitle": "Email & two-step verification",
+  "emailVerifyIntro": "Add and confirm your email to use it as a second verification step, and as a way in if you lose your phone number. Your phone stays the primary one.",
+  "emailVerifySend": "Send code",
+  "emailVerifyChangeAddress": "Change email",
+  "emailVerifyDone": "Your email is confirmed",
   "setupSkip": "Skip for now",
   "setupSaved": "Your profile is saved 🎉",
   "authGender": "Gender",
@@ -278,8 +664,7 @@
   "activityCalled": "called you",
   "activityOther": "sent you a notification",
   "applyResumeNone": "No résumé attached",
-  "applyResumeUploadHint": "Choose a PDF or Word file"
-,
+  "applyResumeUploadHint": "Choose a PDF or Word file",
   "actionDelete": "Delete",
   "actionAdd": "Add",
   "actionEdit": "Edit",
@@ -312,22 +697,24 @@
   "employmentInternship": "Internship",
   "employmentFreelance": "Freelance",
   "employmentSelfEmployed": "Self-employed",
-  "employmentTemporary": "Temporary"
-,
+  "employmentTemporary": "Temporary",
   "editProfileChangePhoto": "Change photo",
-  "editProfileChangeCover": "Change cover"
-,
+  "editProfileChangeCover": "Change cover",
   "profileActivity": "Activity",
   "profileActivityPosts": "Posts",
   "profileActivityComments": "Comments",
   "profileActivityShowAll": "Show all",
   "profileCreatePost": "Create a post",
   "profileFollowersCount": "{count} followers",
-  "@profileFollowersCount": { "placeholders": { "count": { "type": "String" } } },
-  "profileCommentedOn": "Commented on a post"
-,
-  "postSeeMore": "…more"
-,
+  "@profileFollowersCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCommentedOn": "Commented on a post",
+  "postSeeMore": "…more",
   "settingsTitle": "Settings",
   "settingsAppearance": "Appearance",
   "settingsThemeSystem": "Match system",
@@ -360,9 +747,21 @@
   "composerModeReel": "Reel",
   "composerSingleMediaOnly": "This type holds one file",
   "composerVideoTooLarge": "That video is too large (the limit is {max} MB)",
-  "@composerVideoTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "@composerVideoTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "composerDocumentTooLarge": "That file is too large (the limit is {max} MB)",
-  "@composerDocumentTooLarge": { "placeholders": { "max": { "type": "int" } } },
+  "@composerDocumentTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "composerTitleStory": "New story",
   "composerTitleReel": "New reel",
   "composerHintStory": "Add a caption to your story…",
@@ -377,7 +776,13 @@
   "postOpenDocumentFailed": "Could not open the document",
   "composerPhotoRetry": "Retry",
   "composerPhotoLimit": "You can attach up to {max} photos",
-  "@composerPhotoLimit": { "placeholders": { "max": { "type": "int" } } },
+  "@composerPhotoLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "navMyJobs": "My jobs",
   "navApplicants": "Applicants",
   "navPage": "My page",
@@ -407,28 +812,68 @@
   "companyJobRequirements": "Requirements",
   "companyJobRequirementsHint": "One requirement per line",
   "companyApplicantCount": "{count} applicants",
-  "@companyApplicantCount": { "placeholders": { "count": { "type": "String" } } },
+  "@companyApplicantCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "companyAppliedAgo": "Applied {time}",
-  "@companyAppliedAgo": { "placeholders": { "time": { "type": "String" } } },
+  "@companyAppliedAgo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "companyOverview": "Overview",
   "companySize": "Company size",
   "companySizeSelf": "Just me",
   "companyFounded": "Founded",
   "companyFoundedOn": "Founded on {date}",
-  "@companyFoundedOn": { "placeholders": { "date": { "type": "String" } } },
+  "@companyFoundedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "companySpecialties": "Specialties",
   "companySpecialtiesHint": "One specialty per line",
   "companyJobCompanyWebsite": "Website",
   "companyOpenJobs": "Open jobs",
   "companyOpenJobsCount": "{count, plural, =1{open job} other{open jobs}}",
-  "@companyOpenJobsCount": { "placeholders": { "count": { "type": "num", "format": "compact" } } },
+  "@companyOpenJobsCount": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
   "companyWebsiteFailed": "Could not open the website",
   "companySeeAllJobs": "See all jobs",
   "profilePosts": "Posts",
   "companySizeOver": "Over {count} employees",
-  "@companySizeOver": { "placeholders": { "count": { "type": "String" } } },
+  "@companySizeOver": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "companySizeRange": "{from}-{to} employees",
-  "@companySizeRange": { "placeholders": { "from": { "type": "String" }, "to": { "type": "String" } } },
+  "@companySizeRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "companyNoOpenJobs": "No open jobs right now",
   "courseTitle": "Course",
   "coursesEmpty": "No courses yet",
@@ -465,9 +910,24 @@
   "assistantHint": "Type your question…",
   "assistantStubNotice": "The assistant is not connected yet — your questions are saved and answered once it is.",
   "courseLectureCount": "{count} lectures",
-  "@courseLectureCount": { "placeholders": { "count": { "type": "String" } } },
+  "@courseLectureCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseLectureOf": "{current} of {total}",
-  "@courseLectureOf": { "placeholders": { "current": { "type": "String" }, "total": { "type": "String" } } },
+  "@courseLectureOf": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "courseLecturesSection": "Lectures",
   "courseLecturesEmpty": "No lectures have been added to this course yet",
   "courseLectureLocked": "Finish the previous lecture first",
@@ -476,7 +936,13 @@
   "courseLectureMarkedDone": "Lecture marked complete",
   "coursePlayerError": "The video could not be played",
   "courseLectureMinutes": "{minutes} min",
-  "@courseLectureMinutes": { "placeholders": { "minutes": { "type": "String" } } },
+  "@courseLectureMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionTitle": "Subscription",
   "subscriptionLockedTitle": "This section is for subscribers",
   "subscriptionLockedBody": "Subscribe to reach the courses, the engineering library, legal affairs and your own tools.",
@@ -497,16 +963,34 @@
   "subscriptionKeep": "Keep it",
   "subscriptionTrialBadge": "Free trial",
   "subscriptionTrialEndsIn": "Your free trial ends in {days} days",
-  "@subscriptionTrialEndsIn": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionTrialEndsIn": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionExpiresIn": "Ends in {days} days",
-  "@subscriptionExpiresIn": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionExpiresIn": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionEndsToday": "Ends today",
   "billingCycleMonthly": "Monthly",
   "billingCycleAnnual": "Annual",
   "billingPerMonth": "/month",
   "billingPerYear": "/year",
   "billingSave": "Save {percent}%",
-  "@billingSave": { "placeholders": { "percent": { "type": "String" } } },
+  "@billingSave": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionCycleUnavailable": "Not offered on this plan",
   "subscriptionChangeAction": "Change plan",
   "subscriptionChangeTitle": "Change plan",
@@ -522,12 +1006,24 @@
   "subscriptionChangeCreditAmount": "Credited from your current plan",
   "subscriptionChangeNoExtraCost": "No extra charge",
   "subscriptionChangeKeepsDate": "Your renewal date does not change — {days} days left",
-  "@subscriptionChangeKeepsDate": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionChangeKeepsDate": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionChangeImmediateNotice": "The change takes effect right away; the difference is billed on your next invoice.",
   "subscriptionChangeDowngradeNotice": "You lose your current plan's features as soon as you confirm, and no money is refunded.",
   "subscriptionChangeDone": "Your plan has changed",
   "subscriptionPerDays": "per {days} days",
-  "@subscriptionPerDays": { "placeholders": { "days": { "type": "String" } } },
+  "@subscriptionPerDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "courseLevelBeginner": "Beginner",
   "courseLevelIntermediate": "Intermediate",
   "courseLevelAdvanced": "Advanced",
@@ -537,12 +1033,33 @@
   "courseLockedBody": "Subscribe to open this section. The first lesson is free to watch first.",
   "courseSubscribeToOpen": "See plans",
   "courseHours": "{hours} h",
-  "@courseHours": { "placeholders": { "hours": { "type": "String" } } },
+  "@courseHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
   "courseEnrolledCount": "{count} enrolled",
-  "@courseEnrolledCount": { "placeholders": { "count": { "type": "String" } } },
+  "@courseEnrolledCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseNoRatings": "Not rated yet",
   "courseRatingOf": "{rating} ({count})",
-  "@courseRatingOf": { "placeholders": { "rating": { "type": "String" }, "count": { "type": "String" } } },
+  "@courseRatingOf": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "courseAbout": "About",
   "courseOutcomes": "What you'll learn",
   "courseRequirements": "Requirements",
@@ -558,7 +1075,7 @@
   "lessonOpenPdf": "Open file",
   "lessonPdfFailed": "The file could not be opened",
   "coursesFilterAll": "All",
-  "coursesFilterFree": "Free",
+  "coursesFilterFree": "Available to me",
   "planIncludes": "Includes",
   "featureTheoryCourses": "Theory courses",
   "featurePracticalCourses": "Practical courses",
@@ -567,9 +1084,40 @@
   "featureLegalAffairs": "Legal affairs",
   "documentLocked": "Subscription",
   "subscriptionInvoiceNumber": "Invoice #{number}",
-  "@subscriptionInvoiceNumber": { "placeholders": { "number": { "type": "String" } } },
+  "@subscriptionInvoiceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "subscriptionAutoRenew": "Auto-renew",
   "subscriptionAutoRenewOn": "A new term starts automatically when this one ends.",
   "subscriptionAutoRenewOff": "Your subscription ends when this term does.",
-  "subscriptionAutoRenewSaved": "Renewal setting saved"
+  "subscriptionAutoRenewSaved": "Renewal setting saved",
+  "profileFollowing": "following",
+  "peopleConnectionsTitle": "Connections",
+  "peopleFollowersTitle": "Followers",
+  "peopleFollowingTitle": "Following",
+  "peopleRemove": "Remove",
+  "peopleEmpty": "Nobody here yet",
+  "peopleRemoveConfirm": "Remove {name} from your connections?",
+  "@peopleRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleUnfollowConfirm": "Stop following {name}?",
+  "@peopleUnfollowConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postSuggestedFollowing": "Following",
+  "reelMute": "Mute",
+  "reelUnmute": "Unmute"
 }

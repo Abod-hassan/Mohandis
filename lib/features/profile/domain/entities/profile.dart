@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 /// One work-experience entry.
 ///
@@ -30,7 +30,7 @@ class Experience {
   final String company;
   final String monogram;
 
-  /// Preformatted for display ("٢٠٢٢ — الآن · ٣ سنوات"). Derived from
+  /// Preformatted for display ("2022 — الآن · 3 سنوات"). Derived from
   /// [startDate]/[endDate]/[isCurrent]; never sent back.
   final String dates;
 
@@ -135,7 +135,41 @@ class Education {
 /// stored on the social profile, since Auth's contact record has no field for
 /// it. The declaration order is the wire contract: it maps to the backend's
 /// `AccountTypeEnum` ordinals.
-enum AccountType { individual, company }
+enum AccountType {
+  /// The engineer — the one kind of account that LOOKS FOR work.
+  individual,
+  company,
+
+  /// مقاول — takes on work and hires for it.
+  contractor,
+
+  /// حرفي — a trade: carpenter, blacksmith, electrician.
+  craftsman,
+
+  /// صاحب آلية — owns machinery and hires it out.
+  equipmentOwner;
+
+  /// True for every account that OFFERS work rather than looking for it.
+  ///
+  /// This is the line the product draws, and the one nearly every branch in
+  /// the app is actually asking about: a business gets the management tabs,
+  /// posts jobs and receives applications; an individual applies. Written as
+  /// "not individual" rather than as a list of the four, so a kind added later
+  /// is a business by default — the safe side, since the alternative is a new
+  /// type silently gaining the job seeker's rights.
+  bool get isBusiness => this != AccountType.individual;
+
+  /// Whether this kind picks from a list of specialties at all.
+  ///
+  /// An engineer picks a discipline, a craftsman a trade, a machinery owner a
+  /// machine. A company and a contractor describe themselves in their own
+  /// words instead — there is no list for them and asking for one returns
+  /// nothing.
+  bool get hasDisciplineList =>
+      this == AccountType.individual ||
+      this == AccountType.craftsman ||
+      this == AccountType.equipmentOwner;
+}
 
 /// A company's headcount, as a band — the backend's `CompanySizeEnum`.
 ///
@@ -198,10 +232,16 @@ class Profile extends BaseEntity {
     this.coverUrl,
     this.website,
     this.verified = false,
+    this.subscribed = false,
     this.accountType = AccountType.individual,
     this.isMe = false,
     this.followRequestPending = false,
     this.industry = '',
+    this.disciplineId,
+    this.disciplineName = '',
+    this.disciplineIconUrl,
+    this.governorateId,
+    this.governorateName = '',
     this.cvUrl,
     this.openToWork = false,
     this.hiring = false,
@@ -238,6 +278,10 @@ class Profile extends BaseEntity {
   final String? website;
   final bool verified;
 
+  /// Holds a live subscription — see `Person.subscribed`. A billing fact, and
+  /// deliberately not folded into [verified], which is a staff decision.
+  final bool subscribed;
+
   /// Individual or company. Defaults to individual for any profile created
   /// before the column existed, which is the safe reading of a null.
   final AccountType accountType;
@@ -264,6 +308,22 @@ class Profile extends BaseEntity {
   final String about;
   final String industry;
 
+  /// The engineering discipline — الاختصاص — this profile chose, from the
+  /// tenant's list. Null for a profile that predates the list, one that has not
+  /// chosen, and every company.
+  final int? disciplineId;
+
+  /// Its Arabic name and logo, inlined by the server so a profile renders
+  /// without a second request. The logo is host-less like every other upload.
+  final String disciplineName;
+  final String? disciplineIconUrl;
+
+  /// The governorate — المحافظة — this profile is in, from the tenant's list,
+  /// and its Arabic name. [location] carries the same text for everything that
+  /// reads a location as a string.
+  final int? governorateId;
+  final String governorateName;
+
   /// The host-less path of the CV on file, or null when there is none.
   ///
   /// `ProfileModel.CvUrl` has existed server-side since the module shipped and
@@ -275,12 +335,18 @@ class Profile extends BaseEntity {
   final bool hiring;
   final bool isPrivate;
 
-  /// True when this profile is a company page rather than a person.
+  /// True when this profile is a BUSINESS page rather than a person looking
+  /// for work — a company, a contractor, a craftsman, a machinery owner.
   ///
   /// Read this instead of comparing [accountType] at call sites: the profile
   /// screen, the edit form and the shell all branch on it, and one named test
   /// is what keeps them branching on the same thing.
-  bool get isCompany => accountType == AccountType.company;
+  ///
+  /// The name is historical — there were two kinds when it was written, and
+  /// renaming it across fifty call sites would have been a worse change than
+  /// widening what it answers. [AccountType.isBusiness] is the same question
+  /// asked of the enum itself.
+  bool get isCompany => accountType.isBusiness;
 
   // ── Company ──────────────────────────────────────────────────────────────
   //
@@ -332,16 +398,30 @@ class Profile extends BaseEntity {
   Person get person => Person(
     id: personId,
     name: displayName,
+    // The handle travels too: the profile header prints it above the display
+    // name, and a Person built without it would fall back to repeating the
+    // name it is meant to sit beside.
+    username: username,
     firstName: displayName.split(RegExp(r'\s+')).first,
     headline: headline,
     location: location,
     verified: verified,
+    subscribed: subscribed,
+    // The kind, not the boolean: a Profile knows exactly which of the five it
+    // is, and flattening it on the way out is what used to turn a contractor
+    // into a company.
+    accountType: accountType,
     avatarUrl: avatarUrl,
   );
 
   Profile copyWith({
     String? about,
     String? industry,
+    int? disciplineId,
+    String? disciplineName,
+    String? disciplineIconUrl,
+    int? governorateId,
+    String? governorateName,
     String? cvUrl,
     String? displayName,
     String? headline,
@@ -374,10 +454,16 @@ class Profile extends BaseEntity {
       coverUrl: coverUrl ?? this.coverUrl,
       website: website,
       verified: verified,
+      subscribed: subscribed,
       accountType: accountType,
       isMe: isMe,
       about: about ?? this.about,
       industry: industry ?? this.industry,
+      disciplineId: disciplineId ?? this.disciplineId,
+      disciplineName: disciplineName ?? this.disciplineName,
+      disciplineIconUrl: disciplineIconUrl ?? this.disciplineIconUrl,
+      governorateId: governorateId ?? this.governorateId,
+      governorateName: governorateName ?? this.governorateName,
       cvUrl: cvUrl ?? this.cvUrl,
       openToWork: openToWork ?? this.openToWork,
       hiring: hiring,

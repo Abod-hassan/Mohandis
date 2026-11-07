@@ -1,7 +1,7 @@
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../entities/story.dart';
 
@@ -23,4 +23,13 @@ abstract class StoryRepository extends BaseRepository<Story> {
     int page,
     int size,
   });
+
+  /// Likes [storyId] or takes the like back. Answers the new state and count.
+  Future<Result<({bool liked, int likeCount}), AppException>> toggleLike(
+    String storyId,
+  );
+
+  /// Replies to [storyId] — a direct message to its author. Answers the
+  /// conversation it landed in, so the app can offer to open it.
+  Future<Result<String, AppException>> reply(String storyId, String text);
 }

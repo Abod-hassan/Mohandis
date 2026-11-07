@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
+import 'package:mohandis/l10n/l10n.dart';
+
+import 'package:mohandis/features/shared/moderation/report_sheet.dart';
 
 import '../../domain/entities/message_thread.dart';
 import '../notifiers/messaging_notifier.dart';
@@ -93,7 +95,7 @@ class _ThreadScreenState extends ConsumerState<ThreadScreen> {
     return Scaffold(
       backgroundColor: c.bg,
       body: state.when(
-        loading: () => const LoadingView(),
+        loading: () => const MessageThreadSkeleton(),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref
@@ -190,6 +192,7 @@ class _ThreadHeader extends ConsumerWidget {
             RungAvatar(
               seed: thread.avatarSeed,
               initials: counterpart?.initials ?? '؟',
+              icon: counterpart?.accountType.icon,
               size: 38,
               imageUrl: ref.watch(imageUrlResolverProvider)(
                 counterpart?.avatarUrl,
@@ -201,14 +204,28 @@ class _ThreadHeader extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    // One-to-one only: on a group thread `title` is the
+                    // group's name, and a group subscribes to nothing.
+                    if (!thread.isGroup)
+                      NameBadges(
+                        verified: counterpart?.verified ?? false,
+                        subscribed: counterpart?.subscribed ?? false,
+                        size: 13,
+                      ),
+                  ],
                 ),
                 Text(
                   subtitle,
@@ -253,6 +270,26 @@ class _Bubble extends ConsumerWidget {
   final Message message;
   final bool showSender;
   final bool showReadReceipt;
+
+  Future<void> _offerReport(BuildContext context) async {
+    final report = await showModalBottomSheet<bool>(
+      context: context,
+      useSafeArea: true,
+      builder: (sheetContext) => SafeArea(
+        child: ListTile(
+          leading: const Icon(Icons.flag_outlined),
+          title: Text(sheetContext.l10n.reportMessage),
+          onTap: () => Navigator.of(sheetContext).pop(true),
+        ),
+      ),
+    );
+    if (report != true || !context.mounted) return;
+    await showReportSheet(
+      context,
+      target: ReportTarget.message,
+      targetId: message.id,
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -299,7 +336,11 @@ class _Bubble extends ConsumerWidget {
                       ),
                     ),
                   ),
-                Container(
+                // Long-press somebody else's message to report it (App Store
+                // guideline 1.2). Your own has nothing to report.
+                GestureDetector(
+                  onLongPress: mine ? null : () => _offerReport(context),
+                  child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -323,6 +364,7 @@ class _Bubble extends ConsumerWidget {
                       color: mine ? Colors.white : c.ink,
                     ),
                   ),
+                ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 3),
@@ -376,14 +418,8 @@ class _Composer extends StatelessWidget {
         ),
         child: Row(
           children: [
-            RungIconButton(
-              icon: Icons.add,
-              shape: BoxShape.circle,
-              foreground: c.accent,
-              onPressed: () => showRungToast(context, context.l10n.comingSoon),
-              tooltip: context.l10n.comingSoon,
-            ),
-            const SizedBox(width: 9),
+            // No attach button until attachments can be sent: a "+" that
+            // only says "coming soon" reads as an unfinished app.
             Expanded(
               child: Container(
                 constraints: const BoxConstraints(minHeight: 40),

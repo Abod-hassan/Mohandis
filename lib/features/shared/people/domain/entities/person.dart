@@ -1,4 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 /// A person on Rung. Deliberately thin — it carries only what the feed,
 /// messaging, search, and network surfaces render. The full CV-style record
@@ -12,7 +13,8 @@ class Person extends BaseEntity {
     this.username = '',
     required this.location,
     this.verified = false,
-    this.isCompany = false,
+    this.subscribed = false,
+    this.accountType = AccountType.individual,
     this.avatarUrl,
   });
 
@@ -36,13 +38,41 @@ class Person extends BaseEntity {
   final String location;
   final bool verified;
 
-  /// True when this row is a company rather than a person.
+  /// Holds a live subscription — what draws the subscriber badge.
   ///
-  /// A company is FOLLOWED, never connected with — the two graphs mean
-  /// different things and the server refuses the mismatch — so every surface
-  /// that offers a Connect button has to know which it is looking at. Carried
-  /// on `ProfileSimplifiedDto` for exactly that reason.
-  final bool isCompany;
+  /// Separate from [verified], and never folded into it. One says a human at
+  /// this company decided this account is who it claims to be; the other says
+  /// the account is paying. Collapsing them would quietly redefine the first
+  /// claim as the second, and an account that lost its subscription would then
+  /// appear to have lost its verification.
+  final bool subscribed;
+
+  /// What KIND of account this is — مهندس، شركة، مقاول، حرفي، صاحب آلية.
+  ///
+  /// The whole enum, not the boolean it used to be. Most surfaces only ask
+  /// "is this a business?" (a business is FOLLOWED, never connected with — the
+  /// two graphs mean different things and the server refuses the mismatch), and
+  /// [isCompany] still answers exactly that. But some questions need the kind:
+  /// only an engineer or a company may publish a course, and a contractor is a
+  /// business that may not. Collapsing to a boolean here is what made those
+  /// unanswerable without loading the full profile.
+  final AccountType accountType;
+
+  /// Whether this row is a business rather than a person. The coarse reading
+  /// of [accountType], kept under its old name because nearly every caller
+  /// wants exactly this and nothing finer.
+  bool get isCompany => accountType.isBusiness;
+
+  /// Whether this account may write and sell a course.
+  ///
+  /// An engineer teaches as a credential and a company as a service. The three
+  /// in between — مقاول، حرفي، صاحب آلية — are businesses that hire and are
+  /// hired; the server refuses a course from them, so no screen should offer
+  /// one. The rule is stated here, beside the type, rather than in each screen
+  /// that asks.
+  bool get canPublishCourses =>
+      accountType == AccountType.individual ||
+      accountType == AccountType.company;
 
   /// The photo as the server stores it — a host-less path, not a URL.
   ///
@@ -66,6 +96,7 @@ class Person extends BaseEntity {
     String? headline,
     String? location,
     bool? verified,
+    bool? subscribed,
     String? avatarUrl,
   }) {
     return Person(
@@ -75,7 +106,12 @@ class Person extends BaseEntity {
       headline: headline ?? this.headline,
       location: location ?? this.location,
       verified: verified ?? this.verified,
+      subscribed: subscribed ?? this.subscribed,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      // Carried through: dropping them made a copy lose its @handle (so it
+      // could no longer be mentioned) and read as a person, not a business.
+      username: username,
+      accountType: accountType,
     );
   }
 }

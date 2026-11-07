@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/base/base_list_notifier.dart';
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/base/base_list_notifier.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../data/repositories/story_repository_impl.dart';
 import '../../domain/entities/story.dart';
@@ -104,6 +104,18 @@ class StoriesNotifier extends BaseListNotifier<Story> {
         ]);
       },
     );
+  }
+
+  /// Writes a like the viewer just made (or the server just confirmed) into
+  /// the rail, so leaving the viewer and opening the story again shows the
+  /// same heart. A story that is not on the rail is left alone.
+  void applyLike(String storyId, {required bool liked, required int likeCount}) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    state = AsyncValue.data([
+      for (final s in current)
+        s.id == storyId ? s.copyWith(liked: liked, likeCount: likeCount) : s,
+    ]);
   }
 }
 

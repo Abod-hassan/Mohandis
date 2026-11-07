@@ -1,19 +1,18 @@
-import 'dart:io' show Platform;
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 /// Talks to the backend's device-token register/unregister endpoints
 /// so push notifications can be targeted at this specific install.
 ///
-/// Auth is JWT-required on register/unregister; the backend keys the
-/// row on the JWT's user claim, the client never passes a userId.
+/// Auth is JWT-required on register/unregister; the backend keys the row on
+/// the JWT's `ContactId` claim plus this device's `X-Device-SN`, so the client
+/// never passes an id of its own.
 class DeviceTokenRepository {
   DeviceTokenRepository({required ApiClient apiClient}) : _api = apiClient;
 
@@ -31,12 +30,18 @@ class DeviceTokenRepository {
       );
     }
     try {
+      // `POST api/Notification/UpdateNID(string nid)` — a bare simple type, so
+      // ASP.NET binds it from the QUERY STRING. No body: this used to send the
+      // token as a JSON string as well, in case the parameter turned out to be
+      // [FromBody], and the module's source says it is not.
+      //
+      // The row is keyed by (ContactId, DeviceSn): the contact comes from the
+      // JWT's `ContactId` claim and the device from the `X-Device-SN` header
+      // that `DeviceHeaderInterceptor` puts on every call — which is how one
+      // person on two phones keeps two tokens instead of overwriting one.
       final res = await _api.dio.post<dynamic>(
         EndPoints.deviceRegisterToken,
-        data: {
-          'fcmToken': fcmToken,
-          'platform': _platformName(),
-        },
+        queryParameters: {'nid': fcmToken},
       );
       // Envelope shape: { data: true } / { Data: true }. Treat any
       // 2xx with non-error envelope as success — the actual boolean
@@ -63,24 +68,29 @@ class DeviceTokenRepository {
   /// doesn't block the logout flow (the local session is wiped
   /// regardless; worst case the backend still thinks this device is
   /// addressable until the next login of any user on it).
-  Future<Result<bool, AppException>> unregister() async {
+  /// [bearer] is the access token of the session being ended. Sign-out now
+  /// clears storage BEFORE this runs, so the interceptor has nothing to attach
+  /// — and this call is JWT-keyed: without the bearer the server cannot tell
+  /// whose registration to drop, and the phone keeps receiving the previous
+  /// account's notifications.
+  Future<Result<bool, AppException>> unregister({String? bearer}) async {
     try {
-      await _api.dio.post<dynamic>(EndPoints.deviceUnregisterToken);
+      // GET, not POST: `RemoveNID` is declared `[HttpGet("[action]")]` on the
+      // module's NotificationController. A POST here answered 405 and the
+      // token was never cleared, so a signed-out phone kept receiving the
+      // previous account's notifications until somebody signed in again.
+      await _api.dio.get<dynamic>(
+        EndPoints.deviceUnregisterToken,
+        options: bearer == null || bearer.isEmpty
+            ? null
+            : Options(headers: {'Authorization': 'Bearer $bearer'}),
+      );
       return const Result.success(true);
     } on DioException catch (e) {
       return Result.failure(_asAppException(e));
     } catch (e, s) {
       return Result.failure(UnknownException('$e', cause: e, stackTrace: s));
     }
-  }
-
-  /// Wire-side platform tag — kept as a stable lowercase string so the
-  /// backend doesn't have to parse `Platform.operatingSystem` quirks
-  /// (e.g. macOS surfaces as `"macos"`, unhelpful for FCM).
-  String _platformName() {
-    if (Platform.isAndroid) return 'android';
-    if (Platform.isIOS) return 'ios';
-    return 'unknown';
   }
 
   AppException _asAppException(DioException e) {

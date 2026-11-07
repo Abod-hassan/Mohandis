@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../data/repositories/post_repository_impl.dart';
 import '../../domain/entities/comment.dart';
@@ -161,10 +161,18 @@ class PostDetailNotifier extends FamilyAsyncNotifier<Post, String> {
     ];
   }
 
-  Future<Result<void, AppException>> addComment(String text) async {
-    final result = await ref
-        .read(postRepositoryProvider)
-        .addComment(postId: arg, text: text);
+  /// Posts a comment, or a reply when [parentCommentId] is set — any
+  /// comment in the thread, top-level or reply; the reload folds it under its
+  /// top-level ancestor.
+  Future<Result<void, AppException>> addComment(
+    String text, {
+    String? parentCommentId,
+  }) async {
+    final result = await ref.read(postRepositoryProvider).addComment(
+          postId: arg,
+          text: text,
+          parentCommentId: parentCommentId,
+        );
     return result.flatMapAsync((_) async {
       // Reload rather than appending locally: the server owns the comment
       // count, and a reply has to land under the right parent.
@@ -179,6 +187,19 @@ class PostDetailNotifier extends FamilyAsyncNotifier<Post, String> {
 
   /// Applies a server-returned post while keeping the comments already loaded —
   /// the post endpoints don't return the thread.
+  ///
+  /// Public because an edit made from the card's options sheet lands here too:
+  /// this screen is what the reader is looking at, and telling only the feed
+  /// would leave the edited text one route away from the person who typed it.
+  void applyServerPost(Post server) => _sync(server);
+
+  /// Writes a poll's new counts into the open post.
+  void applyPoll(Poll poll) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    state = AsyncValue.data(current.copyWith(poll: poll));
+  }
+
   void _sync(Post server) {
     final merged = server.copyWith(
       comments: state.valueOrNull?.comments ?? const [],

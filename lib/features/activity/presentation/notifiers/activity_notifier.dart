@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/network/presentation/notifiers/network_notifier.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+
+import 'package:mohandis/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
 
 import '../../data/repositories/activity_repository_impl.dart';
 import '../../domain/entities/activity_notification.dart';
@@ -42,6 +44,37 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityNotification>> {
     return result;
   }
 
+  /// Clears the inbox because the person has OPENED it — badge, server rows and
+  /// the highlights on screen, all three.
+  ///
+  /// It used to leave the local `unread` flags alone, so that "which of these
+  /// are new?" stayed answerable for the visit. That reasoning assumed a next
+  /// load would clear them; this provider is NOT autoDispose, so there is no
+  /// next load — the same highlighted rows came back on every visit for the
+  /// rest of the session, over a badge that said zero. A screen that
+  /// contradicts itself is worse than one that forgets which rows were new.
+  ///
+  /// Optimistic, and rolled back on failure, because the highlight is now a
+  /// claim about the server's state rather than a private note to the reader.
+  ///
+  /// Still a no-op when nothing is unread: this runs on every open, and the
+  /// round-trip is only worth making when it would change something.
+  Future<void> markAllReadOnOpen() async {
+    final previous = state.valueOrNull;
+    if (previous == null || !previous.any((n) => n.unread)) return;
+
+    state = AsyncValue.data(
+      [for (final n in previous) n.copyWith(unread: false)],
+    );
+
+    final result = await ref.read(activityRepositoryProvider).markAllRead();
+    if (result.isFailure) {
+      state = AsyncValue.data(previous);
+    } else {
+      _invalidateBadge();
+    }
+  }
+
   Future<Result<void, AppException>> markAllRead() async {
     final previous = state.valueOrNull;
     if (previous != null) {
@@ -58,34 +91,60 @@ class ActivityNotifier extends AsyncNotifier<List<ActivityNotification>> {
     return result;
   }
 
-  /// Accepts the connection request behind an inline notification. The row
-  /// turns into a plain "now connected" entry and the network tab's pending
-  /// list is refreshed so its badge stays truthful.
-  Future<Result<void, AppException>> acceptConnection(
-    String notificationId,
-    String actorId,
-    String connectedText,
-  ) async {
-    final result =
-        await ref.read(networkNotifierProvider.notifier).accept(actorId);
+  /// Accepts the follow request behind an inline notification. The row turns
+  /// into a plain entry and loses its buttons.
+  ///
+  /// Every actionable row is a follow request: connection rows never reach
+  /// this list — see `ActivityNotificationDto.isHidden`.
+  ///
+  /// A request that has ALREADY been answered — from the Network screen,
+  /// another device, or a sender who withdrew it — comes back "Request not
+  /// found." That is not a failure worth a red toast: the outcome the person
+  /// wanted may well have happened already, and the row was only showing
+  /// buttons because it was stale. It is settled like a success and reported
+  /// as [RequestOutcome.alreadyHandled].
+  Future<Result<RequestOutcome, AppException>> acceptRequest(
+    ActivityNotification item, {
+    required String acceptedText,
+  }) async {
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .acceptFollowRequest(item.actorId);
+
     if (result.isSuccess) {
-      await _resolveRequestRow(notificationId, text: connectedText);
+      await _resolveRequestRow(item.id, text: acceptedText);
+      ref.invalidate(profileNotifierProvider);
+      return const Result.success(RequestOutcome.done);
     }
-    return result;
+    if (_isGone(result.errorOrNull)) {
+      await _resolveRequestRow(item.id);
+      return const Result.success(RequestOutcome.alreadyHandled);
+    }
+    return Result.failure(result.errorOrNull!);
   }
 
-  /// Dismisses the request behind an inline notification. The row keeps its
+  /// Declines the request behind an inline notification. The row keeps its
   /// text — there is nothing new to say — but loses its buttons, so it cannot
-  /// be answered twice.
-  Future<Result<void, AppException>> ignoreConnection(
-    String notificationId,
-    String actorId,
+  /// be answered twice. A request that is already gone is simply settled.
+  Future<Result<RequestOutcome, AppException>> declineRequest(
+    ActivityNotification item,
   ) async {
-    final result =
-        await ref.read(networkNotifierProvider.notifier).ignore(actorId);
-    if (result.isSuccess) await _resolveRequestRow(notificationId);
-    return result;
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .rejectFollowRequest(item.actorId);
+
+    if (result.isSuccess || _isGone(result.errorOrNull)) {
+      await _resolveRequestRow(item.id);
+      return Result.success(
+        result.isSuccess ? RequestOutcome.done : RequestOutcome.alreadyHandled,
+      );
+    }
+    return Result.failure(result.errorOrNull!);
   }
+
+  /// The server's wording for a request that no longer exists.
+  static bool _isGone(AppException? e) =>
+      e != null && e.toString().toLowerCase().contains('request not found');
 
   /// Settles an answered request row: read, no longer actionable, and read on
   /// the server too — answering a request IS seeing it, and the row would
@@ -148,3 +207,19 @@ final _serverUnreadCountProvider = FutureProvider<int>((ref) async {
 final unreadActivityCountProvider = Provider<int>((ref) {
   return ref.watch(_serverUnreadCountProvider).valueOrNull ?? 0;
 });
+
+/// Re-reads the unread count — for screens that show the badge and want it
+/// current after a pull-to-refresh or on coming back from the inbox, since
+/// nothing pushes a new count to the client.
+void refreshUnreadActivityCount(WidgetRef ref) =>
+    ref.invalidate(_serverUnreadCountProvider);
+
+/// How answering a request ended, when it did not fail.
+enum RequestOutcome {
+  /// This tap answered it.
+  done,
+
+  /// It had already been answered — elsewhere, earlier, or by its sender
+  /// withdrawing it. The row is settled either way.
+  alreadyHandled,
+}

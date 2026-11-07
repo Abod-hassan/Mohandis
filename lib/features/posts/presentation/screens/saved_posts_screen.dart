@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/core/utils/pull_refresh.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../data/repositories/post_repository_impl.dart';
 import '../../domain/entities/post.dart';
+import '../notifiers/feed_notifier.dart';
 import '../notifiers/saved_posts_notifier.dart';
 import '../widgets/post_card.dart';
+import '../widgets/post_options_sheet.dart';
 
 /// The posts this person bookmarked.
 ///
@@ -37,7 +39,7 @@ class SavedPostsScreen extends ConsumerWidget {
       backgroundColor: c.bg,
       appBar: RungAppBar(title: l10n.savedPostsTitle),
       body: saved.when(
-        loading: () => const LoadingView(),
+        loading: () => const PostListSkeleton(),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(savedPostsProvider),
@@ -48,7 +50,7 @@ class SavedPostsScreen extends ConsumerWidget {
                 icon: Icons.bookmark_border,
               )
             : RefreshIndicator(
-                onRefresh: () async => ref.invalidate(savedPostsProvider),
+                onRefresh: () => pullRefresh(ref.refresh(savedPostsProvider.future)),
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   itemCount: posts.length,
@@ -68,6 +70,7 @@ class _SavedRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final author = resolveAuthor(ref, post.authorId, post.author);
+    final myId = ref.watch(currentPersonProvider).valueOrNull?.id;
 
     return PostCard(
       post: post,
@@ -80,6 +83,26 @@ class _SavedRow extends ConsumerWidget {
       // count comes from a separate read would drift from the feed's copy of
       // the same post.
       onSave: () => _unsave(context, ref),
+      onMore: () => showPostOptions(
+        context,
+        ref,
+        post: post,
+        isMine: myId != null && myId == post.authorId,
+        // This list IS the saved list, so any of these changes it: an edit
+        // rewrites the row, a delete removes it, and unsaving takes it off the
+        // list the screen is showing. The home feed is told as well — it holds
+        // its rows for the whole session, so without this a post deleted here
+        // is still tappable there, and an edited one still reads as it did.
+        onChanged: (updated) {
+          ref.read(feedNotifierProvider.notifier).applyServerPost(updated);
+          ref.invalidate(savedPostsProvider);
+        },
+        onDeleted: () {
+          ref.read(feedNotifierProvider.notifier).removePost(post.id);
+          ref.invalidate(savedPostsProvider);
+        },
+        onSaveToggled: () => ref.invalidate(savedPostsProvider),
+      ),
     );
   }
 

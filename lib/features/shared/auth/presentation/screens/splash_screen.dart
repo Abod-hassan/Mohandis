@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/services/storage_zone.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/services/storage_zone.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../notifiers/auth_notifier.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
 
 /// Cold-start splash. Blocks navigation on:
 ///   1. `authNotifierProvider` resolving (either a live session or a
@@ -97,24 +98,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 78,
-                height: 78,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0x29FFFFFF),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: const Color(0x40FFFFFF)),
-                ),
-                child: const Text(
-                  'ر',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 40,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
+              const RungAppLogo(size: 96),
               const SizedBox(height: 18),
               Text(
                 context.l10n.appTitle,

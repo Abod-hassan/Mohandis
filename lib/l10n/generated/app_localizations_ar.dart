@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'رنق';
+  String get appTitle => 'مهندس';
 
   @override
   String get actionRetry => 'إعادة المحاولة';
@@ -73,24 +73,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'ابنِ ملفك المهني، وسّع شبكتك، شارك أعمالك، واعثر على دورك المهني القادم — في مكان واحد هادئ واحترافي.';
 
   @override
-  String get authStatProfessionalsValue => '+١٢ مليون';
-
-  @override
-  String get authStatProfessionalsLabel => 'مختص';
-
-  @override
-  String get authStatJobsValue => '٢٤٠ ألف';
-
-  @override
-  String get authStatJobsLabel => 'وظيفة شاغرة';
-
-  @override
-  String get authStatTrustValue => '٩٨٪';
-
-  @override
-  String get authStatTrustLabel => 'درجة الثقة';
-
-  @override
   String get authGetStarted => 'لنبدأ';
 
   @override
@@ -110,7 +92,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authTerms =>
-      'بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة برنق';
+      'بمتابعتك فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بمهندس';
 
   @override
   String authWelcomeBack(String name) {
@@ -130,7 +112,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navJobs => 'الوظائف';
 
   @override
-  String get navNetwork => 'شبكتي';
+  String get navNetwork => 'الاشخاص';
 
   @override
   String get topBarSearchHint => 'ابحث عن أشخاص أو وظائف أو وسوم';
@@ -359,7 +341,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'وافق على المتابعين قبل رؤية منشوراتك';
 
   @override
-  String get networkTitle => 'شبكتي';
+  String get networkTitle => 'الاشخاص';
 
   @override
   String get networkRequests => 'طلبات التواصل';
@@ -376,7 +358,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get networkAdd => '+ إضافة';
 
   @override
-  String get searchHint => 'ابحث في رنق';
+  String get searchHint => 'ابحث في مهندس';
 
   @override
   String get searchTabTop => 'الأهم';
@@ -678,7 +660,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authSignUpTitle => 'إنشاء حساب جديد';
 
   @override
-  String get authUserName => 'اسم المستخدم';
+  String get authUserName => 'معرف المستخدم';
 
   @override
   String get authUserNameHint => 'بالأحرف اللاتينية أو الأرقام';
@@ -726,10 +708,74 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authRequiredField => 'هذا الحقل مطلوب';
 
   @override
-  String get authPasswordTooShort => 'كلمة المرور ٦ أحرف على الأقل';
+  String get authPasswordTooShort => 'كلمة المرور 8 أحرف على الأقل';
 
   @override
-  String get authUserNameTooShort => 'اسم المستخدم ٣ أحرف على الأقل';
+  String get authUserNameTooShort => 'معرف المستخدم 3 أحرف على الأقل';
+
+  @override
+  String get authChecking => 'جارٍ التحقق…';
+
+  @override
+  String get authAvailable => 'متاح';
+
+  @override
+  String get authUserNameTaken => 'هذا المعرف محجوز، جرّب غيره';
+
+  @override
+  String get authPhoneTaken => 'هذا الرقم مسجّل بحساب آخر';
+
+  @override
+  String get authPhoneHint => '7701234567';
+
+  @override
+  String get authSessionExpired => 'انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.';
+
+  @override
+  String get authPasswordWeak => 'أضف رقمًا وحرفًا كبيرًا وحرفًا صغيرًا';
+
+  @override
+  String get authEmail => 'البريد الإلكتروني';
+
+  @override
+  String get authEmailOptional => 'البريد الإلكتروني (اختياري)';
+
+  @override
+  String get authEmailHint => 'name@example.com';
+
+  @override
+  String get authEmailInvalid => 'أدخل بريدًا إلكترونيًا صحيحًا';
+
+  @override
+  String get authEmailTaken => 'هذا البريد مسجّل بحساب آخر';
+
+  @override
+  String get authVerifyTitle => 'تأكيد رقم هاتفك';
+
+  @override
+  String get authVerifyNoDraft => 'انتهت جلسة التسجيل. ابدأ من جديد.';
+
+  @override
+  String get authVerifyRestart => 'البدء من جديد';
+
+  @override
+  String get authVerifyEmailLater =>
+      'يمكنك تأكيد بريدك الإلكتروني بعد إنشاء الحساب لتفعيل التحقق بخطوتين.';
+
+  @override
+  String get authVerifyCodeTitle => 'أدخل رمز التأكيد';
+
+  @override
+  String get authVerifyResend => 'إعادة الإرسال';
+
+  @override
+  String get authVerifyConfirm => 'تأكيد';
+
+  @override
+  String get authVerifyNoCode => 'لم يصلك الرمز؟';
+
+  @override
+  String get authVerifySentTo => 'أرسلنا رمزًا من 6 أرقام إلى';
 
   @override
   String get authPhoneInvalid => 'أدخل رقم هاتف صحيح';
@@ -787,6 +833,1194 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get setupOpenToWorkSubtitle => 'يظهر شارة على ملفك';
+
+  @override
+  String get authForgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get forgotIntro =>
+      'اختر طريقة استلام رمز التحقق، ثم عيّن كلمة مرور جديدة.';
+
+  @override
+  String get forgotSend => 'إرسال الرمز';
+
+  @override
+  String get forgotNoAccountPhone =>
+      'لا يوجد حساب بهذا الرقم. تحقق منه أو أنشئ حسابًا جديدًا.';
+
+  @override
+  String get forgotNoAccountEmail =>
+      'لا يوجد حساب مؤكَّد بهذا البريد. جرّب رقم هاتفك.';
+
+  @override
+  String get forgotChangeTarget => 'تغيير الرقم أو البريد';
+
+  @override
+  String get forgotLeaveTitle => 'إلغاء استعادة كلمة المرور؟';
+
+  @override
+  String get forgotLeaveBody =>
+      'لن تتغيّر كلمة المرور وسيتم تسجيل خروجك. ستحتاج إلى رمز تحقق جديد للمحاولة مرة أخرى.';
+
+  @override
+  String get forgotLeaveConfirm => 'إلغاء الاستعادة';
+
+  @override
+  String get forgotSetTitle => 'كلمة مرور جديدة';
+
+  @override
+  String get forgotSetSubtitle => 'اختر كلمة مرور لا تستخدمها في مكان آخر.';
+
+  @override
+  String get forgotNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get forgotConfirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get forgotPasswordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get forgotSave => 'حفظ كلمة المرور';
+
+  @override
+  String get forgotDone => 'تم تغيير كلمة المرور ✅';
+
+  @override
+  String get setupCareerTitle => 'سيرتك المهنية';
+
+  @override
+  String get setupCv => 'السيرة الذاتية';
+
+  @override
+  String get setupCvOnFile => 'مرفقة';
+
+  @override
+  String get notificationsFollowApproved => 'وافقت على طلب المتابعة';
+
+  @override
+  String get notificationsRequestHandled => 'تمت معالجة هذا الطلب مسبقًا';
+
+  @override
+  String toastFollowApproved(String name) {
+    return 'أصبح $name يتابعك';
+  }
+
+  @override
+  String get activityFollowRequested => 'طلب متابعتك';
+
+  @override
+  String get settingsPrivacy => 'الخصوصية';
+
+  @override
+  String get settingsPrivateAccount => 'حساب خاص';
+
+  @override
+  String get settingsPrivateAccountOn =>
+      'منشوراتك تظهر لمتابعيك فقط، وتوافق على كل طلب متابعة جديد';
+
+  @override
+  String get settingsPrivateAccountOff => 'يمكن لأي شخص رؤية منشوراتك ومتابعتك';
+
+  @override
+  String get profilePrivateTitle => 'هذا الحساب خاص';
+
+  @override
+  String get profilePrivateBody => 'تابِع هذا الحساب لرؤية منشوراته';
+
+  @override
+  String get profilePrivateRequested =>
+      'أُرسل طلب المتابعة، وستظهر المنشورات بعد الموافقة';
+
+  @override
+  String postReplyingTo(String name) {
+    return 'الرد على $name';
+  }
+
+  @override
+  String get postCancelReply => 'إلغاء الرد';
+
+  @override
+  String get postWriteReply => 'اكتب ردًّا…';
+
+  @override
+  String get subscriptionApprovedToast =>
+      'تمت الموافقة على اشتراكك وأصبح فعّالًا';
+
+  @override
+  String get feedRankingTitle => 'ترتيب المنشورات';
+
+  @override
+  String get feedRankingSaved => 'تم حفظ إعدادات الترتيب';
+
+  @override
+  String get feedRankingIntro =>
+      'تحدد هذه الأوزان كيف يرتّب التطبيق منشورات الصفحة الرئيسية لكل المستخدمين. الأوزان نسبية: المهم هو النسبة بينها. تسري التغييرات على الصفحات التي تُحمَّل بعد الحفظ.';
+
+  @override
+  String get feedRankingWeights => 'الأوزان';
+
+  @override
+  String get feedRankingAdvanced => 'متقدم';
+
+  @override
+  String get feedRankingAffinity => 'القرب من الكاتب';
+
+  @override
+  String get feedRankingAffinityHint =>
+      'كم يتفاعل المستخدم مع هذا الكاتب. الأعلى يجعل الصفحة أكثر شخصية.';
+
+  @override
+  String get feedRankingRecency => 'الحداثة';
+
+  @override
+  String get feedRankingRecencyHint => 'تفضيل المنشورات الأحدث.';
+
+  @override
+  String get feedRankingEngagement => 'التفاعل';
+
+  @override
+  String get feedRankingEngagementHint =>
+      'الإعجابات والتعليقات والمشاركات بالنسبة لعمر المنشور.';
+
+  @override
+  String get feedRankingUnseen => 'مكافأة غير المُشاهَد';
+
+  @override
+  String get feedRankingUnseenHint =>
+      'رفع المنشورات التي لم يرها المستخدم بعد.';
+
+  @override
+  String get feedRankingRepeat => 'عقوبة تكرار الكاتب';
+
+  @override
+  String get feedRankingRepeatHint =>
+      'تخفيض كل منشور إضافي من نفس الكاتب في الصفحة، حتى لا يستحوذ كاتب واحد عليها.';
+
+  @override
+  String get feedRankingHalfLife => 'نصف عمر الحداثة';
+
+  @override
+  String get feedRankingHalfLifeHint =>
+      'بعد هذه المدة تنخفض قيمة الحداثة إلى النصف. القيم القصيرة تجعل الصفحة زمنية أكثر.';
+
+  @override
+  String get feedRankingOverfetch => 'عدد المرشحين لكل خانة';
+
+  @override
+  String get feedRankingOverfetchHint =>
+      'كم منشورًا يُجلب لكل مكان في الصفحة قبل الترتيب. الأعلى أدق لكنه أبطأ وأكثر كلفة.';
+
+  @override
+  String get feedRankingTtl => 'مدة بقاء عناصر الصفحة';
+
+  @override
+  String get feedRankingTtlHint =>
+      'بعدها تُحذف المنشورات غير المقروءة من صفحة المستخدم. صفر يعني بلا حذف.';
+
+  @override
+  String get feedRankingTtlForever => 'دائم';
+
+  @override
+  String feedRankingHours(int count) {
+    return '$count ساعة';
+  }
+
+  @override
+  String feedRankingDays(int count) {
+    return '$count يوم';
+  }
+
+  @override
+  String get feedRankingReset => 'استعادة القيم الافتراضية';
+
+  @override
+  String get settingsAdmin => 'الإدارة';
+
+  @override
+  String get panelAccessTitle => 'صلاحية لوحتي';
+
+  @override
+  String get panelAccessIntro =>
+      'حدد ما إذا كانت لوحة المهندس تتطلب اشتراكًا، وأي أقسامها مفتوحة للجميع. تسري التغييرات فورًا على كل المستخدمين.';
+
+  @override
+  String get panelAccessGateSection => 'الاشتراك';
+
+  @override
+  String get panelAccessGate => 'طلب اشتراك للوحة';
+
+  @override
+  String get panelAccessGateOn =>
+      'اللوحة مغلقة إلا للمشتركين، عدا الأقسام المفتوحة أدناه.';
+
+  @override
+  String get panelAccessGateOff => 'اللوحة مفتوحة للجميع بالكامل.';
+
+  @override
+  String get panelAccessTrial => 'مدة التجربة';
+
+  @override
+  String get panelAccessTrialHint =>
+      'أيام يحصل فيها الحساب الجديد على اللوحة كاملة، تُحسب من تاريخ إنشائه.';
+
+  @override
+  String get panelAccessTrialNone => 'بلا تجربة';
+
+  @override
+  String panelAccessDays(String count) {
+    return '$count يوم';
+  }
+
+  @override
+  String get panelAccessSections => 'الأقسام';
+
+  @override
+  String get panelAccessSectionsHint =>
+      'القسم المفعّل هنا مفتوح لكل المستخدمين بلا اشتراك؛ البقية تحتاج اشتراكًا.';
+
+  @override
+  String get panelAccessSectionsIgnored =>
+      'لا أثر لهذه الخيارات ما دامت اللوحة مفتوحة للجميع.';
+
+  @override
+  String get panelAccessSectionFree => 'مفتوح بلا اشتراك';
+
+  @override
+  String get panelAccessSectionPaid => 'يتطلب اشتراكًا';
+
+  @override
+  String get panelAccessSaved => 'تم حفظ إعدادات اللوحة';
+
+  @override
+  String get dashboardSectionLocked => 'يتطلب اشتراكًا — اضغط للاشتراك';
+
+  @override
+  String get panelAccessLibraryLive => 'تفعيل المكتبة الهندسية';
+
+  @override
+  String get panelAccessLibraryLiveHint =>
+      'ما دامت متوقفة تظهر في اللوحة بوسم «قريبًا» ولا تُفتح، مهما كانت إعدادات الاشتراك.';
+
+  @override
+  String get disciplinesTitle => 'الاختصاصات الهندسية';
+
+  @override
+  String get disciplinesIntro =>
+      'الاختصاصات التي يختار منها المهندسون عند إنشاء ملفاتهم. اضغط على الشعار لرفع صورة، والمفتاح لإيقاف اختصاص دون حذفه — من اختاره يحتفظ به.';
+
+  @override
+  String get disciplineAdd => 'إضافة اختصاص';
+
+  @override
+  String get disciplineRename => 'تعديل الاسم';
+
+  @override
+  String get disciplineSetLogo => 'رفع شعار';
+
+  @override
+  String get disciplineClearLogo => 'إزالة الشعار';
+
+  @override
+  String get disciplineNameTitle => 'اسم الاختصاص';
+
+  @override
+  String get disciplineNameAr => 'الاسم بالعربية';
+
+  @override
+  String get disciplineNameEn => 'الاسم بالإنجليزية';
+
+  @override
+  String get disciplineLogoHint => 'اضغط على المربع لرفع شعار';
+
+  @override
+  String get disciplineLogoNoStorage => 'رفع الصور غير مهيأ على هذا الخادم';
+
+  @override
+  String get disciplinePickerTitle => 'اختر اختصاصك';
+
+  @override
+  String get disciplinePickerHint => 'اختر اختصاصك';
+
+  @override
+  String get disciplinePickerSearch => 'ابحث عن اختصاص…';
+
+  @override
+  String get disciplinePickerClear => 'بلا اختصاص';
+
+  @override
+  String get disciplinePickerFailed => 'تعذّر تحميل قائمة الاختصاصات.';
+
+  @override
+  String get setupDiscipline => 'الاختصاص';
+
+  @override
+  String get setupDisciplineHint => 'اختر اختصاصك الهندسي';
+
+  @override
+  String get editProfileDiscipline => 'الاختصاص';
+
+  @override
+  String get governoratePickerTitle => 'اختر المحافظة';
+
+  @override
+  String get governoratePickerHint => 'اختر المحافظة';
+
+  @override
+  String get governoratePickerSearch => 'ابحث عن محافظة…';
+
+  @override
+  String get governoratePickerClear => 'بلا محافظة';
+
+  @override
+  String get governoratePickerFailed => 'تعذّر تحميل قائمة المحافظات.';
+
+  @override
+  String get setupGovernorate => 'المحافظة';
+
+  @override
+  String get setupGovernorateHint => 'اختر محافظتك';
+
+  @override
+  String get editProfileGovernorate => 'المحافظة';
+
+  @override
+  String get profileTabPosts => 'المنشورات';
+
+  @override
+  String get profileTabReels => 'ريلز';
+
+  @override
+  String get profileTabCv => 'الخبرة';
+
+  @override
+  String get profileNoPosts => 'لا توجد منشورات بعد.';
+
+  @override
+  String get profileNoReels => 'لا توجد ريلز بعد.';
+
+  @override
+  String get profileMessage => 'مراسلة';
+
+  @override
+  String get profileNoCv => 'لا توجد سيرة ذاتية مرفوعة.';
+
+  @override
+  String get profileCvFailed => 'تعذّر فتح السيرة الذاتية.';
+
+  @override
+  String get activityFollowAccepted => 'قبل طلب المتابعة';
+
+  @override
+  String get postOptionsTitle => 'خيارات المنشور';
+
+  @override
+  String get postOptionsEdit => 'تعديل المنشور';
+
+  @override
+  String get postOptionsDelete => 'حذف المنشور';
+
+  @override
+  String get postOptionsReport => 'الإبلاغ عن المنشور';
+
+  @override
+  String get postOptionsSave => 'حفظ المنشور';
+
+  @override
+  String get postOptionsUnsave => 'إزالة من المحفوظات';
+
+  @override
+  String get postDeleteConfirm => 'حذف هذا المنشور نهائياً؟';
+
+  @override
+  String get postDeleteConfirmBody => 'لا يمكن التراجع عن الحذف.';
+
+  @override
+  String get toastPostDeleted => 'حُذف المنشور';
+
+  @override
+  String get postEditTitle => 'تعديل المنشور';
+
+  @override
+  String get postEditHint => 'اكتب شيئاً…';
+
+  @override
+  String get postEditEmpty => 'لا يمكن ترك المنشور فارغاً';
+
+  @override
+  String get toastPostUpdated => 'تم تحديث المنشور';
+
+  @override
+  String get postReportTitle => 'سبب الإبلاغ';
+
+  @override
+  String get postReportDetailsHint => 'تفاصيل إضافية (اختياري)';
+
+  @override
+  String get postReportSend => 'إرسال البلاغ';
+
+  @override
+  String get toastPostReported => 'شكراً، وصلنا بلاغك';
+
+  @override
+  String get reportReasonSpam => 'محتوى مزعج أو إعلاني';
+
+  @override
+  String get reportReasonHarassment => 'تحرّش أو تنمّر';
+
+  @override
+  String get reportReasonHateSpeech => 'خطاب كراهية';
+
+  @override
+  String get reportReasonViolence => 'عنف أو تهديد';
+
+  @override
+  String get reportReasonNudity => 'محتوى جنسي أو عارٍ';
+
+  @override
+  String get reportReasonMisinformation => 'معلومات مضللة';
+
+  @override
+  String get reportReasonSelfHarm => 'إيذاء النفس';
+
+  @override
+  String get reportReasonImpersonation => 'انتحال شخصية';
+
+  @override
+  String get reportReasonIntellectualProperty => 'انتهاك حقوق ملكية';
+
+  @override
+  String get reportReasonOther => 'سبب آخر';
+
+  @override
+  String get companyApplicantOpenCv => 'عرض السيرة الذاتية';
+
+  @override
+  String get companyApplicantNoCv => 'لم يُرفق المتقدّم سيرة ذاتية';
+
+  @override
+  String get companyApplicantCvFailed => 'تعذّر فتح الملف';
+
+  @override
+  String get companyApplicantNotes => 'ملاحظات المتقدّم';
+
+  @override
+  String get companyApplicantNoNotes => 'لم يكتب المتقدّم أي ملاحظات';
+
+  @override
+  String get companyApplicantDetails => 'عرض التفاصيل';
+
+  @override
+  String get companyApplicantProfile => 'الملف الشخصي';
+
+  @override
+  String get companyDashboardTitle => 'لوحة الشركة';
+
+  @override
+  String get companyStatOpenJobs => 'وظائف مفتوحة';
+
+  @override
+  String get companyStatApplicants => 'إجمالي المتقدّمين';
+
+  @override
+  String get companyStatNewThisWeek => 'متقدّمون هذا الأسبوع';
+
+  @override
+  String get companyStatFollowers => 'متابعو الصفحة';
+
+  @override
+  String get companyPendingTitle => 'بانتظار قرارك';
+
+  @override
+  String get companyPendingEmpty => 'لا توجد طلبات بانتظار قرار';
+
+  @override
+  String get companyPendingAll => 'كل المتقدّمين';
+
+  @override
+  String get companyOpenJobsTitle => 'وظائفك المفتوحة';
+
+  @override
+  String get companyOpenJobsEmpty => 'لا توجد وظائف مفتوحة الآن';
+
+  @override
+  String companyJobApplicants(String count) {
+    return 'المتقدّمون: $count';
+  }
+
+  @override
+  String companyClosedJobs(String count) {
+    return 'وظائف مغلقة: $count';
+  }
+
+  @override
+  String companyDashboardGreeting(String name) {
+    return 'أهلاً، $name';
+  }
+
+  @override
+  String get companyQuickActions => 'إجراءات سريعة';
+
+  @override
+  String get companyEditPage => 'تعديل الصفحة';
+
+  @override
+  String get jobApplyLocked => 'التقديم للمشتركين';
+
+  @override
+  String get jobApplyLockedBody => 'اشترك لتتمكن من التقديم على الوظائف';
+
+  @override
+  String get authAccountEngineer => 'مهندس';
+
+  @override
+  String get authAccountContractor => 'مقاول';
+
+  @override
+  String get authAccountCraftsman => 'حرفي';
+
+  @override
+  String get authAccountEquipmentOwner => 'صاحب آلية';
+
+  @override
+  String get authBusinessName => 'اسم النشاط';
+
+  @override
+  String get authBusinessNameHint => 'كما تريد أن يظهر في صفحتك';
+
+  @override
+  String get profileTradeLabel => 'الحرفة';
+
+  @override
+  String get profileEquipmentLabel => 'نوع الآلية';
+
+  @override
+  String get authAccountTypeSheetTitle => 'اختر نوع الحساب';
+
+  @override
+  String get authAccountEngineerHint =>
+      'حساب شخصي: تتقدّم على الوظائف وتبني ملفك المهني.';
+
+  @override
+  String get authAccountCompanyHint => 'تنشر الوظائف وتستقبل طلبات المتقدّمين.';
+
+  @override
+  String get authAccountContractorHint => 'تنفّذ المشاريع وتنشر فرص العمل.';
+
+  @override
+  String get authAccountCraftsmanHint =>
+      'صاحب مهنة: نجار، حدّاد، كهربائي وغيرها.';
+
+  @override
+  String get authAccountEquipmentOwnerHint =>
+      'تؤجّر الآليات والمعدّات وتنشر فرص العمل.';
+
+  @override
+  String get myCoursesTitle => 'دوراتي';
+
+  @override
+  String get myCoursesEmpty =>
+      'لم تنشئ أي دورة بعد. ابدأ بدورة جديدة وأرسلها للمراجعة.';
+
+  @override
+  String get myCoursesNew => 'دورة جديدة';
+
+  @override
+  String get myCoursesEarnings => 'أرباح دوراتي';
+
+  @override
+  String get courseStatusDraft => 'مسودة';
+
+  @override
+  String get courseStatusSubmitted => 'قيد المراجعة';
+
+  @override
+  String get courseStatusRejected => 'مُعادة للتعديل';
+
+  @override
+  String get courseStatusApproved => 'منشورة';
+
+  @override
+  String get courseEditorEdit => 'تعديل الدورة';
+
+  @override
+  String get courseFieldTitle => 'عنوان الدورة';
+
+  @override
+  String get courseFieldSummary => 'وصف مختصر';
+
+  @override
+  String get courseFieldDescription => 'الوصف الكامل';
+
+  @override
+  String get courseFieldCategory => 'القسم';
+
+  @override
+  String get courseFieldLevel => 'المستوى';
+
+  @override
+  String get courseFieldPrice => 'السعر';
+
+  @override
+  String get courseFieldPriceHint => 'اتركه صفرًا لتكون الدورة مجانية';
+
+  @override
+  String get courseAddLine => 'إضافة سطر';
+
+  @override
+  String get courseLessons => 'الدروس';
+
+  @override
+  String get courseAddLesson => 'إضافة درس';
+
+  @override
+  String get courseLessonTitle => 'عنوان الدرس';
+
+  @override
+  String get courseLessonKind => 'نوع الدرس';
+
+  @override
+  String get courseLessonDuration => 'المدة بالدقائق';
+
+  @override
+  String get courseLessonPreview => 'درس تجريبي مجاني';
+
+  @override
+  String get courseLessonBody => 'نص الدرس';
+
+  @override
+  String get courseLessonDelete => 'حذف الدرس';
+
+  @override
+  String get courseSubmitForReview => 'إرسال للمراجعة';
+
+  @override
+  String get courseSubmittedToast => 'أُرسلت الدورة للمراجعة';
+
+  @override
+  String get courseSavedToast => 'تم حفظ الدورة';
+
+  @override
+  String get courseReviewNote => 'ملاحظة المراجع';
+
+  @override
+  String get courseLockedUntilReview =>
+      'الدورة عند المراجع ولا يمكن تعديلها حتى يصدر القرار.';
+
+  @override
+  String get courseLockedApproved => 'الدورة منشورة ولا يمكن تعديلها.';
+
+  @override
+  String get courseBuy => 'شراء الدورة';
+
+  @override
+  String get coursePurchasePending => 'بانتظار تأكيد الدفع';
+
+  @override
+  String get coursePurchasePaid => 'تم الشراء';
+
+  @override
+  String get coursePurchaseAsked =>
+      'تم إرسال طلب الشراء. تُفتح الدورة فور تأكيد الدفع.';
+
+  @override
+  String courseSubscriberDiscount(String percent) {
+    return 'خصم المشتركين $percent%';
+  }
+
+  @override
+  String get courseReviewTitle => 'مراجعة الدورات';
+
+  @override
+  String get courseReviewEmpty => 'لا توجد دورات بانتظار المراجعة.';
+
+  @override
+  String get courseApprove => 'موافقة';
+
+  @override
+  String get courseReject => 'رفض';
+
+  @override
+  String get coursePlatformPercent => 'نسبة المنصة %';
+
+  @override
+  String get coursePlatformPercentHint =>
+      'تُحتسب من المبلغ المدفوع فعليًا، وتُثبّت على كل عملية شراء لهذه الدورة.';
+
+  @override
+  String get courseRejectReason => 'سبب الإعادة';
+
+  @override
+  String get courseApprovedToast => 'تمت الموافقة ونُشرت الدورة';
+
+  @override
+  String get courseRejectedToast => 'أُعيدت الدورة إلى ناشرها';
+
+  @override
+  String get courseAuthorLabel => 'الناشر';
+
+  @override
+  String get courseCommerceTitle => 'تسعير الدورات';
+
+  @override
+  String get courseCommerceIntro =>
+      'رقمان يسريان على كل الدورات: نسبة المنصة المقترحة عند المراجعة، وخصم المشتركين على السعر.';
+
+  @override
+  String get courseCommissionDefault => 'نسبة المنصة الافتراضية %';
+
+  @override
+  String get courseCommissionDefaultHint =>
+      'قيمة مقترحة فقط؛ النسبة المُلزِمة هي ما يُثبَّت على كل دورة عند الموافقة.';
+
+  @override
+  String get courseDiscountPercent => 'خصم المشتركين على الدورات %';
+
+  @override
+  String get courseDiscountPercentHint =>
+      'يُخصم من سعر كل دورة مدفوعة لصاحب الاشتراك الفعّال. صفر يوقف الخصم.';
+
+  @override
+  String get courseCommerceSaved => 'تم حفظ إعدادات التسعير';
+
+  @override
+  String get coursePurchasesTitle => 'طلبات شراء الدورات';
+
+  @override
+  String get coursePurchasesEmpty => 'لا توجد طلبات شراء.';
+
+  @override
+  String get purchaseConfirm => 'تأكيد الدفع';
+
+  @override
+  String get purchaseCancelRequest => 'إلغاء الطلب';
+
+  @override
+  String get purchaseAmountDue => 'المبلغ';
+
+  @override
+  String get purchasePlatformShare => 'حصة المنصة';
+
+  @override
+  String get purchaseAuthorShare => 'حصة الناشر';
+
+  @override
+  String get purchaseConfirmedToast => 'تم تأكيد الدفع';
+
+  @override
+  String get purchaseCancelledToast => 'أُلغي الطلب';
+
+  @override
+  String get purchaseNote => 'ملاحظة';
+
+  @override
+  String get courseEarningsEmpty => 'لم تُبَع أي من دوراتك بعد.';
+
+  @override
+  String get dashboardTeach => 'دوراتي كمدرّب';
+
+  @override
+  String get dashboardTeachSubtitle =>
+      'أنشئ دورة، حدّد سعرها، وأرسلها للمراجعة';
+
+  @override
+  String get courseCoverLabel => 'صورة الغلاف';
+
+  @override
+  String get courseCoverAdd => 'أضف صورة غلاف للدورة';
+
+  @override
+  String get courseCoverHint => 'تظهر على بطاقة الدورة في الكتالوج';
+
+  @override
+  String get courseCoverChange => 'تغيير الصورة';
+
+  @override
+  String get courseCoverRemove => 'إزالة الصورة';
+
+  @override
+  String get courseLessonFile => 'ملف الدرس';
+
+  @override
+  String get courseLessonPickVideo => 'اختيار فيديو';
+
+  @override
+  String get courseLessonPickPdf => 'اختيار ملف PDF';
+
+  @override
+  String get courseLessonFileReady => 'تم رفع الملف';
+
+  @override
+  String get courseLessonFileMissing => 'لم يُرفع ملف بعد';
+
+  @override
+  String courseUploading(String percent) {
+    return 'جارٍ الرفع… $percent%';
+  }
+
+  @override
+  String get courseLessonsAutoSave =>
+      'تُحفظ الدورة تلقائيًا عند إضافة أول درس.';
+
+  @override
+  String get courseNewTag => 'جديد';
+
+  @override
+  String get profileBannerAdd => 'أضف صورة غلاف';
+
+  @override
+  String get profileBannerChange => 'تغيير صورة الغلاف';
+
+  @override
+  String get profileBannerRemove => 'إزالة صورة الغلاف';
+
+  @override
+  String get profileBannerSaved => 'تم تحديث صورة الغلاف';
+
+  @override
+  String get composerReelsStreamOff =>
+      'نشر الريلز غير متاح على هذا الخادم حالياً';
+
+  @override
+  String get courseLessonStreamOff =>
+      'رفع فيديو المحاضرات غير متاح على هذا الخادم حالياً';
+
+  @override
+  String get uploadBannerUploading => 'جارٍ رفع الفيديو';
+
+  @override
+  String get uploadBannerFinishing => 'جارٍ النشر…';
+
+  @override
+  String get uploadBannerDone => 'تم الرفع والنشر';
+
+  @override
+  String get uploadBannerFailed => 'فشل الرفع';
+
+  @override
+  String get uploadBannerBusy => 'هناك فيديو قيد الرفع بالفعل، انتظر حتى ينتهي';
+
+  @override
+  String get uploadLeaveTitle => 'الرفع لم ينتهِ';
+
+  @override
+  String get uploadLeaveBody =>
+      'إغلاق التطبيق الآن سيلغي رفع الفيديو. هل تريد الخروج؟';
+
+  @override
+  String get uploadLeaveStay => 'ابقَ';
+
+  @override
+  String get uploadLeaveQuit => 'اخرج';
+
+  @override
+  String get uploadStartedBackground => 'سيكمل الرفع في الخلفية';
+
+  @override
+  String get uploadBannerCancel => 'إلغاء';
+
+  @override
+  String get uploadBannerCancelled => 'أُلغي الرفع';
+
+  @override
+  String get courseSaveAndAddLessons => 'حفظ ومتابعة للمحاضرات';
+
+  @override
+  String get courseLessonsTitle => 'محاضرات الدورة';
+
+  @override
+  String get courseLessonsEmpty => 'لا محاضرات بعد. أضف أول محاضرة لتبدأ.';
+
+  @override
+  String get courseLessonsNextStep => 'حُفظت الدورة. أضف محاضراتها الآن.';
+
+  @override
+  String get courseLessonUploadingChip => 'جارٍ الرفع';
+
+  @override
+  String get courseLessonUploadIncomplete =>
+      'لم يكتمل رفع الملف — المس لإعادة المحاولة';
+
+  @override
+  String get courseLessonUploadQueued => 'في انتظار الرفع';
+
+  @override
+  String get courseLessonServerOutdated =>
+      'الخادم الحالي لا يدعم حفظ الدرس قبل اكتمال رفع الملف. أعد تشغيل الخادم بعد آخر تحديث.';
+
+  @override
+  String get toastReelReposted => 'أُعيد نشر الريل لمتابعيك';
+
+  @override
+  String get toastReelUnreposted => 'أُلغيت إعادة النشر';
+
+  @override
+  String get postOriginalUnavailable => 'المنشور الأصلي لم يعد متاحًا.';
+
+  @override
+  String get cropAvatarTitle => 'قصّ الصورة الشخصية';
+
+  @override
+  String get cropBannerTitle => 'قصّ صورة الغلاف';
+
+  @override
+  String get cropDone => 'تم';
+
+  @override
+  String get cropCancel => 'إلغاء';
+
+  @override
+  String get reelOptions => 'خيارات الريل';
+
+  @override
+  String get reelDelete => 'حذف الريل';
+
+  @override
+  String get reelUndoRepost => 'إلغاء إعادة النشر';
+
+  @override
+  String get reelDeleteConfirm => 'حذف هذا الريل نهائياً؟';
+
+  @override
+  String get reelDeleteConfirmBody =>
+      'سيختفي من ملفك ومن كل من أعاد نشره، ولا يمكن التراجع عن الحذف.';
+
+  @override
+  String get toastReelDeleted => 'تم حذف الريل';
+
+  @override
+  String get settingsPrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get settingsAbout => 'حول التطبيق';
+
+  @override
+  String get legalLinkFailed =>
+      'تعذّر فتح الصفحة. تحقق من اتصالك وحاول مجدداً.';
+
+  @override
+  String get authTermsLead => 'بمتابعتك فإنك توافق على ';
+
+  @override
+  String get authTermsPrivacy => 'سياسة الخصوصية';
+
+  @override
+  String get authTermsTail => ' الخاصة بمهندس';
+
+  @override
+  String get authGenderOptional => 'الجنس (اختياري)';
+
+  @override
+  String get settingsDeleteAccount => 'حذف الحساب';
+
+  @override
+  String get deleteAccountTitle => 'حذف حسابك نهائياً؟';
+
+  @override
+  String get deleteAccountBody => 'سيُحذف ملفك المهني ومنشوراتك وريلزك وتعليقاتك ومتابعاتك، ولن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get deleteAccountConfirm => 'حذف الحساب نهائياً';
+
+  @override
+  String get toastAccountDeleted => 'تم حذف حسابك';
+
+  @override
+  String get authPhoneOrEmailHint => 'أدخل رقم هاتفك أو بريدك الإلكتروني، يكفي أحدهما. سنرسل إليه رمز تأكيد.';
+
+  @override
+  String get authPhoneOrEmailRequired => 'أدخل رقم الهاتف أو البريد الإلكتروني';
+
+  @override
+  String get reportProfile => 'الإبلاغ عن الحساب';
+
+  @override
+  String get reportReel => 'الإبلاغ عن الريل';
+
+  @override
+  String get reportComment => 'الإبلاغ عن التعليق';
+
+  @override
+  String get reportMessage => 'الإبلاغ عن الرسالة';
+
+  @override
+  String get reportStory => 'الإبلاغ عن القصة';
+
+  @override
+  String get actionReport => 'إبلاغ';
+
+  @override
+  String get authTermsLink => 'شروط الاستخدام';
+
+  @override
+  String get authTermsAnd => ' و';
+
+  @override
+  String get settingsTerms => 'شروط الاستخدام';
+
+  @override
+  String get hashtagPostsEmpty => 'لا توجد منشورات بهذا الوسم بعد';
+
+  @override
+  String get storyReplyHint => 'أرسل ردًّا…';
+
+  @override
+  String get storyReplySend => 'إرسال';
+
+  @override
+  String get storyReplySent => 'تم إرسال ردّك في الرسائل';
+
+  @override
+  String get storyReplyFailed => 'تعذّر إرسال الرد، حاول مجددًا';
+
+  @override
+  String get storyLike => 'إعجاب';
+
+  @override
+  String get storyLikeFailed => 'تعذّر تسجيل الإعجاب';
+
+  @override
+  String get activityLikedStory => 'أعجب بقصتك';
+
+  @override
+  String get activityCommentedReel => 'علّق على مقطعك';
+
+  @override
+  String get reelComment => 'تعليق';
+
+  @override
+  String get reelCommentsTitle => 'التعليقات';
+
+  @override
+  String get reelCommentsEmpty => 'لا توجد تعليقات بعد. كن أول من يعلّق!';
+
+  @override
+  String get reelCommentsRetry => 'إعادة المحاولة';
+
+  @override
+  String get reelCommentHint => 'أضف تعليقًا…';
+
+  @override
+  String get reelCommentReply => 'رد';
+
+  @override
+  String reelCommentReplyingTo(String name) {
+    return 'الرد على ${name}';
+  }
+
+  @override
+  String get reelCommentDelete => 'حذف';
+
+  @override
+  String get reelCommentDeleteTitle => 'حذف التعليق؟';
+
+  @override
+  String get reelCommentDeleteBody => 'سيُحذف التعليق وكل الردود عليه.';
+
+  @override
+  String get reelCommentDeleted => 'تم حذف التعليق';
+
+  @override
+  String get reelCommentReport => 'إبلاغ';
+
+  @override
+  String get composerAddPoll => 'إضافة استطلاع';
+
+  @override
+  String get composerRemovePoll => 'إزالة الاستطلاع';
+
+  @override
+  String get composerPollTitle => 'استطلاع رأي';
+
+  @override
+  String get composerPollQuestionNote => 'نص المنشور هو سؤال الاستطلاع.';
+
+  @override
+  String composerPollOptionHint(String n) {
+    return 'الخيار ${n}';
+  }
+
+  @override
+  String get composerPollAddOption => 'إضافة خيار';
+
+  @override
+  String get composerPollRemoveOption => 'حذف الخيار';
+
+  @override
+  String get pollDurationHour => 'ساعة';
+
+  @override
+  String get pollDurationSixHours => '6 ساعات';
+
+  @override
+  String get pollDurationDay => 'يوم';
+
+  @override
+  String get pollDurationThreeDays => '3 أيام';
+
+  @override
+  String get pollDurationWeek => 'أسبوع';
+
+  @override
+  String pollVotes(String count) {
+    return '${count} صوت';
+  }
+
+  @override
+  String pollLeftDays(String n) {
+    return 'متبقٍ ${n} يوم';
+  }
+
+  @override
+  String pollLeftHours(String n) {
+    return 'متبقٍ ${n} ساعة';
+  }
+
+  @override
+  String pollLeftMinutes(String n) {
+    return 'متبقٍ ${n} دقيقة';
+  }
+
+  @override
+  String get pollClosed => 'انتهى التصويت';
+
+  @override
+  String get pollVoteFailed => 'تعذّر تسجيل صوتك';
+
+  @override
+  String get setupSecureTitle => 'أمّن حسابك';
+
+  @override
+  String get setupSecureOptional => 'اختياري';
+
+  @override
+  String get setupSecureBody =>
+      'أكّد بريدك الإلكتروني ليصبح وسيلة تحقق ثانية وطريقة لاستعادة حسابك إن فقدت رقمك.';
+
+  @override
+  String get setupSecureAction => 'تأكيد البريد';
+
+  @override
+  String get setupSecureDismiss => 'ليس الآن';
+
+  @override
+  String get emailVerifyTitle => 'البريد الإلكتروني والتحقق بخطوتين';
+
+  @override
+  String get emailVerifyIntro =>
+      'أضف بريدك الإلكتروني وأكّده ليصبح وسيلة تحقق ثانية لحسابك، وطريقة للدخول إن فقدت رقم هاتفك. رقم الهاتف يبقى هو الأساس.';
+
+  @override
+  String get emailVerifySend => 'إرسال رمز التأكيد';
+
+  @override
+  String get emailVerifyChangeAddress => 'تغيير البريد';
+
+  @override
+  String get emailVerifyDone => 'تم تأكيد بريدك الإلكتروني ✅';
 
   @override
   String get setupSave => 'متابعة';
@@ -1570,7 +2804,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String billingSave(String percent) {
-    return 'وفّر $percent٪';
+    return 'وفّر $percent%';
   }
 
   @override
@@ -1725,7 +2959,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get coursesFilterAll => 'الكل';
 
   @override
-  String get coursesFilterFree => 'المجانية';
+  String get coursesFilterFree => 'المتاحة لي';
 
   @override
   String get planIncludes => 'تشمل الخطة';
@@ -1766,4 +3000,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get subscriptionAutoRenewSaved => 'تم حفظ إعداد التجديد';
+
+  @override
+  String get profileFollowing => 'يتابع';
+
+  @override
+  String get peopleConnectionsTitle => 'الاتصالات';
+
+  @override
+  String get peopleFollowersTitle => 'المتابِعون';
+
+  @override
+  String get peopleFollowingTitle => 'المتابَعون';
+
+  @override
+  String get peopleRemove => 'إزالة';
+
+  @override
+  String get peopleEmpty => 'لا أحد هنا بعد';
+
+  @override
+  String peopleRemoveConfirm(String name) {
+    return 'إزالة $name من اتصالاتك؟';
+  }
+
+  @override
+  String peopleUnfollowConfirm(String name) {
+    return 'إيقاف متابعة $name؟';
+  }
+
+  @override
+  String get postSuggestedFollowing => 'تتابعه';
+
+  @override
+  String get reelMute => 'كتم';
+
+  @override
+  String get reelUnmute => 'تشغيل الصوت';
 }

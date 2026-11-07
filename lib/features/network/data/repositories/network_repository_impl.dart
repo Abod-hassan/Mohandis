@@ -1,15 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/dtos/person_dto.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/features/shared/people/data/dtos/person_dto.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../../domain/entities/connection_request.dart';
+import '../../domain/entities/people_list_kind.dart';
 import '../../domain/repositories/network_repository.dart';
 import '../dtos/connection_request_dto.dart';
 
@@ -32,40 +33,93 @@ class NetworkRepositoryImpl implements NetworkRepository {
   static const int _suggestionLimit = 8;
 
   @override
-  Future<Result<NetworkOverview, AppException>> overview() async {
-    // The requests list is the tab. If it fails the screen fails — there is
-    // nothing honest to render in its place.
-    final requests = await apiCall(
-      EndPoints.connectionRequests,
-      () => _api.dio.get<dynamic>(
-        EndPoints.connectionRequests,
-        queryParameters: {'page': 1, 'size': 50},
+  Future<Result<List<Person>, AppException>> people({
+    required PeopleListKind kind,
+    required String profileId,
+    int page = 1,
+    int size = 100,
+  }) {
+    final query = {'page': page, 'size': size};
+
+    // Connections is a POST with a filter body; the two follow lists are GETs
+    // with the id in the path. All three answer `ProfileSimplifiedDto[]`, so
+    // one parser covers them.
+    return switch (kind) {
+      PeopleListKind.connections => apiCall(
+        EndPoints.connections,
+        () => _api.dio.post<dynamic>(
+          EndPoints.connections,
+          // `pending: false` — accepted edges only. Without it the list mixes
+          // in requests that were never answered, and "remove" on one of those
+          // reads as removing a connection the viewer never had.
+          data: {'profileId': profileId, 'pending': false},
+          queryParameters: query,
+        ),
+        _people,
       ),
-      (envelope) => envelope.list
-          .map((j) => ConnectionRequestDto.fromJson(j).toDomain())
-          .toList(growable: false),
-    );
-    if (requests.isFailure) {
-      return Result.failure(requests.errorOrNull!);
-    }
-
-    final rows = requests.valueOrNull!;
-    final suggestions = await _suggestions(
-      exclude: {for (final r in rows) r.personId},
-    );
-
-    return Result.success(
-      NetworkOverview(requests: rows, suggestions: suggestions),
-    );
+      PeopleListKind.followers => apiCall(
+        EndPoints.profileFollowers(profileId),
+        () => _api.dio.get<dynamic>(
+          EndPoints.profileFollowers(profileId),
+          queryParameters: query,
+        ),
+        _people,
+      ),
+      PeopleListKind.following => apiCall(
+        EndPoints.profileFollowing(profileId),
+        () => _api.dio.get<dynamic>(
+          EndPoints.profileFollowing(profileId),
+          queryParameters: query,
+        ),
+        _people,
+      ),
+    };
   }
+
+  static List<Person> _people(ApiEnvelope envelope) => envelope.list
+      .map((j) => PersonDto.fromJson(j).toDomain())
+      .toList(growable: false);
+
+  @override
+  Future<Result<void, AppException>> removeConnection(String personId) =>
+      _act(EndPoints.connectionsRemove, personId);
+
+  @override
+  Future<Result<void, AppException>> unfollow(String personId) =>
+      _act(EndPoints.profileUnfollow, personId);
+
+  /// Both endpoints take `targetId` and answer a small state object the list
+  /// has no use for, so the payload is discarded and only success is kept.
+  Future<Result<void, AppException>> _act(String path, String personId) async {
+    final result = await apiCall(
+      path,
+      () => _api.dio.post<dynamic>(
+        path,
+        queryParameters: {'targetId': personId},
+      ),
+      (envelope) => null,
+    );
+    return result.map<void>((_) {});
+  }
+
+  @override
+  Future<Result<List<ConnectionRequest>, AppException>> requests() => apiCall(
+    EndPoints.connectionRequests,
+    () => _api.dio.get<dynamic>(
+      EndPoints.connectionRequests,
+      queryParameters: {'page': 1, 'size': 50},
+    ),
+    (envelope) => envelope.list
+        .map((j) => ConnectionRequestDto.fromJson(j).toDomain())
+        .toList(growable: false),
+  );
 
   /// "People you may know", assembled client-side.
   ///
   /// The module has **no recommender** — `ConnectionsController` exposes the
   /// edges and the inbound requests and nothing that proposes people — so this
-  /// is the profile directory with everyone already spoken for removed: me, my
-  /// accepted connections, and anyone whose request is already sitting in the
-  /// list above.
+  /// is the profile directory with everyone already spoken for removed: me,
+  /// the people I already follow, and anyone followed earlier this session.
   ///
   /// What it CAN do is order them. The read is `detailed: true`, which answers
   /// `ProfileDto` rows carrying `industry` and `headline`, and people in the
@@ -73,10 +127,11 @@ class NetworkRepositoryImpl implements NetworkRepository {
   /// does what I do" is the single strongest signal a professional network has,
   /// and reading it costs the same request as the unordered slice did.
   ///
-  /// Best-effort by design: a failure here yields an empty grid, never an error
-  /// screen. Losing the suggestions is a much smaller loss than losing the
-  /// requests they sit under.
-  Future<List<Person>> _suggestions({required Set<String> exclude}) async {
+  /// Best-effort by design: a failure here yields an empty grid, never an
+  /// error screen — the Network tab is the grid, and half a grid beats a red
+  /// page.
+  @override
+  Future<List<Person>> suggestions({required Set<String> exclude}) async {
     // ONE read of `Me`, for both the id and the field. `ProfilesController.Me`
     // always projects a full `ProfileDto` — there is no lighter variant — so a
     // second call for `industry` was the same request twice.
@@ -96,13 +151,13 @@ class NetworkRepositoryImpl implements NetworkRepository {
     final mine = me.valueOrNull?.industry ?? '';
     if (myId.isEmpty) return const [];
 
-    // Existing connections — already-connected people are the one thing a
-    // "people you may know" grid must never show.
-    final connectedCall = apiCall(
-      EndPoints.connections,
-      () => _api.dio.post<dynamic>(
-        EndPoints.connections,
-        data: {'profileId': myId, 'pending': false},
+    // People already followed — the one thing a "people you may know" grid
+    // must never show. This used to read `Connections`; the app follows now,
+    // so the edge to exclude is the follow.
+    final followedCall = apiCall(
+      EndPoints.profileFollowing(myId),
+      () => _api.dio.get<dynamic>(
+        EndPoints.profileFollowing(myId),
         queryParameters: {'page': 1, 'size': 200},
       ),
       (envelope) => envelope.list.map((j) => '${j['id'] ?? ''}').toSet(),
@@ -133,7 +188,7 @@ class NetworkRepositoryImpl implements NetworkRepository {
       ],
     );
 
-    final connected = (await connectedCall).valueOrNull ?? const <String>{};
+    final followed = (await followedCall).valueOrNull ?? const <String>{};
     final pool = (await poolCall).valueOrNull ?? const [];
 
     final candidates = pool
@@ -141,10 +196,10 @@ class NetworkRepositoryImpl implements NetworkRepository {
           (row) =>
               row.person.id.isNotEmpty &&
               row.person.id != myId &&
-              // A company is followed, not connected to — and every tile in
-              // this grid sends a CONNECT request, which the server refuses.
-              !row.person.isCompany &&
-              !connected.contains(row.person.id) &&
+              // Companies belong here now: the tile follows, and a company is
+              // followed like anyone else. It only had to be excluded while
+              // the tile sent a CONNECT request, which the server refused.
+              !followed.contains(row.person.id) &&
               !exclude.contains(row.person.id),
         )
         .toList();

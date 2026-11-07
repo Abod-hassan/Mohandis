@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/dashboard/presentation/notifiers/dashboard_notifier.dart';
-import 'package:flutter_mobile_template/features/panel/presentation/notifiers/panel_notifiers.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/dashboard/presentation/notifiers/dashboard_notifier.dart';
+import 'package:mohandis/features/panel/presentation/notifiers/panel_notifiers.dart';
 
 import '../../data/repositories/subscription_repository_impl.dart';
 import '../../domain/entities/subscription_entities.dart';
@@ -14,10 +14,34 @@ import '../../domain/entities/subscription_entities.dart';
 /// provider that tore itself down between visits would make the tab flash a
 /// spinner every time somebody switched away and back.
 class SubscriptionNotifier extends AsyncNotifier<SubscriptionState> {
+  /// The gate's position at the last read, so a plain re-read ([refresh], the
+  /// approval poll) can tell the panel when an admin opened it. Only [_write]
+  /// used to do that, so an approval picked up by a refresh showed "active"
+  /// here while every panel screen kept its cached 402s.
+  bool? _lastAccess;
+
+  /// What the panel opened to at the last read. An admin switching a section
+  /// free moves THIS and not [_lastAccess] — the viewer still holds no
+  /// subscription — so without it every panel screen kept the 402s it had
+  /// cached until the app was restarted.
+  Set<PlanFeature>? _lastFeatures;
+
   @override
   Future<SubscriptionState> build() async {
     final result = await ref.watch(subscriptionRepositoryProvider).state();
-    return result.when(success: (s) => s, failure: (e) => throw e);
+    final next = result.when(success: (s) => s, failure: (e) => throw e);
+    final before = _lastAccess;
+    final beforeFeatures = _lastFeatures;
+    final features = next.features.toSet();
+    _lastAccess = next.hasAccess;
+    _lastFeatures = features;
+    final moved = (before != null && before != next.hasAccess) ||
+        (beforeFeatures != null && !_sameFeatures(beforeFeatures, features));
+    if (moved) {
+      // Not synchronously: a provider may not invalidate others mid-build.
+      Future.microtask(_invalidatePanel);
+    }
+    return next;
   }
 
   Future<Result<SubscriptionState, AppException>> start(
@@ -67,6 +91,8 @@ class SubscriptionNotifier extends AsyncNotifier<SubscriptionState> {
     result.when(
       success: (next) {
         state = AsyncValue.data(next);
+        _lastAccess = next.hasAccess;
+        _lastFeatures = next.features.toSet();
         // Only when the gate actually moved. Starting a subscription leaves it
         // pending and changes nothing, and invalidating six providers to
         // redraw the same screens would throw away every panel read for a
@@ -78,6 +104,9 @@ class SubscriptionNotifier extends AsyncNotifier<SubscriptionState> {
 
     return result;
   }
+
+  static bool _sameFeatures(Set<PlanFeature> a, Set<PlanFeature> b) =>
+      a.length == b.length && a.containsAll(b);
 
   /// Everything behind the gate. All of it read through providers that cached
   /// whatever the server said while the gate was in its previous position —

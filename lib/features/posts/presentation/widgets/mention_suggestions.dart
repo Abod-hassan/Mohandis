@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/search/data/repositories/search_repository_impl.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/search/data/repositories/search_repository_impl.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 /// The `@token` the caret is currently sitting inside, if any.
 ///
@@ -138,6 +139,7 @@ class MentionSuggestions extends ConsumerWidget {
                   RungAvatar(
                     seed: person.id,
                     initials: person.initials,
+                    icon: person.accountType.icon,
                     size: 34,
                     imageUrl: ref.watch(imageUrlResolverProvider)(
                       person.avatarUrl,

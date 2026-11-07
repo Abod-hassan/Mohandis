@@ -25,6 +25,13 @@ class TenantNotifier extends Notifier<int?> {
 
   /// The tenant to stamp, fetching it if this is the first ask.
   ///
+  /// **The value is either null or a positive id — never zero.** Callers
+  /// therefore only have to check for null; a `tenantId: 0` on the wire is
+  /// worse than an absent one, because the server's own
+  /// `?? AmbientContext.TenantId ?? DefaultTenantId` chain treats zero as an
+  /// answer and stops. That invariant lives here, once, rather than as a
+  /// `> 0` repeated at every call site.
+  ///
   /// **Awaited by the auth calls, not merely warmed up by the screen.** A
   /// best-effort warm-up loses the race whenever the lookup is slow, the
   /// screen was hot-reloaded (so `initState` never re-ran), or the person
@@ -56,13 +63,28 @@ class TenantNotifier extends Notifier<int?> {
       final body = ApiEnvelope.normaliseKeys(res.data);
       final tenantId = body is Map ? body['tenantId'] : null;
 
-      if (tenantId is num) {
+      // `> 0`, not merely `is num`. A deployment whose `/health` cannot
+      // resolve a tenant for an anonymous caller answers `tenantId: 0`, and
+      // taking that at face value is worse than having no value at all: zero
+      // is not a tenant, but it IS a number, so it sailed through every
+      // null-check downstream and went out as `tenantId: 0` on
+      // CreateWithContact. The server then did
+      // `form.TenantId ?? AmbientContext.TenantId ?? DefaultTenantId` — and
+      // because 0 is not null, the fallbacks never ran and the write was
+      // refused with "No tenant in scope while persisting ContactModel".
+      // That is the whole difference between this working against localhost
+      // (which answers 1) and failing against the server (which answers 0).
+      if (tenantId is num && tenantId.toInt() > 0) {
         state = tenantId.toInt();
         return state;
       }
 
-      // Reachable host, but an older build whose /health predates the field.
-      debugPrint('[tenant] /health carried no tenantId — using the fallback');
+      // Either an older build whose /health predates the field, or one that
+      // could not resolve a tenant and said so with a zero.
+      debugPrint(
+        '[tenant] /health gave no usable tenantId (got $tenantId) — '
+        'using the fallback',
+      );
     } catch (e) {
       debugPrint('[tenant] /health lookup failed: $e');
     }
@@ -71,7 +93,14 @@ class TenantNotifier extends Notifier<int?> {
     // refuses to write a contact at all, so a wrong-but-plausible id fails
     // more usefully than no id — and against an unreachable host the request
     // that follows was going to fail anyway.
-    state = ref.read(appConfigProvider).defaultTenantId;
+    //
+    // Held to the same rule as the fetched value. If a flavour is configured
+    // with a non-positive default there is genuinely nothing to send, and
+    // null is the honest answer: the callers omit the field entirely, which
+    // is what lets the server apply its own `Auth:DefaultTenantId`. Sending a
+    // zero would suppress that fallback instead of triggering it.
+    final fallback = ref.read(appConfigProvider).defaultTenantId;
+    state = fallback > 0 ? fallback : null;
     return state;
   }
 }

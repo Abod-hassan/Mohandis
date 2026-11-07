@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import 'trending_tag.dart';
 

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../notifiers/story_groups.dart';
 
@@ -126,6 +127,7 @@ class _AddStoryTile extends ConsumerWidget {
     final avatar = RungAvatar(
       seed: me?.id ?? 'me',
       initials: me?.initials ?? '—',
+      icon: me?.accountType.icon,
       // Ringed at the tile's full size when there is something to watch, and
       // inset inside the dashed placeholder when there is not — so "you have a
       // story" and "you could post one" are not the same picture.
@@ -240,6 +242,7 @@ class _StoryTile extends ConsumerWidget {
       avatar: RungAvatar(
         seed: seed,
         initials: person.initials,
+        icon: person.accountType.icon,
         size: 55,
         ringState: seen ? StoryRingState.seen : StoryRingState.unseen,
         imageUrl: ref.watch(imageUrlResolverProvider)(person.avatarUrl),

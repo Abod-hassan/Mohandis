@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/theme/theme_mode_notifier.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/auth/presentation/notifiers/auth_notifier.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/config/legal_links.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/theme/theme_mode_notifier.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
+import 'package:mohandis/features/shared/auth/presentation/notifiers/auth_notifier.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 /// App settings.
 ///
@@ -23,6 +25,7 @@ class SettingsScreen extends ConsumerWidget {
     final c = context.rung;
     final l10n = context.l10n;
     final mode = ref.watch(themeModeProvider);
+    final me = ref.watch(profileNotifierProvider('me')).valueOrNull;
 
     return Scaffold(
       backgroundColor: c.bg,
@@ -55,6 +58,33 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          // Privacy. The same switch lives on Edit Profile; it is here as well
+          // because this is where people look for it.
+          if (me != null && !me.isCompany)
+            RungSection(
+              title: l10n.settingsPrivacy,
+              child: RungToggleTile(
+                title: l10n.settingsPrivateAccount,
+                subtitle: me.isPrivate
+                    ? l10n.settingsPrivateAccountOn
+                    : l10n.settingsPrivateAccountOff,
+                value: me.isPrivate,
+                onChanged: (value) async {
+                  final result = await ref
+                      .read(profileNotifierProvider('me').notifier)
+                      .save({'isPrivate': value});
+                  if (!context.mounted) return;
+                  result.when(
+                    success: (_) {},
+                    failure: (e) => showRungToast(
+                      context,
+                      arabicMessageForException(e),
+                      success: false,
+                    ),
+                  );
+                },
+              ),
+            ),
           RungSection(
             title: l10n.settingsSaved,
             child: Column(
@@ -69,6 +99,11 @@ class SettingsScreen extends ConsumerWidget {
                   label: l10n.savedJobsTitle,
                   onTap: () => context.push('/saved/jobs'),
                 ),
+                _Row(
+                  icon: Icons.school_outlined,
+                  label: l10n.myCoursesTitle,
+                  onTap: () => context.push('/panel/courses/mine'),
+                ),
               ],
             ),
           ),
@@ -81,11 +116,38 @@ class SettingsScreen extends ConsumerWidget {
                   label: l10n.profileEdit,
                   onTap: () => context.push('/profile/me/edit'),
                 ),
+                // The permanent way to the optional second factor. The offer
+                // on the profile step is a one-time nudge; this is where a
+                // person goes looking for it afterwards — or to move it to a
+                // different address.
+                _Row(
+                  icon: Icons.shield_outlined,
+                  label: l10n.emailVerifyTitle,
+                  onTap: () => context.push('/settings/email'),
+                ),
+                _Row(
+                  icon: Icons.privacy_tip_outlined,
+                  label: l10n.settingsPrivacyPolicy,
+                  onTap: () => openPrivacyPolicy(context),
+                ),
+                _Row(
+                  icon: Icons.description_outlined,
+                  label: l10n.settingsTerms,
+                  onTap: () => openTerms(context),
+                ),
                 _Row(
                   icon: Icons.logout,
                   label: l10n.settingsLogout,
                   danger: true,
                   onTap: () => confirmAndLogout(context, ref),
+                ),
+                // Required by App Store guideline 5.1.1(v): an app with sign-up
+                // must let the person delete the account from inside the app.
+                _Row(
+                  icon: Icons.delete_forever_outlined,
+                  label: l10n.settingsDeleteAccount,
+                  danger: true,
+                  onTap: () => _confirmAndDeleteAccount(context, ref),
                 ),
               ],
             ),
@@ -137,6 +199,62 @@ Future<void> confirmAndLogout(BuildContext context, WidgetRef ref) async {
     if (!context.mounted) return;
     showRungToast(context, arabicMessageForException(e), success: false);
   }
+}
+
+/// Asks twice in effect — a dialog that names exactly what goes — then deletes
+/// the account and signs out. A blocking progress dialog while it runs: the
+/// request removes a lot of rows, and a second tap must not start it again.
+Future<void> _confirmAndDeleteAccount(BuildContext context, WidgetRef ref) async {
+  final l10n = context.l10n;
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.deleteAccountTitle),
+      content: Text(l10n.deleteAccountBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.actionCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(dialogContext).colorScheme.error,
+          ),
+          child: Text(l10n.deleteAccountConfirm),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final navigator = Navigator.of(context, rootNavigator: true);
+  showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    useRootNavigator: true,
+    builder: (_) => const PopScope(
+      canPop: false,
+      child: Center(child: CircularProgressIndicator()),
+    ),
+  );
+
+  final result =
+      await ref.read(authNotifierProvider.notifier).deleteAccount();
+  navigator.pop();
+
+  result.when(
+    // The router sends the signed-out app to /auth; the toast goes through
+    // the messenger captured above, because this screen is on its way out.
+    success: (_) => messenger?.showSnackBar(
+      SnackBar(content: Text(l10n.toastAccountDeleted)),
+    ),
+    failure: (e) {
+      if (!context.mounted) return;
+      showRungToast(context, arabicMessageForException(e), success: false);
+    },
+  );
 }
 
 class _Row extends StatelessWidget {

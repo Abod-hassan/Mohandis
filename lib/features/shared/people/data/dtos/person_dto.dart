@@ -1,6 +1,6 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/profile/data/dtos/profile_dto.dart';
-import 'package:flutter_mobile_template/features/profile/domain/entities/profile.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/profile/data/dtos/profile_dto.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/person.dart';
 
@@ -20,9 +20,10 @@ class PersonDto implements BaseDto<Person> {
     this.headline,
     this.avatarUrl,
     this.isVerified = false,
+    this.isSubscribed = false,
     this.isOnline = false,
     this.location,
-    this.isCompany = false,
+    this.accountType = AccountType.individual,
   });
 
   factory PersonDto.fromJson(Map<String, dynamic> json) => PersonDto(
@@ -32,14 +33,18 @@ class PersonDto implements BaseDto<Person> {
     headline: json['headline'] as String?,
     avatarUrl: json['avatarUrl'] as String?,
     isVerified: json['isVerified'] == true,
+    isSubscribed: json['isSubscribed'] == true,
     isOnline: json['isOnline'] == true,
     // On the simplified projection as well as the detailed one — see
     // `ProfileSimplifiedDto.AccountType`. Parsed through `ProfileDto`'s
     // mapping so the name and the ordinal are both understood, and so the
     // spelling lives in one place.
-    isCompany:
-        ProfileDto.accountTypeFromWire(json['accountType']) ==
-        AccountType.company,
+    //
+    // The WHOLE enum, not the "is this a business?" boolean it used to be
+    // collapsed to: most screens want only the boolean (`Person.isCompany`
+    // still gives it), but "may this account publish a course?" is a question
+    // about the kind, and flattening here made it unanswerable.
+    accountType: ProfileDto.accountTypeFromWire(json['accountType']),
     // Only present when the caller asked for the detailed projection.
     location: json['location'] as String?,
   );
@@ -50,9 +55,10 @@ class PersonDto implements BaseDto<Person> {
   final String? headline;
   final String? avatarUrl;
   final bool isVerified;
+  final bool isSubscribed;
   final bool isOnline;
   final String? location;
-  final bool isCompany;
+  final AccountType accountType;
 
   @override
   Person toDomain() => Person(
@@ -65,8 +71,9 @@ class PersonDto implements BaseDto<Person> {
     headline: headline ?? '',
     location: location ?? '',
     verified: isVerified,
+    subscribed: isSubscribed,
     avatarUrl: avatarUrl,
-    isCompany: isCompany,
+    accountType: accountType,
   );
 
   @override
@@ -77,8 +84,10 @@ class PersonDto implements BaseDto<Person> {
     'headline': headline,
     'avatarUrl': avatarUrl,
     'isVerified': isVerified,
-    'accountType': ProfileDto.accountTypeToWire(
-      isCompany ? AccountType.company : AccountType.individual,
-    ),
+    'isSubscribed': isSubscribed,
+    // The real kind now, so a cached copy read back is the account it was.
+    // Nothing ships this to the server — the profile write carries the type —
+    // but a contractor used to come back out of here as a company.
+    'accountType': ProfileDto.accountTypeToWire(accountType),
   };
 }

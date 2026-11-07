@@ -1,5 +1,5 @@
-name: flutter_mobile_template
-description: "Flutter mobile app template — Clean Architecture, Riverpod, multi-flavor, signed-request stack. See docs/ARCHITECTURE.md."
+name: mohandis
+description: "Mohandis — the professional network for engineers, contractors, craftsmen and companies in Iraq."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -13,6 +13,19 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+
+  # Cairo, fetched at runtime rather than bundled.
+  #
+  # The alternative is five .ttf files in assets/fonts/, which is smaller and
+  # works offline — see the commented Cairo block under `fonts:` below if you
+  # ever want to switch. This way costs a network round trip the first time the
+  # app runs on a device, after which the face is cached on disk.
+  #
+  # Tajawal stays bundled and stays the declared family, deliberately: it is
+  # what renders while Cairo is being fetched, and what renders if the fetch
+  # never succeeds. Falling back to a real Arabic face beats falling back to
+  # the system one.
+  google_fonts: ^6.2.1
 
   # State management — Riverpod is the ONLY state framework used in this
   # template. See docs/ARCHITECTURE.md §5.
@@ -34,6 +47,12 @@ dependencies:
   # Media — avatar selection at sign-up. Uploaded to Bunny storage by
   # `MediaUploadService`; only the host-less path is stored on the contact.
   image_picker: ^1.1.2
+
+  # Cropping a profile photo or banner before upload. Native croppers — uCrop
+  # on Android, TOCropViewController on iOS — so the gestures are the ones
+  # people already know. Pinned below 13: 13.0.0 shipped Oct 12 2026 and only
+  # adds Android options this app does not use.
+  image_cropper: ^12.2.1
 
   # Document attachments on a post. image_picker cannot offer a PDF or a
   # spreadsheet, and the platform document pickers are what people already know
@@ -85,9 +104,36 @@ flutter:
           weight: 400
         - asset: assets/fonts/Tajawal-Medium.ttf
           weight: 500
+        # Tajawal ships no SemiBold, so w600 — this app's meta weight for
+        # timestamps, counts and chips — borrows Medium. Cairo below has a real
+        # SemiBold, which is the main reason to switch.
         - asset: assets/fonts/Tajawal-Medium.ttf
           weight: 600
         - asset: assets/fonts/Tajawal-Bold.ttf
           weight: 700
         - asset: assets/fonts/Tajawal-ExtraBold.ttf
           weight: 800
+
+    # ── TO SWITCH TO CAIRO ────────────────────────────────────────────────
+    # Flutter fails the build for a declared asset that is not on disk, so this
+    # stays commented until the files are actually here. Two steps:
+    #
+    #   1. Download Cairo from fonts.google.com/specimen/Cairo ("Get font" ->
+    #      "Download all") and copy these five out of its `static/` folder into
+    #      assets/fonts/.
+    #   2. Uncomment the block below, comment out the Tajawal block above, and
+    #      set RungType.family to 'Cairo' in lib/core/theme/rung_tokens.dart.
+    #      That constant is the only place the family is named.
+    #
+    # - family: Cairo
+    #   fonts:
+    #     - asset: assets/fonts/Cairo-Regular.ttf
+    #       weight: 400
+    #     - asset: assets/fonts/Cairo-Medium.ttf
+    #       weight: 500
+    #     - asset: assets/fonts/Cairo-SemiBold.ttf
+    #       weight: 600
+    #     - asset: assets/fonts/Cairo-Bold.ttf
+    #       weight: 700
+    #     - asset: assets/fonts/Cairo-ExtraBold.ttf
+    #       weight: 800

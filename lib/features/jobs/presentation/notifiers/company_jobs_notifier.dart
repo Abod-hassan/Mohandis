@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/notifiers/profile_notifier.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
 
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';
 import '../../domain/entities/job_application.dart';
+import 'company_dashboard_notifier.dart';
 
 /// The signed-in company's own postings, newest first.
 ///
@@ -61,7 +62,10 @@ class JobApplicantsNotifier
         .setApplicationStatus(applicationId: applicationId, status: status);
 
     result.when(
-      success: (_) {},
+      // The dashboard's "waiting on you" queue is built from these same
+      // statuses and is kept for the whole session, so an applicant decided
+      // here would otherwise still be queued there when the company backs out.
+      success: (_) => ref.invalidate(companyDashboardProvider),
       failure: (_) {
         if (previous != null) state = AsyncValue.data(previous);
       },

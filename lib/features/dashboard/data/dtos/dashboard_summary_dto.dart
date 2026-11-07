@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
 

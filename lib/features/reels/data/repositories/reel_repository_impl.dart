@@ -1,15 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
 
 import '../../domain/entities/reel.dart';
+import '../../domain/entities/reel_comment.dart';
 import '../../domain/entities/reel_page.dart';
 import '../../domain/repositories/reel_repository.dart';
+import '../dtos/reel_comment_dto.dart';
 import '../dtos/reel_dto.dart';
 
 /// Reels against the RoboByte.SocialMedia module.
@@ -123,6 +125,18 @@ class ReelRepositoryImpl implements ReelRepository {
     );
   }
 
+  @override
+  Future<Result<Reel, AppException>> toggleShare(String reelId) {
+    return apiCall(
+      EndPoints.reelsShare,
+      () => _api.dio.post<dynamic>(
+        EndPoints.reelsShare,
+        queryParameters: {'reelId': reelId},
+      ),
+      _reel,
+    );
+  }
+
   /// Anonymous-friendly: `Reels/Play` never reads the caller's profile, so a
   /// play still counts while a token is being refreshed.
   @override
@@ -180,6 +194,52 @@ class ReelRepositoryImpl implements ReelRepository {
   @override
   Future<Result<void, AppException>> delete(String id) {
     final path = EndPoints.reelById(id);
+    return apiCall(path, () => _api.dio.delete<dynamic>(path), (_) {});
+  }
+
+  // ── Comments ─────────────────────────────────────────────────────────────
+
+  @override
+  Future<Result<List<ReelComment>, AppException>> comments(
+    String reelId, {
+    int page = 1,
+    int size = 50,
+  }) {
+    return apiCall(
+      EndPoints.reelsComments,
+      () => _api.dio.get<dynamic>(
+        EndPoints.reelsComments,
+        queryParameters: {'reelId': reelId, 'page': page, 'size': size},
+      ),
+      (envelope) => envelope.list
+          .map(ReelCommentDto.fromJson)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<Result<ReelComment, AppException>> addComment(
+    String reelId,
+    String text, {
+    String? parentCommentId,
+  }) {
+    return apiCall(
+      EndPoints.reelsComment,
+      () => _api.dio.post<dynamic>(
+        EndPoints.reelsComment,
+        data: {
+          'reelId': reelId,
+          'content': text.trim(),
+          if (parentCommentId != null) 'parentCommentId': parentCommentId,
+        },
+      ),
+      (envelope) => ReelCommentDto.fromJson(envelope.object),
+    );
+  }
+
+  @override
+  Future<Result<void, AppException>> deleteComment(String commentId) {
+    final path = EndPoints.reelCommentById(commentId);
     return apiCall(path, () => _api.dio.delete<dynamic>(path), (_) {});
   }
 

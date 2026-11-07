@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/features/profile/data/dtos/profile_dto.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/person.dart';
 import '../../domain/repositories/people_repository.dart';
@@ -30,11 +32,16 @@ class PeopleRepositoryImpl implements PeopleRepository {
     Map<String, dynamic>? query,
   }) {
     final search = query?['search'] ?? query?['q'];
+    final accountType = query?['accountType'];
     return apiCall(
       EndPoints.profiles,
       () => _api.dio.post<dynamic>(
         EndPoints.profiles,
-        data: {if (search != null) 'search': '$search'},
+        data: {
+          if (search != null) 'search': '$search',
+          if (accountType is AccountType)
+            'accountType': ProfileDto.accountTypeToWire(accountType),
+        },
         queryParameters: {
           'detailed': false,
           'page': query?['page'] ?? 1,
@@ -75,8 +82,14 @@ class PeopleRepositoryImpl implements PeopleRepository {
   }
 
   @override
-  Future<Result<List<Person>, AppException>> search(String query) =>
-      getAll(query: {'search': query});
+  Future<Result<List<Person>, AppException>> search(
+    String query, {
+    AccountType? accountType,
+  }) =>
+      getAll(query: {
+        'search': query,
+        if (accountType != null) 'accountType': accountType,
+      });
 
   @override
   Future<Result<Person, AppException>> create(Map<String, dynamic> body) async =>
@@ -110,9 +123,41 @@ final peopleRepositoryProvider = Provider<PeopleRepository>((ref) {
 /// This is also how the app learns its own **ProfileId**: the JWT carries an
 /// auth ContactId, which is a different key, and the module translates between
 /// them server-side.
+/// **Retries, because a cached failure here is permanent.**
+///
+/// This is a plain session-scoped provider: nothing re-runs it except signing
+/// in or out and saving the profile. So a single unlucky read — the server
+/// restarting, a token refresh landing a moment late, one dropped request at
+/// launch — is not a blip. It is cached as an error for the rest of the
+/// session, and every surface that draws "me" falls back to its placeholder:
+/// the top bar and composer avatars become a coloured disc with a dash, the
+/// story rail loses its own tile, and nothing in the app ever tries again.
+/// The profile SCREEN keeps working the whole time, because it reads a
+/// different provider that has its own refresh — which is what makes the
+/// symptom so confusing to look at.
+///
+/// Three attempts with a short backoff. Deliberately small: this runs on the
+/// launch path, and the point is to survive a restart window, not to hammer a
+/// server that is genuinely down. A real failure still throws on the last try,
+/// so sign-out on 401 still happens.
 final currentPersonProvider = FutureProvider<Person>((ref) async {
-  final result = await ref.watch(peopleRepositoryProvider).me();
-  return result.when(success: (p) => p, failure: (e) => throw e);
+  final repository = ref.watch(peopleRepositoryProvider);
+
+  AppException? last;
+  for (var attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
+    }
+    final result = await repository.me();
+    final person = result.valueOrNull;
+    if (person != null) return person;
+
+    last = result.errorOrNull;
+    // An auth failure will not fix itself by being asked again, and retrying
+    // it only delays the sign-out the interceptor is about to do.
+    if (last is UnauthorizedException) break;
+  }
+  throw last ?? const UnknownException('Could not read the signed-in profile');
 });
 
 /// Id → [Person] lookup for surfaces that render an author, participant or

@@ -1,7 +1,7 @@
 // Barrel for the generic base classes.
 //
 // Import in features as:
-//   import 'package:flutter_mobile_template/core/base/base.dart';
+//   import 'package:mohandis/core/base/base.dart';
 
 export 'base_dto.dart';
 export 'base_entity.dart';

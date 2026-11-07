@@ -21,6 +21,7 @@ class RungAvatar extends StatelessWidget {
     this.borderColor,
     this.borderWidth = 0,
     this.imageUrl,
+    this.icon,
   });
 
   final String seed;
@@ -35,6 +36,13 @@ class RungAvatar extends StatelessWidget {
   /// the image loads and if it fails, so a dead link degrades to initials
   /// rather than to a broken-image glyph.
   final String? imageUrl;
+
+  /// Drawn in place of [initials] when there is no photo — the mark of the
+  /// person's account type (an engineer, a company, a craftsman…), so someone
+  /// who never uploaded a picture shows what they do rather than two letters.
+  /// The server already substitutes their discipline's logo when it has one;
+  /// this is the last step, for a discipline with no logo or none chosen.
+  final IconData? icon;
 
   /// Solid ring drawn immediately around the avatar — the design uses a
   /// surface-coloured one where an avatar overlaps a cover image.
@@ -60,16 +68,18 @@ class RungAvatar extends StatelessWidget {
         width: size,
         height: size,
         child: Center(
-          child: Text(
-            initials,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: size * 0.34,
-              height: 1,
-            ),
-          ),
+          child: icon != null
+              ? Icon(icon, color: Colors.white, size: size * 0.52)
+              : Text(
+                  initials,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: size * 0.34,
+                    height: 1,
+                  ),
+                ),
         ),
       ),
     );

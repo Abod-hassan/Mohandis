@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -8,17 +9,22 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/services/media_upload_service.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/reels/presentation/notifiers/reels_notifier.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/features/stories/presentation/notifiers/stories_notifier.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/services/media_upload_service.dart';
+import 'package:mohandis/core/services/stream_library.dart';
+import 'package:mohandis/core/services/stream_upload_service.dart';
+import 'package:mohandis/core/services/video_upload_queue.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/reels/presentation/notifiers/reels_notifier.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/stories/presentation/notifiers/stories_notifier.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../../domain/entities/post.dart';
 import '../notifiers/feed_notifier.dart';
@@ -153,6 +159,7 @@ class _Attachment {
   bool get isDocument => kind == MediaKind.document;
   bool get isVideo => kind == MediaKind.video;
 
+
   /// The host-less path Bunny holds it at, once the upload succeeds.
   String? storedPath;
 
@@ -212,7 +219,15 @@ class _Attachment {
 
   bool uploading = true;
 
-  bool get isReady => storedPath != null;
+  /// Ready to publish WITH. Normally that means the bytes are already on the
+  /// CDN; for a reel it means the file is picked, because a reel's transfer is
+  /// handed to the background queue at publish time instead of being waited
+  /// out on this screen. See `_deferred`.
+  bool get isReady => storedPath != null || deferred;
+
+  /// True for a reel's video: not uploaded here, carried as a local path and
+  /// handed over when the composer closes.
+  bool deferred = false;
 
   /// Releases the player, if any. Idempotent — called from remove, from a
   /// mode switch that drops the attachment, and from the screen's dispose.
@@ -235,6 +250,75 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
   late ComposerMode _mode = widget.initialMode;
 
   final List<_Attachment> _attachments = [];
+
+  /// The poll's choices while one is being added to a post; null when the
+  /// post has no poll. The post's text is the question.
+  List<TextEditingController>? _pollOptions;
+
+  /// How long voting stays open.
+  int _pollHours = 24;
+
+  bool get _hasPoll => _mode == ComposerMode.post && _pollOptions != null;
+
+  PollDraft? get _pollDraft => _hasPoll
+      ? PollDraft(
+          options: [for (final c in _pollOptions!) c.text],
+          durationHours: _pollHours,
+        )
+      : null;
+
+  void _togglePoll() {
+    setState(() {
+      final current = _pollOptions;
+      if (current == null) {
+        _pollOptions = [
+          for (var i = 0; i < PollDraft.minOptions; i++)
+            TextEditingController()..addListener(_onEditingChanged),
+        ];
+      } else {
+        _pollOptions = null;
+        _disposeAfterFrame(current);
+      }
+    });
+  }
+
+  /// Disposed once the frame that stops drawing them is done — a controller
+  /// disposed while its field is still mounted throws on the rebuild.
+  void _disposeAfterFrame(List<TextEditingController> controllers) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (final c in controllers) {
+        c.dispose();
+      }
+    });
+  }
+
+  void _addPollOption() {
+    final current = _pollOptions;
+    if (current == null || current.length >= PollDraft.maxOptions) return;
+    setState(
+      () => current.add(TextEditingController()..addListener(_onEditingChanged)),
+    );
+  }
+
+  void _removePollOption(int index) {
+    final current = _pollOptions;
+    if (current == null || current.length <= PollDraft.minOptions) return;
+    final removed = current[index];
+    setState(() => current.removeAt(index));
+    _disposeAfterFrame([removed]);
+  }
+
+  /// The queue, held rather than read on demand.
+  ///
+  /// [dispose] has to be able to abandon an unclaimed transfer, and by then
+  /// `ref` is no longer usable. The notifier outlives every route, so keeping
+  /// the object itself is safe where keeping a `ref` is not.
+  VideoUploadQueue? _queue;
+
+  /// Whether this screen started a transfer at pick time that nobody has
+  /// claimed yet. Cleared the moment [_publishReel] commits it, because from
+  /// then on the job belongs to the queue and must survive this screen.
+  bool _eager = false;
 
   /// `PostMediaGrid` renders two tiles and collapses the rest behind a "+N"
   /// veil, so four is the most that still reads as a deliberate set rather
@@ -279,11 +363,19 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
     _controller.removeListener(_onEditingChanged);
     _controller.dispose();
     _focusNode.dispose();
+    for (final c in _pollOptions ?? const <TextEditingController>[]) {
+      c.dispose();
+    }
     // Every picked clip holds a platform player. Leaving one alive keeps a
     // decoder — and on iOS an audio session — for a screen that is gone.
     for (final attachment in _attachments) {
       attachment.disposePreview();
     }
+    // Picked a clip, started sending it, then left without publishing. The
+    // bytes are stopped and the video taken back off Bunny — an abandoned
+    // composer must leave nothing behind. Committed jobs are not touched:
+    // `abandon` refuses them, and `_eager` is false by then anyway.
+    if (_eager) _queue?.abandon();
     super.dispose();
   }
 
@@ -300,6 +392,9 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
   /// translated.
   bool get _canPublish {
     if (_publishing || _uploading) return false;
+    // A poll asks the post's text, so it needs both the question and enough
+    // distinct choices — the server refuses either missing.
+    if (_hasPoll) return _hasText && (_pollDraft?.isValid ?? false);
     return _mode.allowsTextOnly ? (_hasText || _readyMedia) : _readyMedia;
   }
 
@@ -656,7 +751,74 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
     });
 
     _preparePreview(attachment);
+
+    // A REEL's video goes to Bunny from HERE, not from the publish button.
+    //
+    // **The transfer starts the moment the clip is picked.** What follows the
+    // pick is half a minute of writing a caption, during which the uplink used
+    // to sit idle; starting now spends that time on the file instead, so by
+    // the time Publish is pressed most of it has already gone and the post
+    // feels immediate rather than merely backgrounded. It is what every app
+    // that handles video well does, and it costs nothing but ordering.
+    //
+    // Nothing is written anywhere until the publish `commit`s. Leave without
+    // publishing and `dispose` abandons it, which stops the transfer and takes
+    // the video back off Bunny.
+    //
+    // Only a reel. A post's photos are small enough that waiting is not a
+    // hardship, and a post can carry four of them — a queue built for one job
+    // at a time would make that worse, not better.
+    if (_mode == ComposerMode.reel) {
+      // The previous clip's transfer, if there was one, is now for a video
+      // nobody is going to publish.
+      _dropEagerUpload();
+      setState(() {
+        attachment.uploading = false;
+        attachment.deferred = true;
+      });
+      unawaited(_beginReelUpload(attachment));
+      return;
+    }
+
     _upload(attachment);
+  }
+
+  /// Stops and discards an unclaimed pick-time transfer, if there is one.
+  void _dropEagerUpload() {
+    if (!_eager) return;
+    _eager = false;
+    _queue?.abandon();
+  }
+
+  /// Starts a reel's transfer at pick time. See the comment at the call site.
+  Future<void> _beginReelUpload(_Attachment attachment) async {
+    // AWAITED, not read. `streamUploadServiceProvider` derives from
+    // `streamLibraryProvider.valueOrNull`, which is null for as long as that
+    // one-shot fetch is in flight — so a synchronous read refuses the first
+    // video of a session and accepts the second, which is indistinguishable
+    // from a flaky server.
+    try {
+      await ref.read(streamLibraryProvider.future);
+    } catch (_) {
+      // The queue reports a missing library in its own terms when it runs.
+    }
+    if (!mounted) return;
+
+    final queue = ref.read(videoUploadQueueProvider.notifier);
+    _queue = queue;
+
+    // A different job holds the queue — another reel, or a lesson. Not an
+    // error here: the publish path asks again and says so plainly if it is
+    // still busy then, which by that point it usually is not.
+    if (queue.isBusy || queue.hasParked) return;
+
+    final begun = queue.begin(
+      localPath: attachment.localPath,
+      // Named after the file for now. The caption replaces it at commit —
+      // there is no caption yet, which is the whole reason this runs early.
+      label: attachment.fileName ?? 'reel',
+    );
+    if (begun) _eager = true;
   }
 
   /// Opens the picked clip in a muted, looping player and records its length.
@@ -749,6 +911,13 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
         ? await _measure(attachment.localPath)
         : null;
 
+    // NOTE: a reel's video never reaches here. It is deferred at pick time and
+    // handed to `videoUploadQueueProvider` on publish, which is what lets the
+    // composer close while the bytes are still moving. What is left in this
+    // method is a post's photos, a story's image and a document — all small
+    // enough that waiting on this screen is not a hardship, and a post can
+    // carry four at once, which the one-job-at-a-time queue would make worse.
+
     // Each kind gets its own call rather than one with a different folder: an
     // image upload renames anything it does not recognise to .jpg, which would
     // have the CDN serve a spreadsheet — or an .mov — as a picture.
@@ -840,6 +1009,11 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
     // an orphan under `posts/` costs a few KB — the wrong trade to make on a
     // key that lives on the device.
     attachment.disposePreview();
+    // A reel's video is different: its transfer is already running against
+    // Bunny Stream, and Stream's API does let us take the video back — so
+    // removing the clip stops the upload and deletes the record rather than
+    // leaving one nobody will ever point at.
+    if (attachment.isVideo) _dropEagerUpload();
     setState(() => _attachments.remove(attachment));
   }
 
@@ -901,6 +1075,7 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
           text: _controller.text,
           visibility: _visibility,
           media: media,
+          poll: _pollDraft,
         );
 
     if (!mounted) return false;
@@ -957,6 +1132,14 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
   /// `thumbnailUrl` is left null: generating a poster frame needs a native
   /// plugin this app does not carry, and the reel wall already falls back to
   /// the video's first frame. Sending a wrong one would be worse than none.
+  /// Hands the reel to the background queue and reports that the composer may
+  /// close.
+  ///
+  /// **Returns true before anything has been uploaded or published.** That is
+  /// the change: this screen's job is now to collect a video and a caption and
+  /// pass them on, not to see them through. The transfer and the publish both
+  /// happen against `videoUploadQueueProvider`, which outlives this route, and
+  /// the strip above the bottom bar reports them wherever the person goes.
   Future<bool> _publishReel() async {
     final media = _singleReady;
     if (media == null || !media.isVideo) {
@@ -968,29 +1151,78 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
       return false;
     }
 
-    // Reading the notifier builds it, which fetches the wall if the Reels tab
-    // was never opened. That is a wasted request only if the person never
-    // looks — and they just published a reel, so it is a prefetch of the tab
-    // they are most likely to open next.
-    final result = await ref
-        .read(reelsNotifierProvider.notifier)
-        .publish(
-          videoUrl: media.storedPath!,
-          caption: _controller.text,
-          durationSeconds: media.durationSeconds,
-        );
+    final queue = ref.read(videoUploadQueueProvider.notifier);
 
-    if (!mounted) return false;
-    return result.when(
-      success: (_) {
-        showRungToast(context, context.l10n.toastReelPosted);
+    // Plain values only. This screen is disposed the moment it pops, so the
+    // callback below must close over nothing that belongs to it — not its
+    // `ref`, and not a notifier read through its `ref`. The queue's own ref
+    // arrives as an argument instead.
+    final caption = _controller.text;
+    final duration = media.durationSeconds;
+
+    // The caption names the job on the banner. A reel posted without one falls
+    // back to the file's name, which is still something the author will
+    // recognise as the thing they just picked.
+    final label =
+        caption.trim().isEmpty ? (media.fileName ?? 'reel') : caption.trim();
+
+    Future<Result<void, AppException>> publish(
+      Ref queueRef,
+      StreamUploadResult uploaded,
+    ) async {
+      final result = await queueRef.read(reelsNotifierProvider.notifier).publish(
+        videoUrl: uploaded.videoPath,
+        // Stream makes the poster during transcoding, so this path 404s for a
+        // few seconds after publishing. Sent anyway: the player treats a
+        // missing poster as "not yet" rather than an error, and the
+        // alternative is a reel that never gets one.
+        thumbnailUrl: uploaded.posterPath,
+        caption: caption,
+        durationSeconds: duration,
+      );
+      return result.map<void>((_) {});
+    }
+
+    // **The usual path: claim the transfer that started at pick time.**
+    //
+    // It may have finished already — on a decent connection a short clip is up
+    // before the caption is — in which case the publish runs immediately and
+    // the person never sees a progress bar at all. If it is still moving, the
+    // caption is attached to it and the banner carries on from where it is.
+    if (_eager) {
+      final claimed = queue.commit(label: label, onUploaded: publish);
+      if (claimed) {
+        // From here the job is the queue's. `dispose` must not abandon it.
+        _eager = false;
+        showRungToast(context, context.l10n.uploadStartedBackground);
         return true;
-      },
-      failure: (e) {
-        showRungToast(context, arabicMessageForException(e), success: false);
-        return false;
-      },
+      }
+      // Failed or was cancelled while they were typing. Fall through and try
+      // again from the top rather than reporting a transfer they never saw.
+      _eager = false;
+      queue.clear();
+    }
+
+    // One at a time. Saying so is better than silently queueing a second job
+    // behind a progress bar that only reports the first.
+    if (queue.isBusy || queue.hasParked) {
+      showRungToast(context, context.l10n.uploadBannerBusy, success: false);
+      return false;
+    }
+
+    final started = queue.start(
+      localPath: media.localPath,
+      label: label,
+      onUploaded: publish,
     );
+
+    if (!started) {
+      showRungToast(context, context.l10n.uploadBannerBusy, success: false);
+      return false;
+    }
+
+    showRungToast(context, context.l10n.uploadStartedBackground);
+    return true;
   }
 
   @override
@@ -1063,6 +1295,7 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
                       RungAvatar(
                         seed: me?.id ?? 'me',
                         initials: me?.initials ?? '—',
+                        icon: me?.accountType.icon,
                         imageUrl: ref.watch(imageUrlResolverProvider)(
                           me?.avatarUrl,
                         ),
@@ -1140,6 +1373,17 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
                       hintStyle: TextStyle(fontSize: 16, color: c.ink3),
                     ),
                   ),
+                  if (_hasPoll) ...[
+                    const SizedBox(height: RungSpace.sm),
+                    _PollEditor(
+                      options: _pollOptions!,
+                      hours: _pollHours,
+                      onHoursChanged: (h) => setState(() => _pollHours = h),
+                      onAdd: _addPollOption,
+                      onRemove: _removePollOption,
+                      onClose: _togglePoll,
+                    ),
+                  ],
                   if (_mode.allowsTextOnly && _attachments.isNotEmpty) ...[
                     const SizedBox(height: RungSpace.sm),
                     _AttachmentStrip(
@@ -1186,6 +1430,8 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
             onPickVideo: _pickVideo,
             onAddHashtag: _insertHashtag,
             onAddMention: _insertMention,
+            onTogglePoll: _togglePoll,
+            pollActive: _pollOptions != null,
             canAttach:
                 _maxAttachments == 1 ||
                 _attachments.length < _maxAttachments,
@@ -1731,8 +1977,14 @@ class _AttachmentBar extends StatelessWidget {
     required this.onPickVideo,
     required this.onAddHashtag,
     required this.onAddMention,
+    required this.onTogglePoll,
+    required this.pollActive,
     required this.canAttach,
   });
+
+  /// Adds a poll to the post, or takes it off again.
+  final VoidCallback onTogglePoll;
+  final bool pollActive;
 
   final ComposerMode mode;
   final VoidCallback onPickImages;
@@ -1811,10 +2063,14 @@ class _AttachmentBar extends StatelessWidget {
                 tooltip: l10n.composerAddHashtag,
               ),
               IconButton(
-                onPressed: () => showRungToast(context, l10n.comingSoon),
-                icon: const Icon(Icons.poll_outlined),
-                color: c.ink2,
-                tooltip: l10n.comingSoon,
+                onPressed: onTogglePoll,
+                icon: Icon(
+                  pollActive ? Icons.poll_rounded : Icons.poll_outlined,
+                ),
+                color: pollActive ? c.accent : c.ink2,
+                tooltip: pollActive
+                    ? l10n.composerRemovePoll
+                    : l10n.composerAddPoll,
               ),
             ],
             const Spacer(),
@@ -1827,6 +2083,159 @@ class _AttachmentBar extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The choices of a poll being added to a post, plus how long it runs.
+class _PollEditor extends StatelessWidget {
+  const _PollEditor({
+    required this.options,
+    required this.hours,
+    required this.onHoursChanged,
+    required this.onAdd,
+    required this.onRemove,
+    required this.onClose,
+  });
+
+  final List<TextEditingController> options;
+  final int hours;
+  final ValueChanged<int> onHoursChanged;
+  final VoidCallback onAdd;
+  final ValueChanged<int> onRemove;
+  final VoidCallback onClose;
+
+  static const List<int> _durations = [1, 6, 24, 72, 168];
+
+  String _durationLabel(BuildContext context, int h) {
+    final l10n = context.l10n;
+    return switch (h) {
+      1 => l10n.pollDurationHour,
+      6 => l10n.pollDurationSixHours,
+      24 => l10n.pollDurationDay,
+      72 => l10n.pollDurationThreeDays,
+      _ => l10n.pollDurationWeek,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.rung;
+    final l10n = context.l10n;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: c.line),
+        borderRadius: RungRadius.mdAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.poll_outlined, size: 18, color: c.accent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l10n.composerPollTitle,
+                  style: TextStyle(
+                    color: c.ink,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                onPressed: onClose,
+                tooltip: l10n.composerRemovePoll,
+                icon: Icon(Icons.close_rounded, size: 18, color: c.ink3),
+              ),
+            ],
+          ),
+          Text(
+            l10n.composerPollQuestionNote,
+            style: TextStyle(color: c.ink3, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          for (var i = 0; i < options.length; i++)
+            Padding(
+              key: ObjectKey(options[i]),
+              padding: const EdgeInsetsDirectional.only(end: 8, bottom: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: options[i],
+                      maxLength: PollDraft.maxOptionLength,
+                      textInputAction: TextInputAction.next,
+                      style: TextStyle(color: c.ink, fontSize: 14),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        counterText: '',
+                        hintText: l10n.composerPollOptionHint('${i + 1}'),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: RungRadius.mdAll,
+                          borderSide: BorderSide(color: c.line),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: RungRadius.mdAll,
+                          borderSide: BorderSide(color: c.line),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (options.length > PollDraft.minOptions)
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => onRemove(i),
+                      tooltip: l10n.composerPollRemoveOption,
+                      icon: Icon(
+                        Icons.remove_circle_outline,
+                        size: 20,
+                        color: c.ink3,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          Row(
+            children: [
+              if (options.length < PollDraft.maxOptions)
+                TextButton.icon(
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(l10n.composerPollAddOption),
+                ),
+              const Spacer(),
+              Icon(Icons.schedule_rounded, size: 16, color: c.ink3),
+              const SizedBox(width: 4),
+              DropdownButton<int>(
+                value: hours,
+                underline: const SizedBox.shrink(),
+                isDense: true,
+                style: TextStyle(color: c.ink, fontSize: 13),
+                items: [
+                  for (final h in _durations)
+                    DropdownMenuItem(
+                      value: h,
+                      child: Text(_durationLabel(context, h)),
+                    ),
+                ],
+                onChanged: (h) {
+                  if (h != null) onHoursChanged(h);
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ],
       ),
     );
   }

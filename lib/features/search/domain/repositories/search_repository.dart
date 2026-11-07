@@ -1,6 +1,7 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../entities/search_results.dart';
 import '../entities/trending_tag.dart';
@@ -25,10 +26,12 @@ abstract class SearchRepository {
 
   /// The `Profiles` slice, paged — full-text over username, display name and
   /// bio, so it matches more than the profile filter's name search.
+  /// [accountType] limits it to one kind of account.
   Future<Result<List<Person>, AppException>> people(
     String query, {
     int page = 1,
     int size = 20,
+    AccountType? accountType,
   });
 
   /// The `Hashtags` slice, paged — a prefix match, not full text.

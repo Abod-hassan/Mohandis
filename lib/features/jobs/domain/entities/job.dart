@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 /// Where the work happens — the backend's `WorkplaceTypeEnum`.
 ///

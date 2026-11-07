@@ -1,4 +1,4 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
+import 'package:mohandis/core/base/base_entity.dart';
 
 class TrendingTag extends BaseEntity {
   const TrendingTag({required this.tag, required this.postCount});

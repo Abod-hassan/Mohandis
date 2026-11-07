@@ -1,7 +1,7 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_mock_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_mock_repository.dart';
 
 import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -39,24 +39,24 @@ class ProfileMockRepository implements ProfileRepository {
               role: 'مصمم منتجات أول',
               company: 'كوبالت المالية',
               monogram: 'ك',
-              dates: '٢٠٢٢ — الآن · ٣ سنوات',
+              dates: '2022 — الآن · 3 سنوات',
               location: 'الرياض، السعودية',
               description:
                   'المصمم الرئيسي لمنتجات التمويل والمدفوعات. بنيت نظام التصميم المستخدم اليوم في '
-                  'أكثر من ٤٠ واجهة.',
+                  'أكثر من 40 واجهة.',
             ),
             Experience(
               role: 'مصمم منتجات',
               company: 'نورثويند',
               monogram: 'ن',
-              dates: '٢٠١٩ — ٢٠٢٢ · ٣ سنوات',
+              dates: '2019 — 2022 · 3 سنوات',
               location: 'جدة، السعودية',
             ),
             Experience(
               role: 'مصمم تجربة مستخدم',
               company: 'برايت لاين',
               monogram: 'ب',
-              dates: '٢٠١٧ — ٢٠١٩ · سنتان',
+              dates: '2017 — 2019 · سنتان',
               location: 'عن بُعد',
             ),
           ],
@@ -65,7 +65,7 @@ class ProfileMockRepository implements ProfileRepository {
               school: 'جامعة الملك سعود',
               monogram: 'ج',
               degreeLine: 'بكالوريوس فنون، التصميم الجرافيكي',
-              dates: '٢٠١٣ — ٢٠١٧',
+              dates: '2013 — 2017',
             ),
           ],
           skills: [
@@ -93,16 +93,16 @@ class ProfileMockRepository implements ProfileRepository {
               role: 'مديرة هندسة',
               company: 'نورثويند',
               monogram: 'ن',
-              dates: '٢٠٢١ — الآن · ٤ سنوات',
+              dates: '2021 — الآن · 4 سنوات',
               location: 'جدة، السعودية',
               description:
-                  'أقود فريق منصة من ١٢ شخصاً. أعدت تصميم دورة التوظيف فقلّ زمن انتظار المرشحين ٤٠٪.',
+                  'أقود فريق منصة من 12 شخصاً. أعدت تصميم دورة التوظيف فقلّ زمن انتظار المرشحين 40%.',
             ),
             Experience(
               role: 'مهندسة رئيسية',
               company: 'لوب ورك',
               monogram: 'ل',
-              dates: '٢٠١٨ — ٢٠٢١ · ٣ سنوات',
+              dates: '2018 — 2021 · 3 سنوات',
               location: 'عن بُعد',
             ),
           ],
@@ -111,7 +111,7 @@ class ProfileMockRepository implements ProfileRepository {
               school: 'جامعة الملك فهد للبترول والمعادن',
               monogram: 'ف',
               degreeLine: 'ماجستير علوم حاسب',
-              dates: '٢٠١٤ — ٢٠١٦',
+              dates: '2014 — 2016',
             ),
           ],
           skills: [
@@ -141,7 +141,7 @@ class ProfileMockRepository implements ProfileRepository {
           role: headline.split(' · ').first,
           company: '—',
           monogram: '؟',
-          dates: '٢٠٢٠ — الآن',
+          dates: '2020 — الآن',
           location: location,
         ),
       ],
@@ -150,13 +150,25 @@ class ProfileMockRepository implements ProfileRepository {
           school: 'الجامعة الوطنية',
           monogram: 'ج',
           degreeLine: 'بكالوريوس',
-          dates: '٢٠١٢ — ٢٠١٦',
+          dates: '2012 — 2016',
         ),
       ],
       skills: const [
         Skill(id: 11, name: 'التواصل', endorsements: 12),
         Skill(id: 12, name: 'القيادة', endorsements: 8),
       ],
+    );
+  }
+
+  @override
+  Future<Result<String, AppException>> idForUsername(String username) async {
+    await _wait();
+    final handle = username.trim().replaceFirst(RegExp('^@'), '').toLowerCase();
+    for (final p in PeopleMockRepository.seed) {
+      if (p.username.toLowerCase() == handle) return Result.success(p.id);
+    }
+    return const Result.failure(
+      NotFoundException('لم يُعثر على هذا الملف الشخصي'),
     );
   }
 
@@ -173,6 +185,12 @@ class ProfileMockRepository implements ProfileRepository {
   }
 
   @override
+  Future<Result<void, AppException>> patchMe(Map<String, dynamic> body) async {
+    await updateMe(body);
+    return const Result.success(null);
+  }
+
+  @override
   Future<Result<Profile, AppException>> updateMe(
     Map<String, dynamic> body,
   ) async {
@@ -185,6 +203,12 @@ class ProfileMockRepository implements ProfileRepository {
     final next = current.copyWith(
       about: body['about'] as String?,
       industry: body['industry'] as String?,
+      disciplineId: body['disciplineId'] as int?,
+      governorateId: body['governorateId'] as int?,
+      // The governorate's free-text twin, the way `industry` is the
+      // discipline's: the real repository writes it, so the mock must too or
+      // the header keeps showing the old address after a pick.
+      location: body['location'] as String?,
       openToWork: body['openToWork'] as bool?,
       isPrivate: body['isPrivate'] as bool?,
       avatarUrl: body['avatarUrl'] as String?,
@@ -251,6 +275,16 @@ class ProfileMockRepository implements ProfileRepository {
   /// succeed and change nothing. That is the honest mock: a fixture backend
   /// cannot demonstrate a block, and pretending to would hide the profile the
   /// rest of the fixtures still hand out.
+  @override
+  Future<Result<void, AppException>> acceptFollowRequest(
+    String followerId,
+  ) async => const Result.success(null);
+
+  @override
+  Future<Result<void, AppException>> rejectFollowRequest(
+    String followerId,
+  ) async => const Result.success(null);
+
   @override
   Future<Result<void, AppException>> block(String personId) async {
     await _wait();

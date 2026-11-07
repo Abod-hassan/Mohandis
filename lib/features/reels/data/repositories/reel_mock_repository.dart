@@ -1,7 +1,8 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../domain/entities/reel.dart';
+import '../../domain/entities/reel_comment.dart';
 import '../../domain/entities/reel_page.dart';
 import '../../domain/repositories/reel_repository.dart';
 
@@ -14,6 +15,7 @@ class ReelMockRepository implements ReelRepository {
 
   final Duration latency;
   final List<Reel> _reels;
+  final List<ReelComment> _comments = [];
 
   Future<void> _wait() => Future<void>.delayed(latency);
 
@@ -25,7 +27,7 @@ class ReelMockRepository implements ReelRepository {
           id: 'rl1',
           authorId: 'sara',
           createdAt: _ago(hours: 5),
-          caption: '٣ أساليب بحث يجب أن يعرفها كل مدير منتج 🎯',
+          caption: '3 أساليب بحث يجب أن يعرفها كل مدير منتج 🎯',
           tags: const ['#تجربة_المستخدم', '#البحث'],
           playCount: 89000,
           viewCount: 91500,
@@ -35,7 +37,7 @@ class ReelMockRepository implements ReelRepository {
           id: 'rl2',
           authorId: 'marwan',
           createdAt: _ago(hours: 14),
-          caption: 'كيف انتقلنا من صفر إلى ٥٠ موظفاً دون أن نفقد ثقافتنا',
+          caption: 'كيف انتقلنا من صفر إلى 50 موظفاً دون أن نفقد ثقافتنا',
           tags: const ['#الشركات_الناشئة', '#القيادة'],
           playCount: 112000,
           viewCount: 118300,
@@ -58,7 +60,7 @@ class ReelMockRepository implements ReelRepository {
           id: 'rl4',
           authorId: 'kareem',
           createdAt: _ago(hours: 52),
-          caption: 'شاهد بناء هذا الجسر في ٤٥ ثانية',
+          caption: 'شاهد بناء هذا الجسر في 45 ثانية',
           tags: const ['#الهندسة'],
           playCount: 61000,
           viewCount: 63400,
@@ -112,6 +114,10 @@ class ReelMockRepository implements ReelRepository {
   Future<Result<Reel, AppException>> toggleSave(String reelId) =>
       _mutate(reelId, (r) => r.toggleSave());
 
+  @override
+  Future<Result<Reel, AppException>> toggleShare(String reelId) =>
+      _mutate(reelId, (r) => r.toggleShare());
+
   /// The fixtures' counters are fixed — there is nothing to increment — but
   /// the call still has to answer so the player's play hook behaves as it will
   /// against the backend.
@@ -150,6 +156,48 @@ class ReelMockRepository implements ReelRepository {
   Future<Result<void, AppException>> delete(String id) async {
     await _wait();
     _reels.removeWhere((r) => r.id == id);
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<List<ReelComment>, AppException>> comments(
+    String reelId, {
+    int page = 1,
+    int size = 50,
+  }) async {
+    await _wait();
+    final rows = _comments.where((c) => c.reelId == reelId).toList();
+    final from = ((page - 1) * size).clamp(0, rows.length);
+    final to = (from + size).clamp(0, rows.length);
+    return Result.success(rows.sublist(from, to));
+  }
+
+  @override
+  Future<Result<ReelComment, AppException>> addComment(
+    String reelId,
+    String text, {
+    String? parentCommentId,
+  }) async {
+    await _wait();
+    final comment = ReelComment(
+      id: 'rc${DateTime.now().microsecondsSinceEpoch}',
+      reelId: reelId,
+      authorId: 'me',
+      authorName: 'أنا',
+      text: text.trim(),
+      parentCommentId: parentCommentId,
+      createdAt: DateTime.now(),
+    );
+    _comments.add(comment);
+    return Result.success(comment);
+  }
+
+  @override
+  Future<Result<void, AppException>> deleteComment(String commentId) async {
+    await _wait();
+    _comments.removeWhere(
+      (c) => c.id == commentId || c.parentCommentId == commentId,
+    );
     return const Result.success(null);
   }
 }

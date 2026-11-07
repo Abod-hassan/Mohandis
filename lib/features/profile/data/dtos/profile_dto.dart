@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 import '../../domain/entities/profile.dart';
 
@@ -23,12 +23,18 @@ class ProfileDto implements BaseDto<Profile> {
     this.location,
     this.headline,
     this.industry,
+    this.disciplineId,
+    this.disciplineName,
+    this.disciplineIconUrl,
+    this.governorateId,
+    this.governorateName,
     this.cvUrl,
     this.about,
     this.isOpenToWork = false,
     this.isHiring = false,
     this.isPrivate = false,
     this.isVerified = false,
+    this.isSubscribed = false,
     this.accountType = AccountType.individual,
     this.companySize = CompanySize.unspecified,
     this.foundedOn,
@@ -56,12 +62,18 @@ class ProfileDto implements BaseDto<Profile> {
     location: json['location'] as String?,
     headline: json['headline'] as String?,
     industry: json['industry'] as String?,
+    disciplineId: (json['disciplineId'] as num?)?.toInt(),
+    disciplineName: json['disciplineName'] as String?,
+    disciplineIconUrl: json['disciplineIconUrl'] as String?,
+    governorateId: (json['governorateId'] as num?)?.toInt(),
+    governorateName: json['governorateName'] as String?,
     cvUrl: json['cvUrl'] as String?,
     about: json['about'] as String?,
     isOpenToWork: json['isOpenToWork'] == true,
     isHiring: json['isHiring'] == true,
     isPrivate: json['isPrivate'] == true,
     isVerified: json['isVerified'] == true,
+    isSubscribed: json['isSubscribed'] == true,
     accountType: accountTypeFromWire(json['accountType']),
     companySize: companySizeFromWire(json['companySize']),
     // A `date` column, so it arrives as "2015-03-01" with no time. Parsed
@@ -91,12 +103,18 @@ class ProfileDto implements BaseDto<Profile> {
   final String? location;
   final String? headline;
   final String? industry;
+  final int? disciplineId;
+  final String? disciplineName;
+  final String? disciplineIconUrl;
+  final int? governorateId;
+  final String? governorateName;
   final String? cvUrl;
   final String? about;
   final bool isOpenToWork;
   final bool isHiring;
   final bool isPrivate;
   final bool isVerified;
+  final bool isSubscribed;
   final AccountType accountType;
 
   /// Meaningful only when [accountType] is company; holds its empty value
@@ -132,6 +150,7 @@ class ProfileDto implements BaseDto<Profile> {
     coverUrl: coverUrl,
     website: website,
     verified: isVerified,
+    subscribed: isSubscribed,
     accountType: accountType,
     isMe: isMe,
     // `about` is the professional summary and `bio` the short social one. The
@@ -139,6 +158,11 @@ class ProfileDto implements BaseDto<Profile> {
     // leave it blank for a profile that only filled in the social side.
     about: about ?? bio ?? '',
     industry: industry ?? '',
+    disciplineId: disciplineId,
+    disciplineName: disciplineName ?? '',
+    disciplineIconUrl: disciplineIconUrl,
+    governorateId: governorateId,
+    governorateName: governorateName ?? '',
     cvUrl: cvUrl,
     openToWork: isOpenToWork,
     hiring: isHiring,
@@ -167,6 +191,11 @@ class ProfileDto implements BaseDto<Profile> {
     'displayName': displayName,
     'headline': headline,
     'industry': industry,
+    'disciplineId': disciplineId,
+    'disciplineName': disciplineName,
+    'disciplineIconUrl': disciplineIconUrl,
+    'governorateId': governorateId,
+    'governorateName': governorateName,
     'cvUrl': cvUrl,
     'about': about,
     'location': location,
@@ -186,15 +215,27 @@ class ProfileDto implements BaseDto<Profile> {
           ? AccountType.values[i]
           : AccountType.individual;
     }
-    return '$raw'.toLowerCase() == 'company'
-        ? AccountType.company
-        : AccountType.individual;
+    return switch ('$raw'.toLowerCase()) {
+      'company' => AccountType.company,
+      'contractor' => AccountType.contractor,
+      'craftsman' => AccountType.craftsman,
+      'equipmentowner' => AccountType.equipmentOwner,
+      // Anything unrecognised — a kind added server-side and not yet here, or
+      // the null a pre-migration row returns — reads as the engineer. It is
+      // the value every old row holds, and the one whose rights are narrowest.
+      _ => AccountType.individual,
+    };
   }
 
   /// Writes go through the Kernel generic engine, which takes the enum by
   /// name — the same spelling the C# member has.
-  static String accountTypeToWire(AccountType type) =>
-      type == AccountType.company ? 'Company' : 'Individual';
+  static String accountTypeToWire(AccountType type) => switch (type) {
+    AccountType.company => 'Company',
+    AccountType.contractor => 'Contractor',
+    AccountType.craftsman => 'Craftsman',
+    AccountType.equipmentOwner => 'EquipmentOwner',
+    AccountType.individual => 'Individual',
+  };
 
   /// `CompanySizeEnum` — same conventions as [accountTypeFromWire]: by name
   /// normally, ordinal tolerated, and anything unrecognised (including the

@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/profile/domain/repositories/profile_repository.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/notifiers/profile_notifier.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/domain/repositories/profile_repository.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
+import 'package:mohandis/features/subscription/presentation/notifiers/subscription_notifier.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';
@@ -44,7 +44,7 @@ class JobDetailScreen extends ConsumerWidget {
         // one too many even when both worked.
       ),
       body: job.when(
-        loading: () => const LoadingView(),
+        loading: () => const DetailSkeleton(hasHero: false, paragraphs: 4),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(jobDetailProvider(jobId)),
@@ -293,6 +293,13 @@ class _Footer extends ConsumerWidget {
     // on its own gets the neutral "تم التقديم".
     final mine = application;
     final applied = mine != null || job.applied;
+    // Fails OPEN while the subscription state is unknown — offline, a failed
+    // read — exactly as the panel's own gate does. The server checks every
+    // application anyway, so the worst case is a round trip that comes back
+    // refused; the alternative locks a paying subscriber out of a job because
+    // one request failed.
+    final canApply =
+        ref.watch(subscriptionProvider).valueOrNull?.canApplyToJobs ?? true;
 
     return SafeArea(
       top: false,
@@ -378,19 +385,36 @@ class _Footer extends ConsumerWidget {
                         ),
                       ),
                     )
-                  : FilledButton(
-                      // The service rejects an application to a closed
-                      // posting, and a closed posting still opens from an old
-                      // link or a shared card — so the button goes dead here
-                      // instead of round-tripping to an error toast.
-                      onPressed: job.isOpen
-                          ? () => context.push('/jobs/${job.id}/apply')
-                          : null,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                      ),
-                      child: Text(l10n.jobApplyNow),
-                    ),
+                  : !canApply
+                      // Applying is a subscriber's action — `JobService.Apply`
+                      // refuses it otherwise. The button stays live rather
+                      // than going dead: it leads to the page that fixes the
+                      // problem, which is more use than a disabled control
+                      // nobody can explain.
+                      ? FilledButton.icon(
+                          onPressed: () => context.push('/subscription'),
+                          icon: const Icon(Icons.lock_outline_rounded, size: 18),
+                          label: Text(l10n.jobApplyLocked),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            backgroundColor: c.surface2,
+                            foregroundColor: c.ink,
+                          ),
+                        )
+                      : FilledButton(
+                          // The service rejects an application to a closed
+                          // posting, and a closed posting still opens from an
+                          // old link or a shared card — so the button goes
+                          // dead here instead of round-tripping to an error
+                          // toast.
+                          onPressed: job.isOpen
+                              ? () => context.push('/jobs/${job.id}/apply')
+                              : null,
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                          ),
+                          child: Text(l10n.jobApplyNow),
+                        ),
             ),
           ],
         ),

@@ -3,8 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_mobile_template/core/theme/app_theme.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/app_theme.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 /// Mounts [child] with the app's real theme, RTL Arabic locale, and
 /// localization delegates so widget tests exercise the same tokens and copy

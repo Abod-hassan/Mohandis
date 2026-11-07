@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/panel_entities.dart';
 import '../notifiers/panel_notifiers.dart';
@@ -96,7 +95,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
           _StubBanner(),
           Expanded(
             child: chat.when(
-              loading: () => const LoadingView(),
+              loading: () => const CardListSkeleton(count: 4, height: 84, lines: 1),
               error: (e, _) => ErrorView(
                 error: e,
                 onRetry: () =>

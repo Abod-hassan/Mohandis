@@ -4,35 +4,35 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_mobile_template/app.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/config/app_config.dart';
-import 'package:flutter_mobile_template/core/config/environment.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/services/tenant_store.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/activity/presentation/screens/notifications_screen.dart';
-import 'package:flutter_mobile_template/features/dashboard/presentation/screens/dashboard_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/screens/apply_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/screens/job_detail_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/screens/jobs_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/screens/my_applications_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/widgets/job_card.dart';
-import 'package:flutter_mobile_template/features/messaging/presentation/screens/messages_screen.dart';
-import 'package:flutter_mobile_template/features/messaging/presentation/screens/thread_screen.dart';
-import 'package:flutter_mobile_template/features/network/presentation/screens/network_screen.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/screens/composer_screen.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/screens/feed_screen.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/screens/post_detail_screen.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/widgets/post_card.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/screens/edit_profile_screen.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/screens/profile_screen.dart';
-import 'package:flutter_mobile_template/features/reels/presentation/screens/reels_screen.dart';
-import 'package:flutter_mobile_template/features/search/presentation/screens/search_screen.dart';
-import 'package:flutter_mobile_template/features/stories/presentation/screens/story_viewer_screen.dart';
-import 'package:flutter_mobile_template/features/shared/auth/data/auth_token_refresher.dart';
-import 'package:flutter_mobile_template/features/shared/auth/presentation/screens/auth_screen.dart';
-import 'package:flutter_mobile_template/mocks/mock_overrides.dart';
+import 'package:mohandis/app.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/config/app_config.dart';
+import 'package:mohandis/core/config/environment.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/services/tenant_store.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/activity/presentation/screens/notifications_screen.dart';
+import 'package:mohandis/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:mohandis/features/jobs/presentation/screens/apply_screen.dart';
+import 'package:mohandis/features/jobs/presentation/screens/job_detail_screen.dart';
+import 'package:mohandis/features/jobs/presentation/screens/jobs_screen.dart';
+import 'package:mohandis/features/jobs/presentation/screens/my_applications_screen.dart';
+import 'package:mohandis/features/jobs/presentation/widgets/job_card.dart';
+import 'package:mohandis/features/messaging/presentation/screens/messages_screen.dart';
+import 'package:mohandis/features/messaging/presentation/screens/thread_screen.dart';
+import 'package:mohandis/features/network/presentation/screens/network_screen.dart';
+import 'package:mohandis/features/posts/presentation/screens/composer_screen.dart';
+import 'package:mohandis/features/posts/presentation/screens/feed_screen.dart';
+import 'package:mohandis/features/posts/presentation/screens/post_detail_screen.dart';
+import 'package:mohandis/features/posts/presentation/widgets/post_card.dart';
+import 'package:mohandis/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:mohandis/features/profile/presentation/screens/profile_screen.dart';
+import 'package:mohandis/features/reels/presentation/screens/reels_screen.dart';
+import 'package:mohandis/features/search/presentation/screens/search_screen.dart';
+import 'package:mohandis/features/stories/presentation/screens/story_viewer_screen.dart';
+import 'package:mohandis/features/shared/auth/data/auth_token_refresher.dart';
+import 'package:mohandis/features/shared/auth/presentation/screens/auth_screen.dart';
+import 'package:mohandis/mocks/mock_overrides.dart';
 
 /// In-memory stand-in for the Keychain / EncryptedSharedPreferences channel
 /// so the real `TokenStorage` works under the test VM.
@@ -68,7 +68,7 @@ void _mockSecureStorage() {
 
 const _config = AppConfig(
   environment: Environment.dev,
-  appName: 'رنق (Test)',
+  appName: 'مهندس (Test)',
   apiBaseUrl: 'https://api-dev.rung.app',
   useMockData: true,
   enableLogging: false,
@@ -87,9 +87,10 @@ Widget _app() => ProviderScope(
         tenantProvider.overrideWith(_ResolvedTenant.new),
         tokenRefresherProvider.overrideWith(
           (ref) => AuthTokenRefresher(
-            baseUrl: _config.apiBaseUrl,
+            config: _config,
             refreshPath: EndPoints.authRefresh,
             tokenStorage: ref.read(tokenStorageProvider),
+            deviceInfo: ref.read(deviceInfoServiceProvider),
           ),
         ),
         ...mockOverrides(),
@@ -169,7 +170,7 @@ void main() {
     }
 
     await visitTab('ريلز', ReelsScreen);
-    await visitTab('شبكتي', NetworkScreen);
+    await visitTab('الاشخاص', NetworkScreen);
     await visitTab('الرئيسية', FeedScreen);
 
     // Pushed surfaces, each popped before the next so the stack stays shallow.

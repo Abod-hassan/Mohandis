@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon (Android 8+). Without this the launcher shrinks the legacy
+  bitmap onto a white plate, which is why the old icon sat in a white square.
+  The foreground bitmap keeps its art inside the inner 66% safe zone, so no
+  mask crop — circle, squircle or teardrop — cuts into the helmet.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+    <monochrome android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

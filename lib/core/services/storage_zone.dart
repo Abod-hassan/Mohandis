@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -108,10 +110,16 @@ class StorageZoneNotifier extends AsyncNotifier<StorageZone?> {
     // claim — so the header goes on only while there is no token, exactly as
     // login and sign-up do it.
     Options? options;
+    // Which tenant this request will be answered for, in the terms the log
+    // below reports it. Not used for anything else.
+    String scope;
     final token = await ref.read(tokenStorageProvider).readAccessToken();
     if (token == null || token.isEmpty) {
       final tenant = await ref.read(tenantProvider.notifier).resolve();
       if (tenant != null) options = Options(headers: {'X-Tenant-Id': tenant});
+      scope = 'X-Tenant-Id: ${tenant ?? 'none'}';
+    } else {
+      scope = 'JWT TenantId: ${_tenantClaim(token) ?? 'absent'}';
     }
 
     final result = await apiCall<StorageZone?>(
@@ -128,12 +136,39 @@ class StorageZoneNotifier extends AsyncNotifier<StorageZone?> {
     // as an unreachable host: no zone, no photo control, everything else works.
     final zone = result.valueOrNull;
     if (zone == null || !zone.isConfigured) {
+      // **Three different problems used to print one line.** "No usable zone"
+      // can mean the server said this tenant has no storage row, or that the
+      // call never arrived, or that it arrived for a tenant nobody configured
+      // — and the third is the one that looks exactly like the first while
+      // having nothing to do with storage at all. The tenant this request was
+      // answered for is therefore part of the message: a zero or an absent
+      // claim there means the session, not the settings.
+      final why = result.errorOrNull?.message ?? 'no zone in the answer';
       ref.read(loggerProvider).d(
-        '[storage] no usable zone — photo upload stays disabled',
+        '[storage] no usable zone — photo upload stays disabled · $scope · $why',
       );
       return null;
     }
     return zone;
+  }
+
+  /// The `TenantId` claim out of an access token, for the log line only.
+  ///
+  /// Decoding the payload is safe here: nothing is trusted from it, and the
+  /// server reads the claim off the signed token regardless of what this says.
+  static int? _tenantClaim(String jwt) {
+    final parts = jwt.split('.');
+    if (parts.length != 3) return null;
+    try {
+      final claims = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      if (claims is! Map) return null;
+      final raw = claims['TenantId'];
+      return raw is num ? raw.toInt() : int.tryParse('$raw');
+    } catch (_) {
+      return null;
+    }
   }
 }
 

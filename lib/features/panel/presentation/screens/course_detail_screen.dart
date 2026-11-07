@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/utils/pull_refresh.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
+import '../../data/repositories/panel_repository_impl.dart';
 import '../../domain/entities/panel_entities.dart';
 import '../notifiers/panel_notifiers.dart';
 import '../widgets/course_bits.dart';
+import '../widgets/course_status_pill.dart';
 import 'courses_screen.dart';
 
 /// A course page: what it is, who teaches it, what you'll learn, and the
@@ -65,6 +69,26 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  Future<void> _buy(Course course) => _run(() async {
+    final result = await ref
+        .read(panelRepositoryProvider)
+        .requestPurchase(course.id);
+
+    if (!mounted) return;
+    result.when(
+      success: (_) {
+        // The course row itself changes — `purchaseStatus` goes from null to
+        // pending — so the page is re-read rather than patched, and the card
+        // under the price redraws as "بانتظار التأكيد".
+        ref.invalidate(courseProvider(course.id));
+        ref.invalidate(courseListProvider(course.category));
+        showRungToast(context, context.l10n.coursePurchaseAsked);
+      },
+      failure: (e) =>
+          showRungToast(context, arabicMessageForException(e), success: false),
+    );
+  });
 
   Future<void> _enroll(Course course) => _run(() async {
     final result = await ref
@@ -125,7 +149,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
     // A locked lesson on a locked course is the paywall, not the sequence —
     // so it goes to the plans, which is the only thing that would change it.
     if (lesson.isLocked && course.isLocked) {
-      context.push('/subscription');
+      // Only when a PLAN is what opens it. A sold course is locked by the
+      // purchase, so sending its buyer to the plans screen offers them
+      // something that cannot unlock what they just tapped.
+      if (!course.commerce.isSold) context.push('/subscription');
       return;
     }
     if (lesson.isLocked) {
@@ -191,196 +218,223 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
       backgroundColor: c.bg,
       appBar: RungAppBar(title: l10n.courseTitle),
       body: course.when(
-        loading: () => const LoadingView(),
+        loading: () => const DetailSkeleton(),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(courseProvider(widget.courseId)),
         ),
-        data: (data) => ListView(
-          padding: const EdgeInsets.fromLTRB(
-            RungSpace.gutter,
-            14,
-            RungSpace.gutter,
-            32,
-          ),
-          children: [
-            CourseCover(course: data, height: 180, radius: RungRadius.md + 2),
-            const SizedBox(height: RungSpace.md),
-
-            Row(
-              children: [
-                CoursePriceBadge(course: data),
-                const SizedBox(width: 8),
-                CourseRating(course: data),
-              ],
+        data: (data) => RefreshIndicator(
+          // Both, and the lessons are not optional: buying a course changes
+          // the course row AND unlocks its lessons, and an administrator
+          // confirms the payment somewhere else entirely. A pull is the only
+          // way a learner finds out, since nothing pushes at the client.
+          onRefresh: () async {
+            ref.invalidate(courseLecturesProvider(widget.courseId));
+            await pullRefresh(
+              ref.refresh(courseProvider(widget.courseId).future),
+            );
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              RungSpace.gutter,
+              14,
+              RungSpace.gutter,
+              32,
             ),
-            const SizedBox(height: 8),
-
-            Text(
-              data.title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              '${data.category.label(context)} · ${courseMeta(context, data)}',
-              style: TextStyle(fontSize: 12.5, color: c.ink3),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.courseEnrolledCount(
-                ArabicNumbers.compact(data.enrolledCount),
-              ),
-              style: TextStyle(fontSize: 12.5, color: c.ink3),
-            ),
-
-            if (data.isLocked) ...[
+            children: [
+              CourseCover(course: data, height: 180, radius: RungRadius.md + 2),
               const SizedBox(height: RungSpace.md),
-              _LockedNotice(onSeePlans: () => context.push('/subscription')),
-            ],
 
-            if (data.isEnrolled) ...[
-              const SizedBox(height: RungSpace.md),
-              _ProgressCard(course: data),
-            ],
-
-            if (data.hasCertificate) ...[
-              const SizedBox(height: RungSpace.md),
               Row(
                 children: [
-                  Icon(
-                    Icons.workspace_premium_outlined,
-                    size: 18,
-                    color: c.gold,
-                  ),
+                  CoursePriceBadge(course: data),
                   const SizedBox(width: 8),
-                  Text(
-                    l10n.courseCertificateEarned,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: c.gold,
-                    ),
-                  ),
+                  CourseRating(course: data),
                 ],
               ),
-            ],
+              const SizedBox(height: 8),
 
-            if (!data.isEnrolled && !data.isLocked) ...[
-              const SizedBox(height: RungSpace.lg),
-              FilledButton(
-                onPressed: _busy ? null : () => _enroll(data),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                ),
-                child: _busy
-                    ? const _ButtonSpinner()
-                    : Text(l10n.courseEnroll),
+              Text(
+                data.title,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
               ),
-            ],
-
-            if (data.isEnrolled) ...[
-              const SizedBox(height: RungSpace.md),
-              OutlinedButton.icon(
-                onPressed: _busy ? null : () => _rate(data),
-                icon: Icon(
-                  data.myRating > 0 ? Icons.star_rounded : Icons.star_outline,
-                  size: 18,
-                ),
-                label: Text(
-                  data.myRating > 0
-                      ? '${l10n.courseYourRating}: ${ArabicNumbers.plain(data.myRating)}'
-                      : l10n.courseRateTitle,
-                ),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                ),
+              const SizedBox(height: 6),
+              Text(
+                '${data.category.label(context)} · ${courseMeta(context, data)}',
+                style: TextStyle(fontSize: 12.5, color: c.ink3),
               ),
-            ],
+              const SizedBox(height: 4),
+              Text(
+                l10n.courseEnrolledCount(
+                  ArabicNumbers.compact(data.enrolledCount),
+                ),
+                style: TextStyle(fontSize: 12.5, color: c.ink3),
+              ),
 
-            if (data.instructor != null) ...[
-              const SizedBox(height: RungSpace.lg),
-              _SectionTitle(l10n.courseInstructor),
-              const SizedBox(height: RungSpace.sm),
-              InstructorLine(instructor: data.instructor!),
-              if ((data.instructor!.bio ?? '').isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  data.instructor!.bio!,
-                  style: TextStyle(fontSize: 13, height: 1.6, color: c.ink3),
+              // A sold course and a plan course are locked for different
+              // reasons, and the way out of each is different: one is bought,
+              // the other is subscribed to. Offering "اشترك" on a course the
+              // subscription does not open is a dead end.
+              if (data.commerce.isSold) ...[
+                const SizedBox(height: RungSpace.md),
+                _BuyCard(
+                  course: data,
+                  busy: _busy,
+                  onBuy: () => _buy(data),
+                ),
+              ] else if (data.isLocked) ...[
+                const SizedBox(height: RungSpace.md),
+                _LockedNotice(onSeePlans: () => context.push('/subscription')),
+              ],
+
+              if (data.isEnrolled) ...[
+                const SizedBox(height: RungSpace.md),
+                _ProgressCard(course: data),
+              ],
+
+              if (data.hasCertificate) ...[
+                const SizedBox(height: RungSpace.md),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.workspace_premium_outlined,
+                      size: 18,
+                      color: c.gold,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.courseCertificateEarned,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                        color: c.gold,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ],
 
-            if ((data.description ?? '').isNotEmpty) ...[
-              const SizedBox(height: RungSpace.lg),
-              _SectionTitle(l10n.courseAbout),
-              const SizedBox(height: RungSpace.sm),
-              Text(
-                data.description!,
-                style: const TextStyle(fontSize: 14, height: 1.75),
-              ),
-            ],
+              // `isLocked` already covers an unpaid sold course — the server
+              // computes it from the purchase, not from the subscription — so
+              // this needs no second condition for the marketplace.
+              if (!data.isEnrolled && !data.isLocked) ...[
+                const SizedBox(height: RungSpace.lg),
+                FilledButton(
+                  onPressed: _busy ? null : () => _enroll(data),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  child: _busy
+                      ? const _ButtonSpinner()
+                      : Text(l10n.courseEnroll),
+                ),
+              ],
 
-            if (data.outcomes.isNotEmpty) ...[
-              const SizedBox(height: RungSpace.lg),
-              _SectionTitle(l10n.courseOutcomes),
-              const SizedBox(height: RungSpace.sm),
-              _Bullets(lines: data.outcomes, icon: Icons.check_circle_outline),
-            ],
-
-            if (data.requirements.isNotEmpty) ...[
-              const SizedBox(height: RungSpace.lg),
-              _SectionTitle(l10n.courseRequirements),
-              const SizedBox(height: RungSpace.sm),
-              _Bullets(
-                lines: data.requirements,
-                icon: Icons.radio_button_unchecked,
-              ),
-            ],
-
-            const SizedBox(height: RungSpace.lg),
-            _SectionTitle(l10n.courseLecturesSection),
-            const SizedBox(height: RungSpace.sm),
-
-            // The syllabus loads on its own. A spinner here rather than one
-            // over the whole screen: the course is already on screen, and
-            // re-hiding it every time progress is saved would flash the page.
-            lessons.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+              if (data.isEnrolled) ...[
+                const SizedBox(height: RungSpace.md),
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : () => _rate(data),
+                  icon: Icon(
+                    data.myRating > 0 ? Icons.star_rounded : Icons.star_outline,
+                    size: 18,
+                  ),
+                  label: Text(
+                    data.myRating > 0
+                        ? '${l10n.courseYourRating}: ${ArabicNumbers.plain(data.myRating)}'
+                        : l10n.courseRateTitle,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
                   ),
                 ),
-              ),
-              error: (e, _) => ErrorView(
-                error: e,
-                onRetry: () =>
-                    ref.invalidate(courseLecturesProvider(widget.courseId)),
-              ),
-              data: (list) => list.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Text(
-                        l10n.courseLecturesEmpty,
-                        style: TextStyle(fontSize: 13.5, color: c.ink3),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        for (final lesson in list)
-                          _LessonTile(
-                            lesson: lesson,
-                            enabled: !_busy,
-                            onTap: () => _openLesson(data, list, lesson),
-                          ),
-                      ],
+              ],
+
+              if (data.instructor != null) ...[
+                const SizedBox(height: RungSpace.lg),
+                _SectionTitle(l10n.courseInstructor),
+                const SizedBox(height: RungSpace.sm),
+                InstructorLine(instructor: data.instructor!),
+                if ((data.instructor!.bio ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    data.instructor!.bio!,
+                    style: TextStyle(fontSize: 13, height: 1.6, color: c.ink3),
+                  ),
+                ],
+              ],
+
+              if ((data.description ?? '').isNotEmpty) ...[
+                const SizedBox(height: RungSpace.lg),
+                _SectionTitle(l10n.courseAbout),
+                const SizedBox(height: RungSpace.sm),
+                Text(
+                  data.description!,
+                  style: const TextStyle(fontSize: 14, height: 1.75),
+                ),
+              ],
+
+              if (data.outcomes.isNotEmpty) ...[
+                const SizedBox(height: RungSpace.lg),
+                _SectionTitle(l10n.courseOutcomes),
+                const SizedBox(height: RungSpace.sm),
+                _Bullets(lines: data.outcomes, icon: Icons.check_circle_outline),
+              ],
+
+              if (data.requirements.isNotEmpty) ...[
+                const SizedBox(height: RungSpace.lg),
+                _SectionTitle(l10n.courseRequirements),
+                const SizedBox(height: RungSpace.sm),
+                _Bullets(
+                  lines: data.requirements,
+                  icon: Icons.radio_button_unchecked,
+                ),
+              ],
+
+              const SizedBox(height: RungSpace.lg),
+              _SectionTitle(l10n.courseLecturesSection),
+              const SizedBox(height: RungSpace.sm),
+
+              // The syllabus loads on its own. A spinner here rather than one
+              // over the whole screen: the course is already on screen, and
+              // re-hiding it every time progress is saved would flash the page.
+              lessons.when(
+                loading: () => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-            ),
-          ],
+                  ),
+                ),
+                error: (e, _) => ErrorView(
+                  error: e,
+                  onRetry: () =>
+                      ref.invalidate(courseLecturesProvider(widget.courseId)),
+                ),
+                data: (list) => list.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          l10n.courseLecturesEmpty,
+                          style: TextStyle(fontSize: 13.5, color: c.ink3),
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          for (final lesson in list)
+                            _LessonTile(
+                              lesson: lesson,
+                              enabled: !_busy,
+                              onTap: () => _openLesson(data, list, lesson),
+                            ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -435,6 +489,141 @@ class _LockedNotice extends StatelessWidget {
             ),
             child: Text(l10n.courseSubscribeToOpen),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The price, the author, and the way to buy.
+///
+/// Three states, and they are NOT a spectrum: nothing bought yet (a price and
+/// a button), a request in flight (an explanation and no button, because a
+/// second tap achieves nothing the server does not already know), and bought
+/// (a receipt). The middle one is the one worth getting right — a learner who
+/// has transferred money and sees an unchanged buy button will transfer it
+/// again.
+class _BuyCard extends ConsumerWidget {
+  const _BuyCard({
+    required this.course,
+    required this.busy,
+    required this.onBuy,
+  });
+
+  final Course course;
+  final bool busy;
+  final VoidCallback onBuy;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.rung;
+    final l10n = context.l10n;
+    final commerce = course.commerce;
+    final author = commerce.author;
+
+    return RungCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Once a request is in flight, the amount that was STAMPED — not the
+          // live price, which is recomputed on every read and can drift away
+          // from it when a subscription lapses or the tenant's discount moves.
+          if (commerce.isAwaitingPayment && commerce.purchaseAmountDue != null)
+            Text(
+              courseMoney(commerce.purchaseAmountDue!, commerce.currency),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            )
+          else
+            CoursePrice(commerce: commerce, large: true),
+          if (author != null) ...[
+            const SizedBox(height: RungSpace.sm),
+            Row(
+              children: [
+                RungAvatar(
+                  seed: author.id,
+                  initials: author.initials,
+                  icon: author.accountType.icon,
+                  imageUrl: ref.watch(imageUrlResolverProvider)(
+                    author.avatarUrl,
+                  ),
+                  size: 30,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.courseAuthorLabel,
+                        style: TextStyle(fontSize: 11, color: c.ink3),
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              author.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          NameBadges(
+                            verified: author.verified,
+                            subscribed: author.subscribed,
+                            size: 12,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: RungSpace.sm),
+          if (commerce.isPaid)
+            Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  size: 18,
+                  color: c.green,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.coursePurchasePaid,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: c.green,
+                  ),
+                ),
+              ],
+            )
+          else if (commerce.isAwaitingPayment)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: c.amberSoft,
+                borderRadius: RungRadius.smAll,
+              ),
+              child: Text(
+                l10n.coursePurchaseAsked,
+                style: TextStyle(fontSize: 12.5, height: 1.5, color: c.ink2),
+              ),
+            )
+          else if (!commerce.isMine)
+            FilledButton(
+              onPressed: busy ? null : onBuy,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(46),
+              ),
+              child: Text(l10n.courseBuy),
+            ),
         ],
       ),
     );

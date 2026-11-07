@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/services/media_upload_service.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/profile/domain/entities/profile.dart';
-import 'package:flutter_mobile_template/features/profile/domain/repositories/profile_repository.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/notifiers/profile_notifier.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/services/media_upload_service.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
+import 'package:mohandis/features/profile/domain/repositories/profile_repository.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
+import 'package:mohandis/features/subscription/presentation/notifiers/subscription_notifier.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/job.dart';
 import '../notifiers/jobs_notifier.dart';
@@ -191,7 +191,7 @@ class _ApplyScreenState extends ConsumerState<ApplyScreen> {
         title: l10n.applyTitle,
       ),
       body: job.when(
-        loading: () => const LoadingView(),
+        loading: () => const FormSkeleton(fields: 3),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(jobDetailProvider(widget.jobId)),
@@ -206,8 +206,59 @@ class _ApplyScreenState extends ConsumerState<ApplyScreen> {
               .watch(profileNotifierProvider(ProfileRepository.meSentinel))
               .valueOrNull;
           if (me?.isCompany == true) return _companyRefusal();
+
+          // Same gate as the job's apply button, for the same reason: this
+          // route opens from a deep link too. Fails open while the state is
+          // unknown — the server checks the application itself.
+          final canApply = ref
+                  .watch(subscriptionProvider)
+                  .valueOrNull
+                  ?.canApplyToJobs ??
+              true;
+          // Not while a submitted application is on screen: the success view
+          // is the receipt for one that already went through, and replacing it
+          // with a paywall would read as the application having failed.
+          if (!canApply && !_done) return _subscriptionRefusal();
+
           return _done ? _successView(data) : _formView(data);
         },
+      ),
+    );
+  }
+
+  /// The paywall's doorway, not the paywall itself: the subscription page owns
+  /// the plans and the prices, and a second copy of them here is a second place
+  /// to get them wrong.
+  Widget _subscriptionRefusal() {
+    final c = context.rung;
+    final l10n = context.l10n;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_outline_rounded, size: 44, color: c.ink3),
+            const SizedBox(height: 16),
+            Text(
+              l10n.jobApplyLockedBody,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: () => context.push('/subscription'),
+              child: Text(l10n.subscriptionSubscribe),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/jobs'),
+              child: Text(l10n.actionCancel),
+            ),
+          ],
+        ),
       ),
     );
   }

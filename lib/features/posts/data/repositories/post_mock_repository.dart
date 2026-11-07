@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../../domain/entities/comment.dart';
 import '../../domain/entities/feed_page.dart';
@@ -32,7 +32,7 @@ class PostMockRepository implements PostRepository {
           createdAt: _ago(hours: 2),
           visibility: PostVisibility.public,
           text:
-              'بعد ٣ أشهر من المقابلات، أطلق فريقنا إعادة تصميم لدورة التوظيف قلّصت زمن انتظار المرشحين ٤٠٪. '
+              'بعد 3 أشهر من المقابلات، أطلق فريقنا إعادة تصميم لدورة التوظيف قلّصت زمن انتظار المرشحين 40%. '
               'السر لم يكن أداة فاخرة — بل توثيق كل شيء كتابةً. التوظيف غير المتزامن ينجح فعلاً.',
           tags: ['#التوظيف', '#الهندسة'],
           likeCount: 342,
@@ -224,6 +224,20 @@ class PostMockRepository implements PostRepository {
       _mutate(postId, (p) => p.toggleSave());
 
   @override
+  Future<Result<List<Post>, AppException>> byHashtag(
+    String tag, {
+    int page = 1,
+    int size = 20,
+  }) async {
+    await _wait();
+    final wanted = tag.replaceFirst('#', '').toLowerCase();
+    return Result.success([
+      for (final p in _posts)
+        if (p.tags.any((t) => t.replaceFirst('#', '').toLowerCase() == wanted)) p,
+    ]);
+  }
+
+  @override
   Future<Result<List<Post>, AppException>> saved({
     int page = 1,
     int size = 20,
@@ -270,6 +284,7 @@ class PostMockRepository implements PostRepository {
     required String text,
     required PostVisibility visibility,
     List<PostMedia> media = const [],
+    PollDraft? poll,
   }) async {
     await _wait();
     final trimmed = text.trim();
@@ -287,9 +302,36 @@ class PostMockRepository implements PostRepository {
       visibility: visibility,
       text: trimmed,
       media: media,
+      poll: poll == null
+          ? null
+          : Poll(
+              id: 'poll-$_sequence',
+              endsAt: DateTime.now().add(Duration(hours: poll.durationHours)),
+              options: [
+                for (var i = 0; i < poll.cleaned.length; i++)
+                  PollOption(id: 'poll-$_sequence-$i', text: poll.cleaned[i]),
+              ],
+            ),
     );
     _posts.insert(0, post);
     return Result.success(post);
+  }
+
+  @override
+  Future<Result<Poll, AppException>> votePoll(
+    String pollId,
+    String optionId,
+  ) async {
+    await _wait();
+    for (var i = 0; i < _posts.length; i++) {
+      final poll = _posts[i].poll;
+      if (poll != null && poll.id == pollId) {
+        final next = poll.vote(optionId);
+        _posts[i] = _posts[i].copyWith(poll: next);
+        return Result.success(next);
+      }
+    }
+    return const Result.failure(NotFoundException('Poll not found'));
   }
 
   @override
@@ -347,6 +389,32 @@ class PostMockRepository implements PostRepository {
     Map<String, dynamic> body,
   ) =>
       _mutate(id, (p) => p.copyWith(text: '${body['text'] ?? p.text}'));
+
+  @override
+  Future<Result<Post, AppException>> edit(
+    String postId, {
+    required String text,
+    PostVisibility? visibility,
+  }) =>
+      _mutate(
+        postId,
+        (p) => p.copyWith(
+          text: text,
+          visibility: visibility ?? p.visibility,
+        ),
+      );
+
+  @override
+  Future<Result<bool, AppException>> report(
+    String postId, {
+    required PostReportReason reason,
+    String? details,
+  }) async {
+    // Nothing is stored: the mock has no moderation queue, and the screen only
+    // needs to know the report was accepted.
+    await _wait();
+    return const Result.success(true);
+  }
 
   @override
   Future<Result<void, AppException>> delete(String id) async {

@@ -4,11 +4,12 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/config/app_config.dart';
-import 'package:flutter_mobile_template/core/config/environment.dart';
-import 'package:flutter_mobile_template/core/services/device_info_service.dart';
-import 'package:flutter_mobile_template/core/storage/token_storage.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/token_refresher.dart';
+import 'package:mohandis/core/config/app_config.dart';
+import 'package:mohandis/core/config/environment.dart';
+import 'package:mohandis/core/services/device_info_service.dart';
+import 'package:mohandis/core/storage/token_storage.dart';
 
 class MockTokenStorage extends Mock implements TokenStorage {}
 
@@ -79,7 +80,7 @@ ApiClient buildTestApiClient({
     ),
     tokenStorage: tokens,
     deviceInfo: device,
-    refreshAccessToken: () async => false,
+    refreshAccessToken: () async => RefreshOutcome.rejected,
     dio: dio,
   );
 }

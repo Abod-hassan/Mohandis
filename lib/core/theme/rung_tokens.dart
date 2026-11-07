@@ -1,21 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Non-colour design tokens: type scale, 4px spacing scale, corner radii,
 /// elevation, and motion. Colours live in `rung_colors.dart`.
 class RungType {
   RungType._();
 
-  /// The single family used app-wide. Bundled in `assets/fonts/`.
+  /// The single family used app-wide.
   ///
-  /// Tajawal: Arabic and Latin from one typeface, so the mixed strings all over
-  /// this app (names beside usernames, hashtags, counts) stop coming from two
-  /// faces that disagree about x-height.
+  /// Arabic and Latin from one typeface, so the mixed strings all over this app
+  /// (names beside usernames, hashtags, counts) stop coming from two faces that
+  /// disagree about x-height.
   ///
-  /// Weights are declared in pubspec.yaml. Two things differ from the family
-  /// this replaced: Tajawal has a real ExtraBold, so w800 headings no longer
-  /// borrow Bold; and it has no SemiBold, so w600 — this app's meta weight for
-  /// timestamps, counts and chips — is mapped onto Medium.
-  static const String family = 'Tajawal';
+  /// **Cairo, resolved at runtime.** `google_fonts` downloads the face on first
+  /// launch and caches it on disk; every launch after that is local. Cairo has
+  /// a real SemiBold, which Tajawal does not — so w600, this app's meta weight
+  /// for timestamps, counts and chips, finally stops borrowing Medium.
+  ///
+  /// A getter, not a `const`: the family name only exists once google_fonts has
+  /// registered the face, so it cannot be known at compile time. Nothing uses
+  /// this in a `const` context — checked — and `AppTheme` reads it once per
+  /// theme build, which is cheap.
+  ///
+  /// [_bundled] is the fallback, and a deliberate one. Tajawal is still
+  /// declared in pubspec.yaml and shipped in assets/fonts/, so the text that
+  /// renders while Cairo is in flight — or if the fetch never lands, on a
+  /// device with no network — is a real Arabic face rather than the system
+  /// default, which has no business rendering Arabic UI.
+  ///
+  /// Change it here and nowhere else. `AppTheme` reads this for every text
+  /// style it builds, which is why widgets must not re-declare `fontFamily`.
+  static String get family => GoogleFonts.cairo().fontFamily ?? _bundled;
+
+  /// The bundled face: shipped, offline, and what [family] falls back to.
+  static const String _bundled = 'Tajawal';
+
+  /// Re-faces [base] in Cairo, keeping every other property it already has.
+  ///
+  /// **Use this, not `copyWith(fontFamily: family)`.** google_fonts ships one
+  /// file per weight, and `GoogleFonts.cairo()` with no argument resolves to
+  /// the REGULAR file — so a single family name applied across the app would
+  /// have left Flutter synthesising every bold from it. Faux bold on a w800
+  /// heading is exactly the smeared, slightly-wrong look that makes a bundled
+  /// font feel cheaper than a system one.
+  ///
+  /// Passing the style through instead lets google_fonts read `base.fontWeight`
+  /// and pick the real face for it: Regular, Medium, SemiBold, Bold, ExtraBold.
+  static TextStyle styled(TextStyle base) => GoogleFonts.cairo(textStyle: base);
 
   static const display = TextStyle(
     fontSize: 34,

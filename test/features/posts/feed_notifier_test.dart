@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/posts/data/repositories/post_mock_repository.dart';
-import 'package:flutter_mobile_template/features/posts/data/repositories/post_repository_impl.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/comment.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/feed_page.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/post.dart';
-import 'package:flutter_mobile_template/features/posts/domain/repositories/post_repository.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/notifiers/feed_notifier.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/posts/data/repositories/post_mock_repository.dart';
+import 'package:mohandis/features/posts/data/repositories/post_repository_impl.dart';
+import 'package:mohandis/features/posts/domain/entities/comment.dart';
+import 'package:mohandis/features/posts/domain/entities/feed_page.dart';
+import 'package:mohandis/features/posts/domain/entities/post.dart';
+import 'package:mohandis/features/posts/domain/repositories/post_repository.dart';
+import 'package:mohandis/features/posts/presentation/notifiers/feed_notifier.dart';
 
 /// Repository that loads fine but rejects every engagement toggle — lets the
 /// tests drive the optimistic-rollback path.
@@ -31,6 +31,14 @@ class _FailingEngagementRepository implements PostRepository {
   @override
   Future<Result<Post, AppException>> toggleSave(String postId) async =>
       const Result.failure(NetworkException('offline'));
+
+  @override
+  Future<Result<List<Post>, AppException>> byHashtag(
+    String tag, {
+    int page = 1,
+    int size = 20,
+  }) async =>
+      const Result.success(<Post>[]);
 
   @override
   Future<Result<List<Post>, AppException>> saved({
@@ -83,6 +91,20 @@ class _FailingEngagementRepository implements PostRepository {
   }) async => const Result.failure(NetworkException('offline'));
 
   @override
+  Future<Result<Post, AppException>> edit(
+    String postId, {
+    required String text,
+    PostVisibility? visibility,
+  }) async => const Result.failure(NetworkException('offline'));
+
+  @override
+  Future<Result<bool, AppException>> report(
+    String postId, {
+    required PostReportReason reason,
+    String? details,
+  }) async => const Result.failure(NetworkException('offline'));
+
+  @override
   Future<Result<Comment, AppException>> toggleCommentLike(
     String commentId,
   ) async => const Result.failure(NetworkException('offline'));
@@ -96,7 +118,14 @@ class _FailingEngagementRepository implements PostRepository {
     required String text,
     required PostVisibility visibility,
     List<PostMedia> media = const [],
+    PollDraft? poll,
   }) async => const Result.failure(NetworkException('offline'));
+
+  @override
+  Future<Result<Poll, AppException>> votePoll(
+    String pollId,
+    String optionId,
+  ) async => const Result.failure(NetworkException('offline'));
 
   @override
   Future<Result<List<Comment>, AppException>> comments(

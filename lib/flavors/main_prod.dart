@@ -5,8 +5,8 @@ import '../core/config/environment.dart';
 Future<void> main() => bootstrap(
       AppConfig(
         environment: Environment.prod,
-        appName: 'رنق',
-        apiBaseUrl: 'https://api.rung.app',
+        appName: 'مهندس',
+        apiBaseUrl: 'http://192.248.191.138:2028',
         enableLogging: false,
         useMockData: false,
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:mohandis/core/widgets/rung/rung.dart';
+
 import '../../domain/entities/story.dart';
 import 'stories_notifier.dart';
 
@@ -41,6 +43,25 @@ class StoryGroup {
     return stories.first;
   }
 }
+
+/// The story ring one person's avatar should wear, anywhere outside the rail.
+///
+/// **`none` means "no story to watch", not "no story exists".** It reads the
+/// same list the rail does — the viewer's own stories plus the people they
+/// follow — so somebody the viewer does not follow comes back ringless even if
+/// they posted this morning. That is the honest answer for a ring: it is an
+/// invitation to tap, and a ring over a story this viewer cannot open would be
+/// a lie that leads nowhere.
+final storyRingForProvider = Provider.family<StoryRingState, String>((
+  ref,
+  personId,
+) {
+  for (final group in ref.watch(storyGroupsProvider)) {
+    if (group.authorId != personId) continue;
+    return group.allSeen ? StoryRingState.seen : StoryRingState.unseen;
+  }
+  return StoryRingState.none;
+});
 
 /// The rail's stories, bucketed by author.
 ///

@@ -1,4 +1,4 @@
-# flutter_mobile_template
+# mohandis
 
 Opinionated Flutter mobile app template. Clone this to start a new mobile project without spending a week wiring the same infrastructure again.
 

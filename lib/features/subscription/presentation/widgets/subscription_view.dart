@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 import '../../domain/entities/subscription_entities.dart';
 import '../notifiers/subscription_notifier.dart';
@@ -29,6 +32,70 @@ class SubscriptionView extends ConsumerStatefulWidget {
 
 class _SubscriptionViewState extends ConsumerState<SubscriptionView> {
   bool _busy = false;
+
+  /// Re-reads the gate while a request is waiting on an admin, so the page
+  /// flips to "active" by itself when it is approved. Nothing pushes a
+  /// subscription change to the client, so this — plus [_lifecycle] — is how
+  /// an approval reaches an open screen.
+  Timer? _poll;
+
+  /// Re-reads on returning to the app: the likeliest moment to find an
+  /// approval is right after switching back from wherever the payment was
+  /// made.
+  late final AppLifecycleListener _lifecycle;
+
+  static const _pollEvery = Duration(seconds: 20);
+
+  bool get _waitingOnApproval => widget.state.current?.isPending ?? false;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: _refreshIfWaiting);
+    _syncPolling();
+  }
+
+  @override
+  void didUpdateWidget(covariant SubscriptionView old) {
+    super.didUpdateWidget(old);
+    final was = old.state.current;
+    final now = widget.state.current;
+    // The request this screen was waiting on has just been approved.
+    if (was != null &&
+        was.isPending &&
+        now != null &&
+        now.status == SubscriptionStatus.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showRungToast(context, context.l10n.subscriptionApprovedToast);
+        }
+      });
+    }
+    _syncPolling();
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  void _syncPolling() {
+    if (_waitingOnApproval) {
+      _poll ??= Timer.periodic(_pollEvery, (_) => _refreshIfWaiting());
+    } else {
+      _poll?.cancel();
+      _poll = null;
+    }
+  }
+
+  void _refreshIfWaiting() {
+    if (!mounted || !_waitingOnApproval || _busy) return;
+    // Not while another page covers this one — nobody is looking.
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    ref.read(subscriptionProvider.notifier).refresh();
+  }
 
   /// Which cycle the user has TAPPED, if any.
   ///
@@ -180,12 +247,16 @@ class _SubscriptionViewState extends ConsumerState<SubscriptionView> {
 
     // Resolved per build rather than held, so the quoted cycle is always one
     // somebody can actually buy — see [_effectiveCycle].
-    final cycles = _cyclesOnOffer(state.plans);
+    // Plans left with no price at all — every cycle they sold is one this app
+    // does not (see kSoldBillingCycles) — are dropped rather than drawn as a
+    // card reading "غير متاح" with a dead button.
+    final plans = [for (final p in state.plans) if (p.prices.isNotEmpty) p];
+    final cycles = _cyclesOnOffer(plans);
     final cycle = _effectiveCycle(cycles);
 
     return RefreshIndicator(
-      // The only way, short of restarting the app, for somebody whose request
-      // was just approved to find out. Nothing pushes at the client.
+      // Still here for the impatient; a pending request is also re-read on a
+      // timer and on app resume — see [_poll].
       onRefresh: () async => ref.read(subscriptionProvider.notifier).refresh(),
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -290,13 +361,13 @@ class _SubscriptionViewState extends ConsumerState<SubscriptionView> {
               // toggle rather than on a card and is therefore a claim about
               // every plan under it. Understating is the safe direction — no
               // plan is advertised a discount it does not actually give.
-              savingPercent: _leastAnnualSaving(state.plans),
+              savingPercent: _leastAnnualSaving(plans),
               onChanged: _busy ? null : (c) => setState(() => _picked = c),
             ),
             const SizedBox(height: RungSpace.sm),
           ],
 
-          if (state.plans.isEmpty)
+          if (plans.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
@@ -305,7 +376,7 @@ class _SubscriptionViewState extends ConsumerState<SubscriptionView> {
               ),
             )
           else
-            for (final plan in state.plans)
+            for (final plan in plans)
               _PlanCard(
                 plan: plan,
                 cycle: cycle,
@@ -388,7 +459,9 @@ class _SubscriptionViewState extends ConsumerState<SubscriptionView> {
     final held = widget.state.current?.cycle;
     if (held != null && onOffer.contains(held)) return held;
 
-    return onOffer.isEmpty ? BillingCycle.monthly : onOffer.first;
+    // Nothing on offer at all: quote the cycle this app sells, so the screen
+    // is at least self-consistent while it says there is nothing to buy.
+    return onOffer.isEmpty ? kSoldBillingCycles.first : onOffer.first;
   }
 
   /// The smallest saving among the plans that sell BOTH cycles, or null if any
@@ -470,8 +543,8 @@ class _ChangeSheet extends StatelessWidget {
                 if (!quote.isFree) ...[
                   const SizedBox(height: 6),
                   // Forced LTR: an Arabic-Indic figure and a Latin ISO code on
-                  // one line resolve in the wrong order under RTL, so "١٠٠ USD"
-                  // renders as "USD ١٠٠".
+                  // one line resolve in the wrong order under RTL, so "100 USD"
+                  // renders as "USD 100".
                   Directionality(
                     textDirection: TextDirection.ltr,
                     child: Row(
@@ -490,7 +563,7 @@ class _ChangeSheet extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          quote.currency,
+                          currencySymbol(quote.currency),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -746,7 +819,7 @@ class _PlanPill extends StatelessWidget {
   }
 }
 
-/// A label and a figure, with the ISO code kept out of the RTL run.
+/// A label and a figure, with the currency kept out of the RTL run.
 class _MoneyRow extends StatelessWidget {
   const _MoneyRow({
     required this.label,
@@ -785,7 +858,7 @@ class _MoneyRow extends StatelessWidget {
         Directionality(
           textDirection: TextDirection.ltr,
           child: Text(
-            '${negative ? '− ' : ''}${ArabicNumbers.count(amount)} $currency',
+            '${negative ? '− ' : ''}${ArabicNumbers.count(amount)} ${currencySymbol(currency)}',
             style: TextStyle(
               fontSize: emphasised ? 15 : 13,
               fontWeight: emphasised ? FontWeight.w800 : FontWeight.w700,
@@ -1252,7 +1325,7 @@ class _PlanCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
-                    price.currency,
+                    currencySymbol(price.currency),
                     style: TextStyle(fontSize: 12.5, color: c.ink3),
                   ),
                 ),

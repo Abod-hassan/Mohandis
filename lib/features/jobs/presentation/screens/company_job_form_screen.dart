@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/profile/presentation/notifiers/profile_notifier.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/presentation/notifiers/profile_notifier.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 import '../../data/repositories/job_repository_impl.dart';
 import '../../domain/entities/job.dart';
@@ -89,6 +90,11 @@ class _CompanyJobFormScreenState extends ConsumerState<CompanyJobFormScreen> {
           requirements: _requirements.text,
           salaryMin: _parseMoney(_salaryMin.text),
           salaryMax: _parseMoney(_salaryMax.text),
+          // The form has no currency field and the backend column is free
+          // text, so without this a posted salary came back as a bare number
+          // with no unit on it. Stamped rather than asked for: every posting
+          // in this product is priced in one currency.
+          currency: kCurrencyCode,
         );
 
     if (!mounted) return;

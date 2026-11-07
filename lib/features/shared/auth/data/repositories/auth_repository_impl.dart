@@ -1,15 +1,16 @@
 import 'package:dio/dio.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/storage/token_storage.dart';
-import 'package:flutter_mobile_template/features/profile/domain/entities/profile.dart';
-import 'package:flutter_mobile_template/features/profile/domain/repositories/profile_repository.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/storage/token_storage.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
+import 'package:mohandis/features/profile/domain/repositories/profile_repository.dart';
 
 import '../../domain/entities/auth_session.dart';
+import '../../domain/entities/registration.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../dtos/mobile_auth_result_dto.dart';
@@ -84,166 +85,286 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
-  /// Creates the account and signs into it.
+  /// Step 2 of registration — see [AuthRepository.createWithContact].
   ///
-  /// Prefers `POST /api/Auth/SignUp`, which does the whole thing in one
-  /// server-side transaction and hands back tokens. That endpoint was added
-  /// to the Auth module after the 1.11.1 package, so a host still running the
-  /// older build answers 404 — and this falls back to the three-call sequence
-  /// it replaced. **Delete [_registerInSteps] once every environment is on the
-  /// newer Auth**: it is the path that can strand a contact with no login
-  /// behind it, which is the whole reason the endpoint exists.
+  /// Replaces the old `POST /api/Contact` → `Register` → `Login` sequence,
+  /// which could not work against this backend at all: `ContactController` is
+  /// `[Authorize]`d, so the very first call of a registration answered 401 for
+  /// a caller who by definition has no session yet.
   @override
-  Future<Result<AuthSession, AppException>> register({
+  Future<Result<AuthSession, AppException>> createWithContact({
+    required String registrationToken,
     required String fullName,
     required String userName,
-    required String phone,
+    String? phone,
     required String password,
     required AccountType accountType,
     required Gender? gender,
     String? imageUrl,
   }) async {
-    final session =
-        await _signUpInOneCall(
-          fullName: fullName,
-          userName: userName,
-          phone: phone,
-          password: password,
-          gender: gender,
-          imageUrl: imageUrl,
-        ) ??
-        await _registerInSteps(
-          fullName: fullName,
-          userName: userName,
-          phone: phone,
-          password: password,
-          gender: gender,
-          imageUrl: imageUrl,
-        );
+    final tenant = await _resolveTenantId();
 
-    // The account type lives on the social profile, not on the auth contact,
-    // so it is stamped once the session exists. Deliberately not allowed to
-    // fail the registration: the account is created and the person is signed
-    // in, and this is one editable field they can fix later.
-    if (session.isSuccess) {
-      await _profiles.updateMe({'accountType': accountType});
-    }
-    return session;
-  }
-
-  /// The one-call path. Returns null — and only null — when the endpoint is
-  /// absent, so the caller knows to fall back rather than reporting a failure.
-  Future<Result<AuthSession, AppException>?> _signUpInOneCall({
-    required String fullName,
-    required String userName,
-    required String phone,
-    required String password,
-    required Gender? gender,
-    String? imageUrl,
-  }) async {
-    try {
-      final options = await _tenantHeader();
-      final res = await _api.dio.post<dynamic>(
-        EndPoints.authSignUp,
+    final result = await apiCall(
+      EndPoints.authCreateWithContact,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authCreateWithContact,
         data: {
           'name': fullName,
           'userName': userName,
+          if (phone != null && phone.isNotEmpty) 'phone': phone,
           'password': password,
-          'phone': phone,
-          // By NAME, never the ordinal: the Kernel's GenderEnum leads with
+          // In the BODY: this is where the client says which partition the
+          // new account belongs to. Null falls back to the server's
+          // Auth:DefaultTenantId. It also goes in the HEADER below — see
+          // there for why both.
+          if (tenant != null) 'tenantId': tenant,
+          // By NAME, never the ordinal — the Kernel's GenderEnum leads with
           // `Unspecified`, so ordinals shifted when it moved out of Auth.
-          // Omitted, not sent as an empty string: the contact form takes
-          // gender as optional, and a company has none to state.
           if (gender != null) 'gender': gender.wireName,
           if (imageUrl != null && imageUrl.isNotEmpty) 'imageUrl': imageUrl,
         },
-        options: options,
-      );
+        // The registration token IS the authorisation for this call, and it is
+        // not in storage — nothing has signed in yet — so it is set here by
+        // hand. `AuthInterceptor` leaves an Authorization header alone once it
+        // is set, which is what makes this survive the pipeline.
+        //
+        // `X-Tenant-Id` rides along even though the body already carries the
+        // tenant, and the two are not redundant — they are read at different
+        // moments by different code. The body's `tenantId` is read by the
+        // ACTION, which assigns `AmbientContext.TenantId` before creating
+        // anything; the header is read by the Kernel's middleware, which is
+        // what makes a tenant "resolved for the request" in the sense the
+        // strict-write check means when it refuses with *No tenant in scope
+        // while persisting tenant-scoped entity 'ContactModel'* and names the
+        // JWT claim and this header as the two ways to satisfy it.
+        //
+        // The usual objection — that a client-supplied header must not sit in
+        // front of a JWT claim — does not apply on this ONE call: the bearer
+        // is a registration token, which carries no tenant claim at all, so
+        // there is nothing here for the header to override.
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $registrationToken',
+            if (tenant != null) 'X-Tenant-Id': tenant,
+          },
+        ),
+      ),
+      (envelope) => MobileAuthResultDto.fromJson(envelope.object).toDomain(),
+    );
 
-      final envelope = ApiEnvelope.from(res.data);
-      final session = MobileAuthResultDto.fromJson(envelope.object).toDomain();
+    return result.flatMapAsync((session) async {
       if (session.accessToken.isEmpty) {
         return const Result.failure(
           UnknownException('لم يُصدر الخادم رمز دخول بعد إنشاء الحساب'),
         );
       }
       await _persist(session);
+      // The account type lives on the social profile, not on the auth contact,
+      // so it is stamped once the session exists. Deliberately not allowed to
+      // fail the registration: the account is created and the person is signed
+      // in, and this is one editable field they can fix later.
+      //
+      // The photo is stamped in the SAME write, and for a reason worth
+      // knowing: `CreateWithContact` stores it on the kernel contact
+      // (`ContactModel.ImageUrl`), while every avatar the app renders comes
+      // from the social profile's own `AvatarUrl`. Nothing copies one to the
+      // other at the moment the profile is provisioned, so a photo chosen at
+      // sign-up was written, kept, and never shown — it looked like the
+      // upload had been dropped. This is the client half of that fix; the
+      // module's provisioner now seeds `AvatarUrl` from the contact too, so a
+      // profile created by any other route gets the photo as well.
+      //
+      // `patchMe`, not `updateMe`: nothing here reads the result, and
+      // `updateMe` would follow the write with a full profile re-read —
+      // the profile plus its experience, education and skills, four
+      // requests — immediately before `_dropSessionCaches` invalidates
+      // them and the first screen fetches them again anyway.
+      await _profiles.patchMe({
+        'accountType': accountType,
+        if (imageUrl != null && imageUrl.isNotEmpty) 'avatarUrl': imageUrl,
+      });
       return Result.success(session);
-    } on DioException catch (e) {
-      final status = e.response?.statusCode;
-      // 404/405 mean this build of the Auth module doesn't have the endpoint.
-      // Anything else is a real answer — a taken username, a rejected
-      // password — and must reach the user rather than triggering a retry
-      // through the old path, which would then create a duplicate contact.
-      if (status == 404 || status == 405) return null;
-      return Result.failure(apiException(e, EndPoints.authSignUp));
-    }
+    });
   }
 
-  /// Legacy three-call path: contact, then user, then login.
-  ///
-  /// Registration issues no tokens of its own here, hence the third call. If
-  /// the second step fails the contact from the first is already committed and
-  /// orphaned — there is no endpoint to undo it, which is exactly what
-  /// `SignUp` fixes server-side.
-  Future<Result<AuthSession, AppException>> _registerInSteps({
-    required String fullName,
-    required String userName,
-    required String phone,
-    required String password,
-    required Gender? gender,
-    String? imageUrl,
+  @override
+  Future<Result<IdentityAvailability, AppException>> checkIdentity({
+    String? userName,
+    String? phone,
+    String? email,
   }) async {
-    final options = await _tenantHeader();
-
-    final contact = await apiCall(
-      EndPoints.contacts,
-      () => _api.dio.post<dynamic>(
-        EndPoints.contacts,
-        data: {
-          'name': fullName,
-          'phone': phone,
-          'address': '',
-          'secondaryPhone': '',
-          // Identity's permission role, not the kind of account — everyone
-          // registering from the app is a plain user.
-          'userType': 'User',
-          // Omitted, not sent as an empty string: the contact form takes
-          // gender as optional, and a company has none to state.
-          if (gender != null) 'gender': gender.wireName,
-          if (imageUrl != null && imageUrl.isNotEmpty) 'imageUrl': imageUrl,
-        },
-        options: options,
-      ),
-      // This one IS enveloped: `ResultViewModel<Guid>` with the new id.
-      (envelope) => '${envelope.data ?? ''}',
-    );
-
-    if (contact.isFailure) return Result.failure(contact.errorOrNull!);
-    final contactId = contact.valueOrNull!;
-    if (contactId.isEmpty) {
-      return const Result.failure(
-        UnknownException('لم يُنشئ الخادم سجل جهة الاتصال'),
-      );
+    final query = <String, dynamic>{
+      if (userName != null && userName.isNotEmpty) 'userName': userName,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+      if (email != null && email.isNotEmpty) 'email': email,
+    };
+    // The server refuses an empty query with a 400. Answering locally keeps a
+    // form that has not been filled in yet from generating traffic at all.
+    if (query.isEmpty) {
+      return const Result.success(IdentityAvailability());
     }
 
-    final created = await apiCall(
-      EndPoints.authRegister,
+    final options = await _tenantHeader();
+    return apiCall(
+      EndPoints.authExists,
+      () => _api.dio.get<dynamic>(
+        EndPoints.authExists,
+        queryParameters: query,
+        options: options,
+      ),
+      // Bare object, not a ResultViewModel envelope.
+      (envelope) => IdentityAvailability.fromJson(envelope.object),
+    );
+  }
+
+  @override
+  Future<Result<void, AppException>> sendPhoneCode(
+    String phone, {
+    bool isSms = false,
+  }) async {
+    final options = await _tenantHeader();
+    final result = await apiCall(
+      EndPoints.authGenerateOtp,
+      // QUERY parameters, not a body — the action signature takes them
+      // positionally and a JSON body binds to nothing.
       () => _api.dio.post<dynamic>(
-        EndPoints.authRegister,
-        data: {
-          'userName': userName,
-          'password': password,
-          'contactId': contactId,
-        },
+        EndPoints.authGenerateOtp,
+        queryParameters: {'phone': phone, 'isSms': isSms},
         options: options,
       ),
       (_) {},
     );
+    return result.map<void>((_) {});
+  }
 
-    if (created.isFailure) return Result.failure(created.errorOrNull!);
+  @override
+  Future<Result<VerificationOutcome, AppException>> verifyPhoneCode({
+    required String phone,
+    required String otp,
+  }) async {
+    final options = await _tenantHeader();
+    return _verify(
+      EndPoints.authValidateOtp,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authValidateOtp,
+        // `sid` is accepted for wire compatibility and ignored server-side —
+        // the code is keyed by phone, not by a provider session. It still has
+        // to be NON-EMPTY: the action signature is
+        // `ValidateOTP(string sid, string phone, string otp)` with nullable
+        // reference types enabled, so `[ApiController]` synthesises a
+        // `[Required]` on it, and `Required` rejects an empty string as well
+        // as a missing one. Sending `sid=` answered
+        // `400 {"errors":{"sid":["The sid field is required."]}}` — a
+        // validation failure before any of our code ran, on a value nothing
+        // reads. A single character satisfies the binder and changes nothing.
+        queryParameters: {'phone': phone, 'otp': otp, 'sid': '-'},
+        options: options,
+      ),
+    );
+  }
 
-    return login(userName: userName, password: password);
+  @override
+  Future<Result<void, AppException>> sendEmailCode(String email) async {
+    // The header goes on even when there IS a session, which is the opposite
+    // of the rule everywhere else — and it is right here for one reason:
+    // this path is in `ApiClient`'s `unauthenticatedPaths`, so `AuthInterceptor`
+    // never attaches a bearer to it. With no bearer there is no tenant claim
+    // either, so without the header the server would fall back to
+    // `Auth:DefaultTenantId` and write the code row under the wrong tenant for
+    // anyone signed in to a different one. There is no claim to override.
+    final options = await _tenantHeader();
+    final result = await apiCall(
+      EndPoints.authEmailSendCode,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authEmailSendCode,
+        data: {'email': email},
+        options: options,
+      ),
+      (_) {},
+    );
+    return result.map<void>((_) {});
+  }
+
+  @override
+  Future<Result<VerificationOutcome, AppException>> verifyEmailCode({
+    required String email,
+    required String code,
+  }) async {
+    final options = await _tenantHeader();
+    return _verify(
+      EndPoints.authEmailVerifyCode,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authEmailVerifyCode,
+        data: {'email': email, 'code': code},
+        options: options,
+      ),
+    );
+  }
+
+  @override
+  Future<Result<void, AppException>> confirmEmail({
+    required String email,
+    required String code,
+  }) async {
+    // No tenant header: this call carries a real bearer, and the Kernel reads
+    // the tenant off the JWT claim. A client-supplied header would override a
+    // claim the server already trusts — the same rule `storageZoneProvider`
+    // and the login calls follow, from the other side of it.
+    final result = await apiCall(
+      EndPoints.authEmailChange,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authEmailChange,
+        data: {'email': email, 'code': code},
+      ),
+      (_) {},
+    );
+    return result.map<void>((_) {});
+  }
+
+  @override
+  Future<Result<void, AppException>> resetPassword({
+    required String password,
+  }) async {
+    // No tenant header — the bearer is a real session and the Kernel reads the
+    // tenant off its claim.
+    final result = await apiCall(
+      EndPoints.authResetPassword,
+      () => _api.dio.post<dynamic>(
+        EndPoints.authResetPassword,
+        // `confirmPassword` is compared server-side and the call is refused on
+        // a mismatch, so it is sent rather than trusted to the form alone.
+        data: {'password': password, 'confirmPassword': password},
+      ),
+      (_) {},
+    );
+    return result.map<void>((_) {});
+  }
+
+  /// Reads the one boolean that decides what a verification response MEANS.
+  ///
+  /// A registration token and a real session come back in the same
+  /// `LoginResultDto` shape; `isNewUser` is the only thing separating them.
+  /// Persisting a registration token as a session would leave the app holding
+  /// a bearer that every endpoint except `CreateWithContact` rejects — so the
+  /// session branch persists and the token branch deliberately does not.
+  Future<Result<VerificationOutcome, AppException>> _verify(
+    String path,
+    Future<Response<dynamic>> Function() send,
+  ) async {
+    final result = await apiCall(path, send, (envelope) {
+      final dto = MobileAuthResultDto.fromJson(envelope.object);
+      return dto.isNewUser
+          ? RegistrationToken(token: dto.accessToken, email: dto.email)
+              as VerificationOutcome
+          : VerifiedSession(dto.toDomain());
+    });
+
+    // Persist ONLY a real session. `apiCall`'s parser is synchronous, so the
+    // write happens here rather than inside it.
+    return result.flatMapAsync((outcome) async {
+      if (outcome is VerifiedSession) await _persist(outcome.session);
+      return Result.success(outcome);
+    });
   }
 
   @override
@@ -273,9 +394,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<AuthSession, AppException>> currentSession() async {
-    final access = await _tokens.readAccessToken();
-    final refreshToken = await _tokens.readRefreshToken();
-    if (access == null || access.isEmpty) {
+    final stored = await _tokens.readAccessToken();
+    if (stored == null || stored.isEmpty) {
       return const Result.failure(
         UnauthorizedException('No stored credentials.'),
       );
@@ -291,6 +411,18 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     if (probe.isFailure) return Result.failure(probe.errorOrNull!);
+
+    // **Read the tokens AFTER the probe, not before.** On a cold start with an
+    // expired access token, that probe is exactly what triggers the refresh:
+    // it 401s, `AuthInterceptor` refreshes, stores a NEW pair and replays it.
+    // Reading the pair beforehand built the session from the dead access
+    // token and — because the backend rotates — a refresh token the server
+    // had already spent. Nothing reads those two fields off the session today
+    // (requests and logout both go to storage), so this was latent rather than
+    // live; but a session object that disagrees with storage is the bug that
+    // bites the first piece of code to trust it.
+    final access = await _tokens.readAccessToken() ?? stored;
+    final refreshToken = await _tokens.readRefreshToken();
 
     return Result.success(
       AuthSession(
@@ -308,14 +440,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<void, AppException>> logout({String? refreshToken}) async {
+  Future<Result<void, AppException>> logout({
+    String? refreshToken,
+    String? accessToken,
+  }) async {
     final stored = refreshToken ?? await _tokens.readRefreshToken();
+    final bearer = accessToken ?? await _tokens.readAccessToken();
     try {
       if (stored != null && stored.isNotEmpty) {
         await _api.dio.post<dynamic>(
           EndPoints.authLogout,
           // `[FromForm] string refreshToken` — a JSON body does not bind.
           data: FormData.fromMap({'refreshToken': stored}),
+          // Set by hand because storage is already empty by the time this
+          // runs. An explicit header is also one `AuthInterceptor` will not
+          // try to refresh on a 401 — refreshing the session being ended is
+          // the opposite of what this call is for.
+          options: bearer == null || bearer.isEmpty
+              ? null
+              : Options(headers: {'Authorization': 'Bearer $bearer'}),
         );
       }
       return const Result.success(null);
@@ -327,6 +470,21 @@ class AuthRepositoryImpl implements AuthRepository {
     } finally {
       await _tokens.clear();
     }
+  }
+
+  @override
+  Future<Result<void, AppException>> deleteAccount() async {
+    final social = await apiCall(
+      EndPoints.profilesMe,
+      () => _api.dio.delete<dynamic>(EndPoints.profilesMe),
+      (_) {},
+    );
+    if (social.isFailure) return social;
+    return apiCall(
+      EndPoints.authAccount,
+      () => _api.dio.delete<dynamic>(EndPoints.authAccount),
+      (_) {},
+    );
   }
 
   @override

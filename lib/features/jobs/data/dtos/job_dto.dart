@@ -1,6 +1,7 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/core/utils/arabic_numbers.dart';
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/core/utils/arabic_numbers.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 import '../../domain/entities/job.dart';
 
@@ -211,18 +212,20 @@ class JobDto implements BaseDto<Job> {
   /// hides its chip when it is.
   ///
   /// Digits go through [ArabicNumbers] like every other number in this feature.
-  /// The currency stays as the poster typed it ("USD", "SAR", "د.إ"): it is
-  /// free text server-side, so there is nothing to look up and guessing a
-  /// symbol would put the wrong one on the row.
+  /// The currency is echoed exactly as stored: it is free text server-side, so
+  /// there is nothing to look up and guessing a symbol would put the wrong one
+  /// on the row. New postings from this app stamp `kCurrencyCode`; older rows and
+  /// anything posted elsewhere may carry something else, or nothing, and both
+  /// still render correctly.
   static String salaryLabelFrom(num? min, num? max, String? currency) {
     if (min == null && max == null) return '';
     final code = (currency ?? '').trim();
     // An open-ended posting ("from 90k") and one that quotes a single figure
-    // both collapse to one number rather than showing "٩٠٬٠٠٠ – ٩٠٬٠٠٠".
+    // both collapse to one number rather than showing "90,000 – 90,000".
     final range = (min != null && max != null && min != max)
         ? '${ArabicNumbers.count(min)} – ${ArabicNumbers.count(max)}'
         : ArabicNumbers.count(min ?? max!);
-    return code.isEmpty ? range : '$range $code';
+    return code.isEmpty ? range : '$range ${currencySymbol(code)}';
   }
 
   /// Splits `Requirements` — one free-text column — into the bullet list the

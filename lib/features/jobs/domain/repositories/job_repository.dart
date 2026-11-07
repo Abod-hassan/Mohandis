@@ -1,6 +1,6 @@
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../entities/job.dart';
 import '../entities/job_application.dart';

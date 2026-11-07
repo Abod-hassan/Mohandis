@@ -1,4 +1,4 @@
-# Rung (رنق) — app implementation notes
+# Rung مهندس — app implementation notes
 
 Arabic-first (RTL) professional network for engineers, built on this template's
 Clean Architecture + Riverpod stack. Source of truth for the UI is the Claude

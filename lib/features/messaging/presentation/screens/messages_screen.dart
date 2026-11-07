@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/message_thread.dart';
 import '../notifiers/messaging_notifier.dart';
+
+/// What the search box above the conversation list holds. Filters the list
+/// already on screen by name — it used to answer "coming soon".
+final _threadQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
 class MessagesScreen extends ConsumerWidget {
   const MessagesScreen({super.key});
@@ -23,6 +27,7 @@ class MessagesScreen extends ConsumerWidget {
     final c = context.rung;
     final l10n = context.l10n;
     final threads = ref.watch(threadsNotifierProvider);
+    final query = ref.watch(_threadQueryProvider).trim().toLowerCase();
 
     return Scaffold(
       backgroundColor: c.surface,
@@ -30,29 +35,33 @@ class MessagesScreen extends ConsumerWidget {
         title: l10n.messagesTitle,
         titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
         actions: [
-          RungIconButton(
-            icon: Icons.edit_outlined,
-            shape: BoxShape.circle,
-            onPressed: () => showRungToast(context, l10n.comingSoon),
-            tooltip: l10n.comingSoon,
-          ),
-          const SizedBox(width: 8),
+          // No "new message" button yet: a conversation is started from a
+          // person's profile (مراسلة). A button that only answers "coming
+          // soon" reads as an unfinished app.
         ],
       ),
       body: threads.when(
-        loading: () => const LoadingView(),
+        loading: () => const PeopleListSkeleton(count: 8, hasAction: false),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.read(threadsNotifierProvider.notifier).refresh(),
         ),
-        data: (list) => Column(
+        data: (all) {
+          final list = query.isEmpty
+              ? all
+              : [
+                  for (final t in all)
+                    if (t.displayTitle.toLowerCase().contains(query)) t,
+                ];
+          return Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
               child: RungSearchField(
                 hint: l10n.messagesSearchHint,
                 height: 38,
-                onTap: () => showRungToast(context, l10n.comingSoon),
+                onChanged: (value) =>
+                    ref.read(_threadQueryProvider.notifier).state = value,
               ),
             ),
             Expanded(
@@ -72,7 +81,8 @@ class MessagesScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -143,6 +153,7 @@ class _ThreadRow extends ConsumerWidget {
               RungAvatar(
                 seed: thread.avatarSeed,
                 initials: thread.counterpart?.initials ?? '؟',
+                icon: thread.counterpart?.accountType.icon,
                 size: 50,
                 imageUrl: ref.watch(imageUrlResolverProvider)(
                   thread.counterpart?.avatarUrl,
@@ -155,7 +166,7 @@ class _ThreadRow extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(
+                      Flexible(
                         child: Text(
                           title,
                           maxLines: 1,
@@ -166,6 +177,17 @@ class _ThreadRow extends ConsumerWidget {
                           ),
                         ),
                       ),
+                      // Only a one-to-one thread. `displayTitle` is the GROUP'S
+                      // own name on a group row, and a group does not subscribe
+                      // to anything — badging it would attach one member's
+                      // standing to a name that is not theirs.
+                      if (!thread.isGroup)
+                        NameBadges(
+                          verified: thread.counterpart?.verified ?? false,
+                          subscribed: thread.counterpart?.subscribed ?? false,
+                          size: 13,
+                        ),
+                      const Spacer(),
                       const SizedBox(width: 8),
                       Text(
                         at == null ? '' : relativeTimeArabic(at),

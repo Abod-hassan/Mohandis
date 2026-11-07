@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/dashboard/presentation/notifiers/dashboard_notifier.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/dashboard/presentation/notifiers/dashboard_notifier.dart';
 
 import '../../data/repositories/panel_repository_impl.dart';
 import '../../domain/entities/panel_entities.dart';

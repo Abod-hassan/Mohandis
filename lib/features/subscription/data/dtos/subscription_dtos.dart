@@ -1,6 +1,7 @@
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 import '../../domain/entities/subscription_entities.dart';
+import 'package:mohandis/core/utils/formatters.dart';
 
 /// Wire models for subscriptions.
 ///
@@ -11,7 +12,7 @@ class PlanPriceDto {
   const PlanPriceDto({
     required this.cycle,
     this.price = 0,
-    this.currency = 'USD',
+    this.currency = kCurrencyCode,
     this.durationDays = 30,
   });
 
@@ -29,7 +30,7 @@ class PlanPriceDto {
         // converters emit it as a string. Parsed through text so either shape
         // decodes instead of throwing a TypeError inside the paywall.
         price: _money(json['price']),
-        currency: '${json['currency'] ?? 'USD'}',
+        currency: '${json['currency'] ?? kCurrencyCode}',
         durationDays: (json['durationDays'] as num?)?.toInt() ?? 30,
       );
 
@@ -132,6 +133,9 @@ class SubscriptionPlanDto {
       if (item is! Map<String, dynamic>) continue;
       final price = PlanPriceDto.tryFromJson(item);
       if (price == null) continue;
+      // Cycles this app does not sell are dropped here, at the edge, so no
+      // screen downstream has to remember the rule — see kSoldBillingCycles.
+      if (!kSoldBillingCycles.contains(price.cycle)) continue;
       if (seen.add(price.cycle)) out.add(price);
     }
     return out;
@@ -180,7 +184,7 @@ class PlanChangeQuoteDto {
     currentPlanName: '${_json['currentPlanName'] ?? ''}',
     currentCycle: PlanPriceDto.cycleFromWire(_json['currentCycle']),
     price: _money(_json['price']),
-    currency: '${_json['currency'] ?? 'USD'}',
+    currency: '${_json['currency'] ?? kCurrencyCode}',
     durationDays: (_json['durationDays'] as num?)?.toInt() ?? 0,
     remainingDays: (_json['remainingDays'] as num?)?.toInt() ?? 0,
     expiresAt: _json['expiresAt'] == null
@@ -208,7 +212,7 @@ class SubscriptionDto {
     this.expiresAt,
     this.cancelledAt,
     this.price = 0,
-    this.currency = 'USD',
+    this.currency = kCurrencyCode,
     this.durationDays = 0,
     this.cycle,
     this.creditedValue = 0,
@@ -234,7 +238,7 @@ class SubscriptionDto {
             ? null
             : PostDto.parseDate(json['cancelledAt']),
         price: _money(json['price']),
-        currency: '${json['currency'] ?? 'USD'}',
+        currency: '${json['currency'] ?? kCurrencyCode}',
         durationDays: (json['durationDays'] as num?)?.toInt() ?? 0,
         cycle: PlanPriceDto.cycleFromWire(json['cycle']),
         creditedValue: _money(json['creditedValue']),

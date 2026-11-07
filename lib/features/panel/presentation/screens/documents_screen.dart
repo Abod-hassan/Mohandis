@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/core/utils/pull_refresh.dart';
+import 'package:mohandis/l10n/l10n.dart';
 
 import '../../domain/entities/panel_entities.dart';
 import '../notifiers/panel_notifiers.dart';
@@ -43,7 +43,7 @@ class DocumentsScreen extends ConsumerWidget {
       backgroundColor: c.bg,
       appBar: RungAppBar(title: title),
       body: documents.when(
-        loading: () => const LoadingView(),
+        loading: () => const CardListSkeleton(count: 6, height: 84, lines: 1),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.invalidate(documentsProvider(category)),
@@ -55,7 +55,9 @@ class DocumentsScreen extends ConsumerWidget {
                 icon: Icons.local_library_outlined,
               )
             : RefreshIndicator(
-                onRefresh: () async => ref.invalidate(documentsProvider(category)),
+                onRefresh: () => pullRefresh(
+                  ref.refresh(documentsProvider(category).future),
+                ),
                 child: ListView.separated(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 10),

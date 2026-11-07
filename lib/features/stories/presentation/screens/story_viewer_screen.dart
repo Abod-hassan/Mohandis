@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/loading_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/shared/moderation/report_sheet.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
+import '../../data/repositories/story_repository_impl.dart';
 import '../../domain/entities/story.dart';
 import '../notifiers/stories_notifier.dart';
 import '../notifiers/story_groups.dart';
@@ -43,6 +46,25 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 
   /// Which of [_group] is on screen.
   int _index = 0;
+
+  /// The reply field has the keyboard. The clock is held for as long as it
+  /// does — a story that moves on mid-sentence takes the half-written reply
+  /// with it — and a tap on the story only dismisses the keyboard.
+  bool _typing = false;
+
+  void _onTypingChanged(bool typing) {
+    _typing = typing;
+    if (_closing) return;
+    typing ? _progress.stop() : _progress.forward();
+  }
+
+  void _onStep(int delta) {
+    if (_typing) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      return;
+    }
+    _advance(delta);
+  }
 
   /// The stories already marked seen this session, so re-entering a story by
   /// tapping back does not re-POST the view.
@@ -187,9 +209,15 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       total: stories.length,
       index: index,
       onClose: _close,
-      onPauseChanged: (paused) =>
-          paused ? _progress.stop() : _progress.forward(),
-      onStep: _advance,
+      onPauseChanged: (paused) {
+        if (paused) {
+          _progress.stop();
+        } else if (!_typing) {
+          _progress.forward();
+        }
+      },
+      onTypingChanged: _onTypingChanged,
+      onStep: _onStep,
       onOpenAuthor: () => _openAuthor(story.authorId),
     );
   }
@@ -236,6 +264,7 @@ class _StoryBody extends ConsumerWidget {
     required this.index,
     required this.onClose,
     required this.onPauseChanged,
+    required this.onTypingChanged,
     required this.onStep,
     required this.onOpenAuthor,
   });
@@ -249,6 +278,9 @@ class _StoryBody extends ConsumerWidget {
 
   final VoidCallback onClose;
   final ValueChanged<bool> onPauseChanged;
+
+  /// The reply field gained or lost the keyboard.
+  final ValueChanged<bool> onTypingChanged;
 
   /// -1 / +1 through the author's set.
   final ValueChanged<int> onStep;
@@ -264,6 +296,9 @@ class _StoryBody extends ConsumerWidget {
     // is the fallback when the directory — which is paged, and need not hold
     // this person at all — misses.
     final author = resolveAuthor(ref, story.authorId, story.author);
+    final myId = ref.watch(currentPersonProvider).valueOrNull?.id;
+    final isMine =
+        myId != null && myId.toLowerCase() == story.authorId.toLowerCase();
     // Through the resolver, always. `mediaUrl` is the host-less path the
     // upload stored — `stories/<uuid>.jpg` — and the CDN host is deployment
     // configuration that lives in the zone. Handing the raw path to
@@ -389,6 +424,7 @@ class _StoryBody extends ConsumerWidget {
                                     RungAvatar(
                                       seed: story.authorId,
                                       initials: author.initials,
+                                      icon: author.accountType.icon,
                                       imageUrl:
                                           ref.watch(imageUrlResolverProvider)(
                                         author.avatarUrl,
@@ -403,15 +439,28 @@ class _StoryBody extends ConsumerWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            author.name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  author.name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                              NameBadges(
+                                                verified: author.verified,
+                                                subscribed: author.subscribed,
+                                                size: 13,
+                                                onDark: true,
+                                              ),
+                                            ],
                                           ),
                                           Text(
                                             context.l10n.storyPostedAgo(
@@ -443,63 +492,16 @@ class _StoryBody extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  Positioned(
-                    bottom: 24,
-                    left: 16,
-                    right: 16,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          // Opaque, and with an action of its own. A bare
-                          // Container hit-tests false over everything but its
-                          // glyphs, so reaching for the reply field used to
-                          // fall through to the tap zone underneath — and on
-                          // the last story of a group that CLOSED the viewer.
-                          // `StoriesController` has no reply action yet, so
-                          // the honest answer is to say so.
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () =>
-                                showRungToast(context, context.l10n.comingSoon),
-                            child: Container(
-                              height: 44,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              alignment: AlignmentDirectional.centerStart,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(
-                                  color: Colors.white54,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Text(
-                                context.l10n.storyReplyTo(author.firstName),
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          // StoriesController has no like and no reply action,
-                          // so this cannot do anything yet — and it certainly
-                          // must not claim a repost that never happened.
-                          onPressed: () =>
-                              showRungToast(context, context.l10n.comingSoon),
-                          icon: const Icon(
-                            Icons.favorite_border,
-                            color: Colors.white,
-                            size: 26,
-                          ),
-                          tooltip: context.l10n.postActionLike,
-                        ),
-                      ],
+                  PositionedDirectional(
+                    start: 12,
+                    end: 12,
+                    bottom: 12,
+                    child: _StoryFooter(
+                      key: ValueKey(story.id),
+                      story: story,
+                      isMine: isMine,
+                      onTypingChanged: onTypingChanged,
+                      onPauseChanged: onPauseChanged,
                     ),
                   ),
                 ],
@@ -508,6 +510,299 @@ class _StoryBody extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The strip along the bottom of a story.
+///
+/// Somebody else's story: a reply field (the reply lands in a direct message
+/// to the author, quoting the story), a heart, and a report flag. Your own
+/// story: how many people watched it and how many liked it.
+///
+/// Keyed by story id at the call site, so moving to the next story starts
+/// from that story's own heart and an empty field.
+class _StoryFooter extends ConsumerStatefulWidget {
+  const _StoryFooter({
+    super.key,
+    required this.story,
+    required this.isMine,
+    required this.onTypingChanged,
+    required this.onPauseChanged,
+  });
+
+  final Story story;
+  final bool isMine;
+  final ValueChanged<bool> onTypingChanged;
+  final ValueChanged<bool> onPauseChanged;
+
+  @override
+  ConsumerState<_StoryFooter> createState() => _StoryFooterState();
+}
+
+class _StoryFooterState extends ConsumerState<_StoryFooter> {
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
+
+  late bool _liked = widget.story.liked;
+  late int _likeCount = widget.story.likeCount;
+  bool _liking = false;
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocus);
+    _controller.addListener(_onText);
+  }
+
+  void _onFocus() {
+    widget.onTypingChanged(_focus.hasFocus);
+    if (mounted) setState(() {});
+  }
+
+  void _onText() => setState(() {});
+
+  @override
+  void dispose() {
+    // Leaving with the keyboard up must not leave the screen thinking a reply
+    // is still being typed — the next story's clock would never start.
+    if (_focus.hasFocus) widget.onTypingChanged(false);
+    _focus
+      ..removeListener(_onFocus)
+      ..dispose();
+    _controller
+      ..removeListener(_onText)
+      ..dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleLike() async {
+    if (_liking) return;
+    final wasLiked = _liked;
+    final wasCount = _likeCount;
+    setState(() {
+      _liking = true;
+      _liked = !wasLiked;
+      _likeCount = wasLiked ? (wasCount > 0 ? wasCount - 1 : 0) : wasCount + 1;
+    });
+
+    final result = await ref
+        .read(storyRepositoryProvider)
+        .toggleLike(widget.story.id);
+    if (!mounted) return;
+    result.when(
+      success: (server) {
+        setState(() {
+          _liking = false;
+          _liked = server.liked;
+          _likeCount = server.likeCount;
+        });
+        ref
+            .read(storiesNotifierProvider.notifier)
+            .applyLike(
+              widget.story.id,
+              liked: server.liked,
+              likeCount: server.likeCount,
+            );
+      },
+      failure: (_) {
+        setState(() {
+          _liking = false;
+          _liked = wasLiked;
+          _likeCount = wasCount;
+        });
+        showRungToast(context, context.l10n.storyLikeFailed, success: false);
+      },
+    );
+  }
+
+  Future<void> _sendReply() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty || _sending) return;
+    setState(() => _sending = true);
+
+    final result = await ref
+        .read(storyRepositoryProvider)
+        .reply(widget.story.id, text);
+    if (!mounted) return;
+    setState(() => _sending = false);
+    result.when(
+      success: (_) {
+        _controller.clear();
+        _focus.unfocus();
+        showRungToast(context, context.l10n.storyReplySent);
+      },
+      failure: (_) => showRungToast(
+        context,
+        context.l10n.storyReplyFailed,
+        success: false,
+      ),
+    );
+  }
+
+  Future<void> _report() async {
+    widget.onPauseChanged(true);
+    await showReportSheet(
+      context,
+      target: ReportTarget.story,
+      targetId: widget.story.id,
+    );
+    if (mounted) widget.onPauseChanged(false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    if (widget.isMine) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: DecoratedBox(
+          decoration: const ShapeDecoration(
+            color: Color(0x59000000),
+            shape: StadiumBorder(),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.visibility_outlined,
+                  size: 17,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  '${widget.story.viewCount}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                const Icon(
+                  Icons.favorite_rounded,
+                  size: 17,
+                  color: Color(0xFFFF4D67),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  '$_likeCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final canSend = _controller.text.trim().isNotEmpty && !_sending;
+
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _controller,
+            focusNode: _focus,
+            enabled: !_sending,
+            maxLength: 500,
+            minLines: 1,
+            maxLines: 3,
+            textInputAction: TextInputAction.send,
+            onSubmitted: (_) => _sendReply(),
+            cursorColor: Colors.white,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: l10n.storyReplyHint,
+              hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
+              counterText: '',
+              isDense: true,
+              filled: true,
+              fillColor: const Color(0x40000000),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 11,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: Colors.white54),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: Colors.white54),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: Colors.white38),
+              ),
+              suffixIcon: _sending
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  : (canSend
+                        ? IconButton(
+                            onPressed: _sendReply,
+                            tooltip: l10n.storyReplySend,
+                            icon: const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          )
+                        : null),
+            ),
+          ),
+        ),
+        // The heart and the flag drop away while typing: the field gets the
+        // whole width, and a stray tap cannot like the story mid-sentence.
+        if (!_focus.hasFocus) ...[
+          const SizedBox(width: 4),
+          IconButton(
+            onPressed: _toggleLike,
+            tooltip: l10n.storyLike,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
+              child: Icon(
+                _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                key: ValueKey(_liked),
+                color: _liked ? const Color(0xFFFF4D67) : Colors.white,
+                size: 28,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: _report,
+            tooltip: l10n.reportStory,
+            icon: const Icon(
+              Icons.outlined_flag_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

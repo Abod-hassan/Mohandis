@@ -1,8 +1,9 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../../domain/entities/connection_request.dart';
+import '../../domain/entities/people_list_kind.dart';
 import '../../domain/repositories/network_repository.dart';
 
 class NetworkMockRepository implements NetworkRepository {
@@ -82,14 +83,15 @@ class NetworkMockRepository implements NetworkRepository {
   }
 
   @override
-  Future<Result<NetworkOverview, AppException>> overview() async {
+  Future<Result<List<ConnectionRequest>, AppException>> requests() async {
     await _wait();
-    return Result.success(
-      NetworkOverview(
-        requests: List.unmodifiable(_requests),
-        suggestions: _suggestions,
-      ),
-    );
+    return Result.success(List.unmodifiable(_requests));
+  }
+
+  @override
+  Future<List<Person>> suggestions({required Set<String> exclude}) async {
+    await _wait();
+    return _suggestions.where((p) => !exclude.contains(p.id)).toList();
   }
 
   @override
@@ -107,6 +109,38 @@ class NetworkMockRepository implements NetworkRepository {
   Future<Result<void, AppException>> _remove(String personId) async {
     await _wait();
     _requests.removeWhere((r) => r.personId == personId);
+    return const Result.success(null);
+  }
+
+  /// Seeded from [_suggestions] so every kind has rows to render. The mock
+  /// keeps its own removable copy per kind — otherwise unfollowing in the
+  /// design preview would mutate the suggestions grid as a side effect.
+  final Map<PeopleListKind, List<Person>> _people = {
+    for (final k in PeopleListKind.values) k: List<Person>.of(_suggestions),
+  };
+
+  @override
+  Future<Result<List<Person>, AppException>> people({
+    required PeopleListKind kind,
+    required String profileId,
+    int page = 1,
+    int size = 100,
+  }) async {
+    await Future<void>.delayed(latency);
+    return Result.success(List<Person>.unmodifiable(_people[kind]!));
+  }
+
+  @override
+  Future<Result<void, AppException>> removeConnection(String personId) async {
+    await Future<void>.delayed(latency);
+    _people[PeopleListKind.connections]!.removeWhere((p) => p.id == personId);
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<void, AppException>> unfollow(String personId) async {
+    await Future<void>.delayed(latency);
+    _people[PeopleListKind.following]!.removeWhere((p) => p.id == personId);
     return const Result.success(null);
   }
 }

@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 /// A 24-hour story.
 ///
@@ -21,6 +21,8 @@ class Story extends BaseEntity {
     this.caption = '',
     this.viewCount = 0,
     this.seen = false,
+    this.likeCount = 0,
+    this.liked = false,
   });
 
   @override
@@ -56,6 +58,10 @@ class Story extends BaseEntity {
   /// their own story, so an author's own ring stays unseen by design.
   final bool seen;
 
+  /// How many people liked it, and whether the viewer is one of them.
+  final int likeCount;
+  final bool liked;
+
   bool get expired => DateTime.now().isAfter(
     expiresAt ?? createdAt.add(const Duration(hours: 24)),
   );
@@ -74,7 +80,8 @@ class Story extends BaseEntity {
     avatarUrl: authorAvatarUrl,
   );
 
-  Story copyWith({bool? seen, int? viewCount}) => Story(
+  Story copyWith({bool? seen, int? viewCount, int? likeCount, bool? liked}) =>
+      Story(
     id: id,
     authorId: authorId,
     authorName: authorName,
@@ -86,5 +93,7 @@ class Story extends BaseEntity {
     caption: caption,
     viewCount: viewCount ?? this.viewCount,
     seen: seen ?? this.seen,
+    likeCount: likeCount ?? this.likeCount,
+    liked: liked ?? this.liked,
   );
 }

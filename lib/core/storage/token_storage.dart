@@ -54,9 +54,14 @@ class TokenStorage {
   /// Persist a full session in one call. Pass `null` for any field that
   /// shouldn't overwrite an existing value — passing a value (even empty)
   /// will replace it.
+  /// [refreshToken] follows the same rule as the optional fields: null keeps
+  /// whatever is stored. A refresh whose reply carries no new refresh token
+  /// means "carry on with the one you have", and the stored value is then the
+  /// only credential this device owns — writing an empty string over it would
+  /// leave the next refresh with nothing to present.
   Future<void> saveSession({
     required String accessToken,
-    required String refreshToken,
+    String? refreshToken,
     DateTime? accessTokenExpiresAt,
     DateTime? refreshTokenExpiresAt,
     String? userId,
@@ -65,7 +70,8 @@ class TokenStorage {
   }) async {
     final writes = <Future<void>>[
       _storage.write(key: _accessTokenKey, value: accessToken),
-      _storage.write(key: _refreshTokenKey, value: refreshToken),
+      if (refreshToken != null)
+        _storage.write(key: _refreshTokenKey, value: refreshToken),
     ];
     if (accessTokenExpiresAt != null) {
       writes.add(_storage.write(

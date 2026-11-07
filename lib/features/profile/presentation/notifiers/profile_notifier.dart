@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
 
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/profile.dart';
@@ -11,18 +11,43 @@ import '../../domain/repositories/profile_repository.dart';
 /// One profile screen's state, keyed by person id.
 class ProfileNotifier extends FamilyAsyncNotifier<Profile, String> {
   @override
-  Future<Profile> build(String personId) async {
+  Future<Profile> build(String personId) => _read(personId);
+
+  /// Re-reads the profile, publishing a loading state first.
+  ///
+  /// For pull-to-refresh and for the error view's retry, where the placeholder
+  /// that replaces the content IS the feedback that something is happening.
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _read(arg));
+  }
+
+  /// Re-reads the profile WITHOUT publishing a loading state.
+  ///
+  /// For a caller already showing its own placeholder — the profile screen
+  /// does, on every entry, so that it never paints the copy it cached on an
+  /// earlier visit.
+  ///
+  /// Skipping the loading publish matters because this provider is not
+  /// autoDispose and is not read only by the screen in front of you:
+  /// `companyJobsNotifier` watches `me`'s future, and the apply, job-detail
+  /// and company-job-form screens read it. A loading state broadcast from here
+  /// suspends every one of them — `companyJobsNotifier` would re-run and
+  /// refetch the company's whole job list — over a re-read that is none of
+  /// their business. This way they keep the profile they have until the new
+  /// one lands.
+  Future<void> reload() async {
+    state = await AsyncValue.guard(() => _read(arg));
+  }
+
+  /// The read itself: the profile plus its three CV sections.
+  ///
+  /// Takes the id rather than reading `arg`, so `build` — the one caller that
+  /// runs before `arg` is anybody's to rely on — passes its own parameter.
+  Future<Profile> _read(String personId) async {
     final result =
         await ref.read(profileRepositoryProvider).byPerson(personId);
     return result.when(success: (p) => p, failure: (e) => throw e);
-  }
-
-  Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final result = await ref.read(profileRepositoryProvider).byPerson(arg);
-      return result.when(success: (p) => p, failure: (e) => throw e);
-    });
   }
 
   Future<Result<Profile, AppException>> toggleFollow() async {
@@ -192,9 +217,18 @@ final profileNotifierProvider =
 /// request fails — taking away, among others, the tab holding the retry. The
 /// last known answer survives until a successful read replaces it.
 ///
-/// Reading `profileNotifierProvider('me')` rather than a field on the auth
-/// session because the account type lives on the social profile, not on the
-/// auth contact — and it is the profile that a company edits.
+/// The account type lives on the social profile, not on the auth contact, so it
+/// has to come from the server — but it does NOT need the full profile.
+///
+/// This used to watch `profileNotifierProvider('me')`, which the shell builds on
+/// every launch to decide which tab set to show. `byPerson` fetches the profile
+/// AND its three CV sections, so one boolean on a nav bar cost four requests:
+/// `Profiles/Me`, `Experience`, `Education`, `Skills`.
+///
+/// `currentPersonProvider` answers the same question from `Profiles/Me` alone —
+/// `ProfileSimplifiedDto` carries `accountType`, which is what `Person.isCompany`
+/// is parsed from — and the feed's top bar already watches it for the avatar, so
+/// on the launch path this is now free.
 class IsCompanyAccount extends Notifier<bool> {
   /// The last answer an actual profile gave.
   ///
@@ -208,9 +242,9 @@ class IsCompanyAccount extends Notifier<bool> {
 
   @override
   bool build() {
-    final resolved = ref.watch(profileNotifierProvider('me')).valueOrNull;
+    final resolved = ref.watch(currentPersonProvider).valueOrNull;
     if (resolved != null) {
-      _last = resolved.accountType == AccountType.company;
+      _last = resolved.isCompany;
     }
     return _last;
   }

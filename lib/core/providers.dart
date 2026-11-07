@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/api_client.dart';
+import 'api/session_expiry.dart';
 import 'api/token_refresher.dart';
 import 'config/app_config.dart';
 import 'services/device_info_service.dart';
 import 'services/logger.dart';
 import 'services/storage_zone.dart';
+import 'services/stream_library.dart';
 import 'storage/token_storage.dart';
 
 /// Global providers only. Feature-specific providers live with the feature.
@@ -52,6 +54,52 @@ final imageUrlResolverProvider = Provider<String? Function(String?)>((ref) {
 });
 
 
+/// Resolves a path that may belong to EITHER Bunny product.
+///
+/// Reels are the only thing in the app with two possible homes. A reel
+/// published since Stream arrived stores `<guid>/playlist.m3u8`, served by the
+/// Stream library's own CDN; one published before it — and every seeded row —
+/// stores `reels/<uuid>.mp4` in the storage zone. Both have to keep playing,
+/// so the path itself says which it is.
+///
+/// A Stream path is recognised by its FIRST SEGMENT being a UUID, which is what
+/// a Bunny video guid is. A storage path's first segment is a folder name
+/// (`reels`, `avatars`, `courses`), and a folder named like a UUID is not
+/// something this app ever creates.
+final streamAwareUrlResolverProvider = Provider<String? Function(String?)>((
+  ref,
+) {
+  final library = ref.watch(streamLibraryProvider).valueOrNull;
+  final storage = ref.watch(imageUrlResolverProvider);
+
+  return (path) {
+    final raw = path?.trim();
+    if (raw == null || raw.isEmpty) return null;
+    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+
+    if (library != null && _looksLikeStreamPath(raw)) {
+      // Falls through to storage when the library has no CDN hostname — a
+      // half-configured library should not blank a reel that may still be
+      // readable the old way.
+      final resolved = library.publicUrl(raw);
+      if (resolved != null) return resolved;
+    }
+    return storage(raw);
+  };
+});
+
+final _uuid = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
+
+bool _looksLikeStreamPath(String path) {
+  final clean = path.startsWith('/') ? path.substring(1) : path;
+  final slash = clean.indexOf('/');
+  if (slash <= 0) return false;
+  return _uuid.hasMatch(clean.substring(0, slash));
+}
+
 /// Secure token storage — Keychain (iOS) / EncryptedSharedPreferences (Android).
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
 
@@ -84,5 +132,14 @@ final apiClientProvider = Provider<ApiClient>((ref) {
     tokenStorage: storage,
     deviceInfo: deviceInfo,
     refreshAccessToken: refresher.refresh,
+    // `read`, not `watch`: this is an outbound signal, and watching the
+    // notifier would rebuild the Dio — throwing away its connection pool and
+    // every in-flight request — each time a session expired.
+    //
+    // Carries WHY: read off the refresher at the moment it gave up, which is
+    // exactly when the interceptor calls this.
+    onSessionExpired: () => ref
+        .read(sessionExpiryProvider.notifier)
+        .signal(refresher.lastRefusal),
   );
 });

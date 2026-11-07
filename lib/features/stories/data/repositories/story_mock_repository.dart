@@ -1,6 +1,6 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../../domain/entities/story.dart';
 import '../../domain/repositories/story_repository.dart';
@@ -88,6 +88,26 @@ class StoryMockRepository implements StoryRepository {
   }) async {
     await _wait();
     return const Result.success(<Person>[]);
+  }
+
+  @override
+  Future<Result<({bool liked, int likeCount}), AppException>> toggleLike(
+    String storyId,
+  ) async {
+    await _wait();
+    final i = _stories.indexWhere((s) => s.id == storyId);
+    if (i < 0) return const Result.failure(NotFoundException('Story not found.'));
+    final s = _stories[i];
+    final liked = !s.liked;
+    final count = s.likeCount + (liked ? 1 : -1);
+    _stories[i] = s.copyWith(liked: liked, likeCount: count < 0 ? 0 : count);
+    return Result.success((liked: liked, likeCount: count < 0 ? 0 : count));
+  }
+
+  @override
+  Future<Result<String, AppException>> reply(String storyId, String text) async {
+    await _wait();
+    return const Result.success('mock-conversation');
   }
 
   @override

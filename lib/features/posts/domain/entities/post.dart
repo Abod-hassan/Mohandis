@@ -1,7 +1,10 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import 'comment.dart';
+import 'poll.dart';
+
+export 'poll.dart';
 
 /// Who can see a post. Mirrors the composer's three-way visibility cycle, and
 /// the wire values are the backend's `PostVisibilityEnum` ordinals — the
@@ -133,6 +136,7 @@ class Post extends BaseEntity {
     this.authorName = '',
     this.authorAvatarUrl,
     this.authorVerified = false,
+    this.authorSubscribed = false,
     this.tags = const [],
     this.media = const [],
     this.likeCount = 0,
@@ -145,8 +149,10 @@ class Post extends BaseEntity {
     this.viewCount = 0,
     this.repostedById,
     this.quoted,
+    this.sharedPostId,
     this.jobId,
     this.suggested = false,
+    this.poll,
   });
 
   @override
@@ -160,6 +166,10 @@ class Post extends BaseEntity {
   final String authorName;
   final String? authorAvatarUrl;
   final bool authorVerified;
+
+  /// The author holds a live subscription. Kept apart from [authorVerified] —
+  /// see `Person.subscribed`.
+  final bool authorSubscribed;
 
   final DateTime createdAt;
   final PostVisibility visibility;
@@ -195,6 +205,20 @@ class Post extends BaseEntity {
 
   final QuotedPost? quoted;
 
+  /// The post this one reposts, as the server stored it — set even when the
+  /// original no longer comes back as [quoted].
+  ///
+  /// That gap is the case it exists for. A plain repost has no text or media of
+  /// its own, so when its original is deleted the server's soft-delete filter
+  /// drops the embed and the row arrives with nothing to draw. Knowing it WAS a
+  /// repost is what lets the card say the original is gone instead of
+  /// rendering an empty frame under somebody's name.
+  final String? sharedPostId;
+
+  /// A repost whose original did not come back.
+  bool get originalUnavailable =>
+      sharedPostId != null && sharedPostId!.isNotEmpty && quoted == null;
+
   /// A job posting shared into the feed, rendered as a tappable embed.
   final String? jobId;
 
@@ -206,6 +230,9 @@ class Post extends BaseEntity {
   /// a wall of strangers is indistinguishable from a network the viewer built
   /// themselves — which is exactly how it read before.
   final bool suggested;
+
+  /// The poll this post asks, when it has one — its [text] is the question.
+  final Poll? poll;
 
   bool get hasMedia => media.isNotEmpty;
 
@@ -231,6 +258,7 @@ class Post extends BaseEntity {
     headline: '',
     location: '',
     verified: authorVerified,
+    subscribed: authorSubscribed,
     avatarUrl: authorAvatarUrl,
   );
 
@@ -247,6 +275,7 @@ class Post extends BaseEntity {
     bool? reposted,
     bool? saved,
     int? viewCount,
+    Poll? poll,
   }) {
     return Post(
       id: id,
@@ -254,6 +283,7 @@ class Post extends BaseEntity {
       authorName: authorName,
       authorAvatarUrl: authorAvatarUrl,
       authorVerified: authorVerified,
+      authorSubscribed: authorSubscribed,
       createdAt: createdAt,
       visibility: visibility ?? this.visibility,
       text: text ?? this.text,
@@ -269,8 +299,10 @@ class Post extends BaseEntity {
       viewCount: viewCount ?? this.viewCount,
       repostedById: repostedById,
       quoted: quoted,
+      sharedPostId: sharedPostId,
       jobId: jobId,
       suggested: suggested,
+      poll: poll ?? this.poll,
     );
   }
 

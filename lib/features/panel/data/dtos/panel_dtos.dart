@@ -1,4 +1,6 @@
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/features/shared/people/data/dtos/person_dto.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../../domain/entities/panel_entities.dart';
 
@@ -66,6 +68,186 @@ double _number(Object? raw) {
   return double.tryParse('$raw') ?? 0;
 }
 
+/// The marketplace block of a course row, lifted out of the flat JSON.
+///
+/// Built from the top-level fields rather than a nested object, because the
+/// server sends them flat on `CourseDto` — the grouping is the app's idea of
+/// what belongs together, not the wire's.
+CourseCommerce _commerce(Map<String, dynamic> json) {
+  final author = json['author'];
+  return CourseCommerce(
+    price: _number(json['price']),
+    currency: _text(json['currency']) ?? 'IQD',
+    discountPercent: _number(json['discountPercent']),
+    priceAfterDiscount: _number(json['priceAfterDiscount']),
+    platformPercent: _number(json['platformPercent']),
+    author: author is Map<String, dynamic>
+        ? PersonDto.fromJson(author).toDomain()
+        : null,
+    isMine: json['isMine'] == true,
+    reviewStatus: _reviewStatusFromWire(json['reviewStatus']),
+    reviewNote: _text(json['reviewNote']),
+
+    // Absent means the old catalogue shape, which was always live. Defaulting
+    // this to false instead would hide every existing course behind a
+    // "withdrawn" state the server never asked for.
+    isPublished: json['isPublished'] != false,
+    purchaseStatus: _purchaseStatusFromWire(json['purchaseStatus']),
+    purchaseAmountDue: json['purchaseAmountDue'] == null
+        ? null
+        : _number(json['purchaseAmountDue']),
+  );
+}
+
+/// By name, with the ordinal tolerated — see the note at the top of this file.
+/// An unrecognised value reads as `approved`, matching the server's own zero.
+CourseReviewStatus _reviewStatusFromWire(Object? raw) {
+  if (raw is num) {
+    final i = raw.toInt();
+    return i >= 0 && i < CourseReviewStatus.values.length
+        ? CourseReviewStatus.values[i]
+        : CourseReviewStatus.approved;
+  }
+  return switch ('$raw'.trim().toLowerCase()) {
+    'draft' => CourseReviewStatus.draft,
+    'submitted' => CourseReviewStatus.submitted,
+    'rejected' => CourseReviewStatus.rejected,
+    _ => CourseReviewStatus.approved,
+  };
+}
+
+String reviewStatusToWire(CourseReviewStatus status) => switch (status) {
+  CourseReviewStatus.approved => 'Approved',
+  CourseReviewStatus.draft => 'Draft',
+  CourseReviewStatus.submitted => 'Submitted',
+  CourseReviewStatus.rejected => 'Rejected',
+};
+
+/// Null on absence, which is what "this viewer never asked to buy it" is — as
+/// opposed to any of the three states, each of which draws something different.
+CoursePurchaseStatus? _purchaseStatusFromWire(Object? raw) {
+  if (raw == null) return null;
+  if (raw is num) {
+    final i = raw.toInt();
+    return i >= 0 && i < CoursePurchaseStatus.values.length
+        ? CoursePurchaseStatus.values[i]
+        : null;
+  }
+  return switch ('$raw'.trim().toLowerCase()) {
+    'pending' => CoursePurchaseStatus.pending,
+    'paid' => CoursePurchaseStatus.paid,
+    'cancelled' => CoursePurchaseStatus.cancelled,
+    _ => null,
+  };
+}
+
+String purchaseStatusToWire(CoursePurchaseStatus status) => switch (status) {
+  CoursePurchaseStatus.pending => 'Pending',
+  CoursePurchaseStatus.paid => 'Paid',
+  CoursePurchaseStatus.cancelled => 'Cancelled',
+};
+
+/// A timestamp off the wire, or now.
+///
+/// A purchase row without a date is not worth failing a whole queue over; the
+/// row still says who bought what and for how much, which is what the screen is
+/// for.
+DateTime _when(Object? raw) =>
+    DateTime.tryParse('$raw')?.toLocal() ?? DateTime.now();
+
+DateTime? _whenOrNull(Object? raw) =>
+    raw == null ? null : DateTime.tryParse('$raw')?.toLocal();
+
+/// Wire model for the backend's `CoursePurchaseDto`.
+class CoursePurchaseDto {
+  const CoursePurchaseDto({
+    required this.id,
+    required this.courseId,
+    required this.courseTitle,
+    required this.status,
+    required this.requestedAt,
+    this.coverImageUrl,
+    this.buyer,
+    this.author,
+    this.listPrice = 0,
+    this.discountPercent = 0,
+    this.amountDue = 0,
+    this.platformPercent = 0,
+    this.platformAmount = 0,
+    this.authorAmount = 0,
+    this.currency = 'IQD',
+    this.confirmedAt,
+    this.note,
+  });
+
+  factory CoursePurchaseDto.fromJson(Map<String, dynamic> json) {
+    final buyer = json['buyer'];
+    final author = json['author'];
+    return CoursePurchaseDto(
+      id: '${json['id'] ?? ''}',
+      courseId: '${json['courseId'] ?? ''}',
+      courseTitle: '${json['courseTitle'] ?? ''}',
+      coverImageUrl: _text(json['coverImageUrl']),
+      buyer: buyer is Map<String, dynamic>
+          ? PersonDto.fromJson(buyer).toDomain()
+          : null,
+      author: author is Map<String, dynamic>
+          ? PersonDto.fromJson(author).toDomain()
+          : null,
+      status: _purchaseStatusFromWire(json['status']) ??
+          CoursePurchaseStatus.pending,
+      listPrice: _number(json['listPrice']),
+      discountPercent: _number(json['discountPercent']),
+      amountDue: _number(json['amountDue']),
+      platformPercent: _number(json['platformPercent']),
+      platformAmount: _number(json['platformAmount']),
+      authorAmount: _number(json['authorAmount']),
+      currency: _text(json['currency']) ?? 'IQD',
+      requestedAt: _when(json['requestedAt']),
+      confirmedAt: _whenOrNull(json['confirmedAt']),
+      note: _text(json['note']),
+    );
+  }
+
+  final String id;
+  final String courseId;
+  final String courseTitle;
+  final String? coverImageUrl;
+  final Person? buyer;
+  final Person? author;
+  final CoursePurchaseStatus status;
+  final double listPrice;
+  final double discountPercent;
+  final double amountDue;
+  final double platformPercent;
+  final double platformAmount;
+  final double authorAmount;
+  final String currency;
+  final DateTime requestedAt;
+  final DateTime? confirmedAt;
+  final String? note;
+
+  CoursePurchase toDomain() => CoursePurchase(
+    id: id,
+    courseId: courseId,
+    courseTitle: courseTitle,
+    coverImageUrl: coverImageUrl,
+    buyer: buyer,
+    author: author,
+    status: status,
+    listPrice: listPrice,
+    discountPercent: discountPercent,
+    amountDue: amountDue,
+    platformPercent: platformPercent,
+    platformAmount: platformAmount,
+    authorAmount: authorAmount,
+    currency: currency,
+    requestedAt: requestedAt,
+    confirmedAt: confirmedAt,
+    note: note,
+  );
+}
+
 class CourseDto {
   const CourseDto({
     required this.id,
@@ -91,6 +273,8 @@ class CourseDto {
     this.myRating = 0,
     this.outcomes = const [],
     this.requirements = const [],
+    this.commerce = const CourseCommerce(),
+    this.isNew = false,
   });
 
   factory CourseDto.fromJson(Map<String, dynamic> json) {
@@ -121,6 +305,8 @@ class CourseDto {
       myRating: (json['myRating'] as num?)?.toInt() ?? 0,
       outcomes: _lines(json['outcomes']),
       requirements: _lines(json['requirements']),
+      commerce: _commerce(json),
+      isNew: json['isNew'] == true,
     );
   }
 
@@ -147,6 +333,8 @@ class CourseDto {
   final int myRating;
   final List<String> outcomes;
   final List<String> requirements;
+  final CourseCommerce commerce;
+  final bool isNew;
 
   Course toDomain() => Course(
     id: id,
@@ -172,6 +360,8 @@ class CourseDto {
     myRating: myRating,
     outcomes: outcomes,
     requirements: requirements,
+    commerce: commerce,
+    isNew: isNew,
   );
 
   static CourseCategory categoryFromWire(Object? raw) {
@@ -207,6 +397,12 @@ class CourseDto {
       _ => CourseLevel.beginner,
     };
   }
+
+  static String levelToWire(CourseLevel l) => switch (l) {
+    CourseLevel.beginner => 'Beginner',
+    CourseLevel.intermediate => 'Intermediate',
+    CourseLevel.advanced => 'Advanced',
+  };
 }
 
 class LectureDto {
@@ -221,6 +417,7 @@ class LectureDto {
     this.articleBody,
     this.isLocked = false,
     this.isCompleted = false,
+    this.uploadPending = false,
   });
 
   factory LectureDto.fromJson(Map<String, dynamic> json) => LectureDto(
@@ -237,6 +434,7 @@ class LectureDto {
     articleBody: _text(json['articleBody']),
     isLocked: json['isLocked'] == true,
     isCompleted: json['isCompleted'] == true,
+    uploadPending: json['uploadPending'] == true,
   );
 
   final String id;
@@ -249,6 +447,7 @@ class LectureDto {
   final String? articleBody;
   final bool isLocked;
   final bool isCompleted;
+  final bool uploadPending;
 
   Lecture toDomain() => Lecture(
     id: id,
@@ -261,7 +460,14 @@ class LectureDto {
     articleBody: articleBody,
     isLocked: isLocked,
     isCompleted: isCompleted,
+    uploadPending: uploadPending,
   );
+
+  static String kindToWire(LessonKind k) => switch (k) {
+    LessonKind.video => 'Video',
+    LessonKind.pdf => 'Pdf',
+    LessonKind.article => 'Article',
+  };
 
   static LessonKind kindFromWire(Object? raw) {
     if (raw is num) {

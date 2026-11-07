@@ -1,10 +1,29 @@
-import 'package:flutter_mobile_template/core/base/base_repository.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/base/base_repository.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../entities/comment.dart';
 import '../entities/feed_page.dart';
 import '../entities/post.dart';
+
+/// Why a post is being reported — `ReportReasonEnum` on the server, sent as its
+/// integer value.
+enum PostReportReason {
+  spam(0),
+  harassment(1),
+  hateSpeech(2),
+  violence(3),
+  nudity(4),
+  misinformation(5),
+  selfHarm(6),
+  impersonation(7),
+  intellectualProperty(8),
+  other(9);
+
+  const PostReportReason(this.wire);
+
+  final int wire;
+}
 
 abstract class PostRepository extends BaseRepository<Post> {
   /// One page of the ranked home feed. Pass [FeedCursor.first] to start, then
@@ -30,6 +49,14 @@ abstract class PostRepository extends BaseRepository<Post> {
   /// answering with everybody's.
   Future<Result<List<Post>, AppException>> saved({int page, int size});
 
+  /// Posts carrying [tag] (with or without the leading `#`), newest first —
+  /// what a hashtag page lists. `PostFilter.Hashtag` on the server.
+  Future<Result<List<Post>, AppException>> byHashtag(
+    String tag, {
+    int page,
+    int size,
+  });
+
   Future<Result<Post, AppException>> toggleSave(String postId);
 
   /// Reposts [postId] with no added text. A repost IS a share server-side, and
@@ -46,7 +73,12 @@ abstract class PostRepository extends BaseRepository<Post> {
     required String text,
     required PostVisibility visibility,
     List<PostMedia> media,
+    PollDraft? poll,
   });
+
+  /// Votes in a post's poll, moves the vote, or — the same option again —
+  /// takes it back. Returns the poll as the server now counts it.
+  Future<Result<Poll, AppException>> votePoll(String pollId, String optionId);
 
   /// Shares an existing post, optionally quoting it with [text].
   Future<Result<Post, AppException>> share({
@@ -89,6 +121,26 @@ abstract class PostRepository extends BaseRepository<Post> {
     String personId, {
     int page,
     int size,
+  });
+
+  /// Edits the caller's own post: its text, and optionally who may see it.
+  ///
+  /// Text only. The media a post was published with stays as it is — the
+  /// fanned-out copies in the feed store carry the attachments, and swapping
+  /// them after delivery would leave rows pointing at something the post no
+  /// longer contains.
+  Future<Result<Post, AppException>> edit(
+    String postId, {
+    required String text,
+    PostVisibility? visibility,
+  });
+
+  /// Reports a post for moderation. Anyone may report anything once they are
+  /// signed in; what happens next is a moderator's surface, not this app's.
+  Future<Result<bool, AppException>> report(
+    String postId, {
+    required PostReportReason reason,
+    String? details,
   });
 
   /// "Not interested": hides one item, or everything from its author, in this

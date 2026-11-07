@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_dto.dart';
-import 'package:flutter_mobile_template/features/posts/data/dtos/post_dto.dart';
+import 'package:mohandis/core/base/base_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 import '../../domain/entities/story.dart';
 
@@ -22,6 +22,8 @@ class StoryDto implements BaseDto<Story> {
     this.caption = '',
     this.viewCount = 0,
     this.viewedByMe = false,
+    this.likeCount = 0,
+    this.likedByMe = false,
   });
 
   factory StoryDto.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,8 @@ class StoryDto implements BaseDto<Story> {
       expiresAt: _parseExpiry(json['expiresAt']),
       viewCount: PostDto.asInt(json['viewCount']),
       viewedByMe: json['viewedByMe'] == true,
+      likeCount: PostDto.asInt(json['likeCount']),
+      likedByMe: json['likedByMe'] == true,
     );
   }
 
@@ -55,6 +59,8 @@ class StoryDto implements BaseDto<Story> {
   final DateTime? expiresAt;
   final int viewCount;
   final bool viewedByMe;
+  final int likeCount;
+  final bool likedByMe;
 
   @override
   Story toDomain() => Story(
@@ -69,6 +75,8 @@ class StoryDto implements BaseDto<Story> {
     caption: caption,
     viewCount: viewCount,
     seen: viewedByMe,
+    likeCount: likeCount,
+    liked: likedByMe,
   );
 
   @override
@@ -84,6 +92,8 @@ class StoryDto implements BaseDto<Story> {
     'expiresAt': expiresAt?.toUtc().toIso8601String(),
     'viewCount': viewCount,
     'viewedByMe': viewedByMe,
+    'likeCount': likeCount,
+    'likedByMe': likedByMe,
   };
 
   /// `ExpiresAt` is non-nullable server-side, but `PostDto.parseDate` answers

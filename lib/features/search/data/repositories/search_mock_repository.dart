@@ -1,7 +1,8 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_mock_repository.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_mock_repository.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/search_results.dart';
 import '../../domain/entities/trending_tag.dart';
@@ -56,8 +57,9 @@ class SearchMockRepository implements SearchRepository {
     String query, {
     int page = 1,
     int size = 20,
+    AccountType? accountType,
   }) =>
-      _people.search(query);
+      _people.search(query, accountType: accountType);
 
   @override
   Future<Result<List<TrendingTag>, AppException>> hashtags(

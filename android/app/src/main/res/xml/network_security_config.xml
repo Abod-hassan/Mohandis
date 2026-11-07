@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Release builds on Android 9+ refuse plain http:// by default. The prod API is
+  still served over http://192.248.191.138:2028, so cleartext is allowed for
+  that one host ONLY; everything else (Bunny CDN, Firebase) stays HTTPS-only.
+  Remove this exception once the API is behind a domain with TLS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.248.191.138</domain>
+    </domain-config>
+</network-security-config>

@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/dtos/person_dto.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/features/shared/people/data/dtos/person_dto.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 import '../../domain/entities/story.dart';
 import '../../domain/repositories/story_repository.dart';
 import '../dtos/story_dto.dart';
+import 'package:mohandis/features/posts/data/dtos/post_dto.dart';
 
 /// Stories against the RoboByte.SocialMedia module.
 ///
@@ -128,6 +129,35 @@ class StoryRepositoryImpl implements StoryRepository {
       (envelope) => envelope.data != false,
     );
     return viewed.flatMapAsync((_) => getById(storyId));
+  }
+
+  @override
+  Future<Result<({bool liked, int likeCount}), AppException>> toggleLike(
+    String storyId,
+  ) {
+    return apiCall(
+      EndPoints.storiesLike,
+      () => _api.dio.post<dynamic>(
+        EndPoints.storiesLike,
+        queryParameters: {'storyId': storyId},
+      ),
+      (envelope) => (
+        liked: envelope.object['liked'] == true,
+        likeCount: PostDto.asInt(envelope.object['likeCount']),
+      ),
+    );
+  }
+
+  @override
+  Future<Result<String, AppException>> reply(String storyId, String text) {
+    return apiCall(
+      EndPoints.storiesReply,
+      () => _api.dio.post<dynamic>(
+        EndPoints.storiesReply,
+        data: {'storyId': storyId, 'content': text.trim()},
+      ),
+      (envelope) => '${envelope.data ?? ''}',
+    );
   }
 
   /// Publishes a story. [body] is the `PublishStoryDto`: `mediaUrl` (the

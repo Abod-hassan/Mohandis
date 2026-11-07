@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
 
 import '../entities/profile.dart';
 
@@ -14,6 +14,11 @@ abstract class ProfileRepository {
   /// everything by ProfileId, which the client cannot derive from its auth
   /// token, so "me" has to be resolved by the server.
   Future<Result<Profile, AppException>> byPerson(String personId);
+
+  /// The profile id behind an `@handle`, for a tapped mention — a mention is
+  /// stored as text, so the handle is all the client has. Fails with
+  /// [NotFoundException] when no profile has it.
+  Future<Result<String, AppException>> idForUsername(String username);
 
   /// The id that means "whoever is holding the bearer token".
   static const String meSentinel = 'me';
@@ -31,6 +36,13 @@ abstract class ProfileRepository {
   /// text). Only the keys present are written, so an individual saving their
   /// headline never stamps company columns onto their row.
   Future<Result<Profile, AppException>> updateMe(Map<String, dynamic> body);
+
+  /// Writes the same fields as [updateMe] and does NOT read the profile back.
+  ///
+  /// For callers that only want the write to land. [updateMe] costs a read of
+  /// the profile and its three CV sections afterwards, which is four requests
+  /// spent on a value they would discard.
+  Future<Result<void, AppException>> patchMe(Map<String, dynamic> body);
 
   /// Follows or unfollows [personId].
   ///
@@ -66,6 +78,14 @@ abstract class ProfileRepository {
   /// Returns nothing: after a block the target's profile is no longer readable
   /// by the caller, so re-reading it the way every other action here does
   /// would answer with a not-found and turn a success into an error.
+  /// Lets [followerId] follow this (private) account —
+  /// `POST Profiles/AcceptRequest?followerId=`.
+  Future<Result<void, AppException>> acceptFollowRequest(String followerId);
+
+  /// Turns down a follow request — `POST Profiles/RejectRequest?followerId=`.
+  /// The server treats an already-gone request as success.
+  Future<Result<void, AppException>> rejectFollowRequest(String followerId);
+
   Future<Result<void, AppException>> block(String personId);
 
   /// Lifts a block the caller placed. Does not restore the follow edges the

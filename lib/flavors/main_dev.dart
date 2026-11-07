@@ -21,11 +21,27 @@ import '../core/config/environment.dart';
 /// Other targets: Android emulator → `http://10.0.2.2:<port>`; a physical
 /// device → the Mac's LAN IP, with the host bound to `0.0.0.0` rather than
 /// `localhost`.
+/// Overridable without editing this file — see the class comment above for
+/// which target needs what:
+///
+///     flutter run                                              # simulator
+///     flutter run --dart-define=API_BASE_URL=http://<mac-ip>:5199   # iPhone
+///
+/// Plain **http on 5199** for a device, not https on 7199: the dev certificate
+/// is self-signed, and `ApiClient` only accepts it for LOOPBACK hosts. A LAN IP
+/// is not loopback, so the https port would fail its TLS handshake on every
+/// request. The host's `RoboByte.Host` profile already listens on
+/// `0.0.0.0:5199` for exactly this.
+const String _devApiBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'https://localhost:7199',
+);
+
 Future<void> main() => bootstrap(
       AppConfig(
         environment: Environment.dev,
         appName: 'مهندس (Dev)',
-        apiBaseUrl: 'https://localhost:7199',
+        apiBaseUrl: _devApiBaseUrl,
         enableLogging: true,
         useMockData: false,
         // No Bunny credentials here any more. The storage zone — name, write

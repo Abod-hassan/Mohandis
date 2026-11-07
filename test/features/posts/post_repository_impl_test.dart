@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/features/posts/data/repositories/post_repository_impl.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/feed_page.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/post.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/features/posts/data/repositories/post_repository_impl.dart';
+import 'package:mohandis/features/posts/domain/entities/feed_page.dart';
+import 'package:mohandis/features/posts/domain/entities/post.dart';
 
 import '../../support/test_api_client.dart';
 

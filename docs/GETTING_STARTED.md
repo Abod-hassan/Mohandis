@@ -18,7 +18,7 @@ cd ios && pod install && cd ..
 
 ## 3. Rename the package (do this once, at the start)
 
-The template ships as `flutter_mobile_template` / `com.example.flutter_mobile_template`. Before you go further:
+The template ships as `mohandis` / `com.example.mohandis`. Before you go further:
 
 1. Pick your Dart package name (lowercase, snake_case). Example: `acme_ordering`.
 2. Pick your Android/iOS bundle id. Example: `com.acme.ordering`.
@@ -26,13 +26,13 @@ The template ships as `flutter_mobile_template` / `com.example.flutter_mobile_te
 
 ```bash
 # Dart package name
-grep -rl "flutter_mobile_template" --include="*.dart" --include="*.yaml" . \
-  | xargs sed -i '' 's|flutter_mobile_template|acme_ordering|g'
+grep -rl "mohandis" --include="*.dart" --include="*.yaml" . \
+  | xargs sed -i '' 's|mohandis|acme_ordering|g'
 
 # Android bundle
-grep -rl "com.example.flutter_mobile_template" \
+grep -rl "com.example.mohandis" \
   android/app/build.gradle.kts android/app/src \
-  | xargs sed -i '' 's|com.example.flutter_mobile_template|com.acme.ordering|g'
+  | xargs sed -i '' 's|com.example.mohandis|com.acme.ordering|g'
 ```
 
 Then adjust `ios/Runner.xcodeproj/project.pbxproj` `PRODUCT_BUNDLE_IDENTIFIER` values via Xcode or a targeted sed.

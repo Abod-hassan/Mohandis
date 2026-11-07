@@ -62,8 +62,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: RungType.heading.copyWith(
-          fontFamily: RungType.family,
+        titleTextStyle: RungType.styled(RungType.heading).copyWith(
           color: c.ink,
         ),
         shape: Border(bottom: BorderSide(color: c.line)),
@@ -74,9 +73,20 @@ class AppTheme {
           foregroundColor: Colors.white,
           disabledBackgroundColor: c.surface3,
           disabledForegroundColor: c.ink3,
+          // `Size.fromHeight` is `Size(double.infinity, 48)` — an infinite
+          // MINIMUM width. That is what makes buttons fill their parent, and
+          // it is safe in every bounded parent because `enforce` clamps it to
+          // the parent's width.
+          //
+          // It is NOT safe in an unbounded-width slot — a Row's non-flex
+          // child, or anything inside a horizontal scroll view. There nothing
+          // clamps it, the button asks to be laid out at `minWidth: Infinity`,
+          // `BoxConstraints.debugAssertIsValid` throws, and that frame's layout
+          // is abandoned: the rest of the subtree is never laid out, painted or
+          // hit-tested again. Any button placed directly in a Row must override
+          // `minimumSize` — see PhoneNumberField and the people list.
           minimumSize: const Size.fromHeight(48),
-          textStyle: RungType.label.copyWith(
-            fontFamily: RungType.family,
+          textStyle: RungType.styled(RungType.label).copyWith(
             fontSize: 15,
           ),
           shape: const RoundedRectangleBorder(borderRadius: RungRadius.pill),
@@ -111,20 +121,26 @@ class AppTheme {
         shape: const StadiumBorder(),
         extendedPadding: const EdgeInsets.symmetric(horizontal: 22),
         extendedIconLabelSpacing: 10,
-        extendedTextStyle: RungType.label.copyWith(
-          fontFamily: RungType.family,
+        // The weight goes INSIDE styled(), not after it. `styled` reads
+        // `fontWeight` to choose which Cairo file to load — a w800 applied
+        // afterwards would leave it on the label's own weight and let Flutter
+        // synthesise the difference, which is the faux bold this whole helper
+        // exists to avoid.
+        extendedTextStyle: RungType.styled(
+          RungType.label.copyWith(fontWeight: FontWeight.w800),
+        ).copyWith(
           fontSize: 15,
-          fontWeight: FontWeight.w800,
           color: Colors.white,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: c.accent,
+          // Infinite minimum width — see the note on filledButtonTheme above.
+          // A button placed directly in a Row must override this.
           minimumSize: const Size.fromHeight(48),
           side: BorderSide(color: c.accent, width: 1.5),
-          textStyle: RungType.label.copyWith(
-            fontFamily: RungType.family,
+          textStyle: RungType.styled(RungType.label).copyWith(
             fontSize: 15,
           ),
           shape: const RoundedRectangleBorder(borderRadius: RungRadius.pill),
@@ -133,14 +149,13 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: c.accent,
-          textStyle: RungType.label.copyWith(fontFamily: RungType.family),
+          textStyle: RungType.styled(RungType.label),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: c.surface,
-        hintStyle: RungType.body.copyWith(
-          fontFamily: RungType.family,
+        hintStyle: RungType.styled(RungType.body).copyWith(
           color: c.ink3,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -168,8 +183,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: c.surface2,
         side: BorderSide(color: c.line),
-        labelStyle: RungType.caption.copyWith(
-          fontFamily: RungType.family,
+        labelStyle: RungType.styled(RungType.caption).copyWith(
           color: c.ink2,
         ),
         shape: const StadiumBorder(),
@@ -183,8 +197,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: c.ink,
-        contentTextStyle: RungType.label.copyWith(
-          fontFamily: RungType.family,
+        contentTextStyle: RungType.styled(RungType.label).copyWith(
           color: c.surface,
         ),
         behavior: SnackBarBehavior.floating,
@@ -212,7 +225,7 @@ class AppTheme {
 
   static TextTheme _textTheme(RungColors c) {
     TextStyle s(TextStyle base, Color color) =>
-        base.copyWith(fontFamily: RungType.family, color: color);
+        RungType.styled(base).copyWith(color: color);
     return TextTheme(
       displaySmall: s(RungType.display, c.ink),
       headlineSmall: s(RungType.title, c.ink),

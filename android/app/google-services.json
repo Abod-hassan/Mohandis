@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "90026548356",
+    "project_id": "mohandis-87f43",
+    "storage_bucket": "mohandis-87f43.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90026548356:android:85e996f52eea909fb076d1",
+        "android_client_info": {
+          "package_name": "com.robobyte.mohandis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgUKPJOWqbBKsA4UlrF_ly1COYaiiPD0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

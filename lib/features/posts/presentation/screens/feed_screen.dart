@@ -2,29 +2,84 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_repository_impl.dart';
-import 'package:flutter_mobile_template/features/messaging/presentation/notifiers/messaging_notifier.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/features/stories/presentation/widgets/stories_rail.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/router/shell_branch.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/activity/presentation/notifiers/activity_notifier.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_repository_impl.dart';
+import 'package:mohandis/features/messaging/presentation/notifiers/messaging_notifier.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/stories/presentation/widgets/stories_rail.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../../domain/entities/post.dart';
 import '../notifiers/feed_notifier.dart';
 import '../widgets/post_card.dart';
+import '../widgets/post_options_sheet.dart';
 
-class FeedScreen extends ConsumerWidget {
+class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends ConsumerState<FeedScreen> {
+  /// Owned by the screen so a Home re-tap can send the list back to the top.
+  /// `ListView` would otherwise make its own and keep it to itself.
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Everything a pull does, and everything a re-tap does, in one place —
+  /// they are the same request made with two different gestures.
+  Future<void> _refresh() {
+    refreshUnreadActivityCount(ref);
+    // "Me" and the directory ride along. Both are session-wide caches with no
+    // refresh of their own, so a failed read at launch leaves the top bar, the
+    // composer and the story rail showing placeholder avatars until the app is
+    // killed. A pull is the gesture someone already makes when a screen looks
+    // wrong; it should be able to fix this.
+    ref.invalidate(currentPersonProvider);
+    ref.invalidate(peopleDirectoryProvider);
+    return ref.read(feedNotifierProvider.notifier).refresh();
+  }
+
+  /// Tapping Home while already on Home.
+  ///
+  /// Scrolls rather than jumps, unlike the reels pager: a list has no
+  /// per-item cost to pass over, and the movement is what tells somebody the
+  /// tap registered. Capped so a reader fifty posts down is not watching an
+  /// animation for a second and a half.
+  Future<void> _retap() async {
+    if (_scroll.hasClients && _scroll.offset > 0) {
+      await _scroll.animateTo(
+        0,
+        duration: Duration(
+          milliseconds: _scroll.offset > 2000 ? 400 : 250,
+        ),
+        curve: Curves.easeOutCubic,
+      );
+    }
+    if (mounted) await _refresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // `listen`, not `watch`: a re-tap is an event. Watching the counter would
+    // rebuild the feed every time any tab was touched.
+    ref.listen<int>(shellRetapProvider(ShellBranch.feed), (_, __) => _retap());
+
     final c = context.rung;
     final feed = ref.watch(feedNotifierProvider);
     final directory = ref.watch(peopleDirectoryProvider).valueOrNull;
@@ -38,16 +93,20 @@ class FeedScreen extends ConsumerWidget {
             const _FeedTopBar(),
             Expanded(
               child: feed.when(
-                loading: () => const LoadingView(),
+                // A skeleton, not a spinner. This screen has the most to fetch
+                // of any in the app, and it is the one every launch and every
+                // sign-in lands on — a bare spinner over an empty page for that
+                // long reads as a hang.
+                loading: () => const FeedSkeleton(),
                 error: (e, _) => ErrorView(
                   error: e,
                   onRetry: () =>
                       ref.read(feedNotifierProvider.notifier).refresh(),
                 ),
                 data: (posts) => RefreshIndicator(
-                  onRefresh: () =>
-                      ref.read(feedNotifierProvider.notifier).refresh(),
+                  onRefresh: _refresh,
                   child: ListView.builder(
+                    controller: _scroll,
                     padding: const EdgeInsets.only(bottom: RungSpace.lg),
                     itemCount: posts.length + 3,
                     itemBuilder: (context, index) {
@@ -103,10 +162,20 @@ class _FeedPost extends ConsumerWidget {
     // The viewer's own record wins over both — see `resolveAuthor`.
     final author = resolveAuthor(ref, post.authorId, post.author);
 
-    final jobs = ref.watch(jobsDirectoryProvider).valueOrNull;
-    final job = post.jobId == null ? null : jobs?[post.jobId];
+    // Watched INSIDE the null check, not above it. Riverpod has no rule that
+    // watches must be unconditional (that is a hooks rule), and hoisting this
+    // meant a feed with no job embeds at all still fetched 50 job postings on
+    // every launch — a whole tab's data pulled in by a card that had no job to
+    // render. Now the request happens only once a job-embed post is on screen.
+    final job = post.jobId == null
+        ? null
+        : ref.watch(jobsDirectoryProvider).valueOrNull?[post.jobId];
     final l10n = context.l10n;
     final notifier = ref.read(feedNotifierProvider.notifier);
+    // Read in build, not in the ⋯ callback: a watch that only happens on tap
+    // returns AsyncLoading the first time and would offer the author
+    // Save/Report on their own post.
+    final myId = ref.watch(currentPersonProvider).valueOrNull?.id;
 
     return PostCard(
       post: post,
@@ -154,6 +223,14 @@ class _FeedPost extends ConsumerWidget {
           ),
         );
       },
+      onMore: () => showPostOptions(
+        context,
+        ref,
+        post: post,
+        isMine: myId != null && myId == post.authorId,
+        onChanged: notifier.applyServerPost,
+        onDeleted: () => notifier.removePost(post.id),
+      ),
       onSave: () async {
         final wasSaved = post.saved;
         final result = await notifier.toggleSave(post.id);
@@ -182,6 +259,7 @@ class _FeedTopBar extends ConsumerWidget {
     final me = ref.watch(currentPersonProvider).valueOrNull;
     // Was hardcoded on — a red dot every user saw forever, unread or not.
     final unread = ref.watch(unreadThreadCountProvider);
+    final unreadActivity = ref.watch(unreadActivityCountProvider);
 
     return Container(
       height: 54,
@@ -197,6 +275,7 @@ class _FeedTopBar extends ConsumerWidget {
             child: RungAvatar(
               seed: me?.id ?? 'me',
               initials: me?.initials ?? '—',
+              icon: me?.accountType.icon,
               size: 34,
               imageUrl: ref.watch(imageUrlResolverProvider)(me?.avatarUrl),
             ),
@@ -209,7 +288,21 @@ class _FeedTopBar extends ConsumerWidget {
               onTap: () => context.push('/search'),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
+          RungIconButton(
+            icon: Icons.notifications_none_rounded,
+            tooltip: context.l10n.notificationsTitle,
+            onPressed: () async {
+              await context.push('/notifications');
+              // Rows opened in there were marked read; re-read the count so
+              // the badge does not linger until the next pull-to-refresh.
+              if (context.mounted) refreshUnreadActivityCount(ref);
+            },
+            badge: unreadActivity > 0
+                ? RungCountBadge(count: unreadActivity)
+                : null,
+          ),
+          const SizedBox(width: 8),
           RungIconButton(
             icon: Icons.chat_bubble_outline_rounded,
             tooltip: context.l10n.messagesTitle,
@@ -261,6 +354,7 @@ class _ComposerEntry extends ConsumerWidget {
           RungAvatar(
             seed: me?.id ?? 'me',
             initials: me?.initials ?? '—',
+            icon: me?.accountType.icon,
             size: 38,
             imageUrl: ref.watch(imageUrlResolverProvider)(me?.avatarUrl),
           ),

@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/features/posts/data/repositories/post_repository_impl.dart';
-import 'package:flutter_mobile_template/features/posts/domain/repositories/post_repository.dart';
-import 'package:flutter_mobile_template/features/posts/presentation/notifiers/feed_notifier.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/comment.dart';
-import 'package:flutter_mobile_template/features/posts/domain/entities/post.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/features/posts/data/repositories/post_repository_impl.dart';
+import 'package:mohandis/features/posts/domain/repositories/post_repository.dart';
+import 'package:mohandis/features/posts/presentation/notifiers/feed_notifier.dart';
+import 'package:mohandis/features/posts/domain/entities/comment.dart';
+import 'package:mohandis/features/reels/data/repositories/reel_repository_impl.dart';
+import 'package:mohandis/features/reels/domain/entities/reel.dart';
+import 'package:mohandis/features/posts/domain/entities/post.dart';
 
 /// A profile's own posts and comments — what the activity section shows.
 class ProfileActivity {
@@ -168,6 +171,37 @@ class ProfileActivityFeed extends AutoDisposeFamilyAsyncNotifier<
   Future<bool> toggleSave(String postId) =>
       _mutate(postId, (r) => r.toggleSave(postId));
 
+  /// Replaces one row after an edit made from the card's options sheet.
+  void applyServerPost(Post updated) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    state = AsyncValue.data(
+      ProfileActivity(
+        posts: [
+          for (final p in current.posts) p.id == updated.id ? updated : p,
+        ],
+        comments: current.comments,
+      ),
+    );
+    ref.read(feedNotifierProvider.notifier).applyServerPost(updated);
+  }
+
+  /// Drops a deleted row, here and in the home feed.
+  void removePost(String postId) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    state = AsyncValue.data(
+      ProfileActivity(
+        posts: [
+          for (final p in current.posts)
+            if (p.id != postId) p,
+        ],
+        comments: current.comments,
+      ),
+    );
+    ref.read(feedNotifierProvider.notifier).removePost(postId);
+  }
+
   Future<bool> _mutate(
     String postId,
     Future<Result<Post, AppException>> Function(PostRepository) call,
@@ -206,3 +240,55 @@ final profileActivityTabProvider =
 );
 
 enum ProfileActivityTab { posts, comments }
+
+/// One page of a profile's reels, for the profile's Reels tab.
+///
+/// Keyed by the REAL ProfileId, not the `me` route alias: the filter is a
+/// server-side `authorIds`, and the server has never heard of `me`.
+///
+/// **Filtered again on the way out, and that is not belt-and-braces.** This
+/// grid is an assertion about one person — these are their reels — and the
+/// only thing standing behind it is that a filter in a request body was
+/// honoured. When it is not, the failure is silent and wrong in the worst
+/// direction: the wall arrives, the grid renders it, and a profile shows
+/// strangers' videos as that person's work. A row whose `authorId` is not this
+/// profile has no business here no matter what produced it, so it is dropped
+/// rather than drawn. An empty grid is a visible, reportable bug; somebody
+/// else's reel under somebody's name is not.
+///
+/// autoDispose, like the activity above and for the same reason — this is
+/// somebody else's profile most of the time.
+final profileReelsProvider =
+    FutureProvider.autoDispose.family<List<Reel>, String>((ref, profileId) async {
+  final result = await ref.watch(reelRepositoryProvider).getAll(
+    query: {'authorIds': [profileId]},
+  );
+  // Case-insensitive: both sides are the same Guid, but one travels as JSON
+  // written by the server and the other through the profile payload, and a
+  // casing difference between them would empty the grid rather than scope it.
+  final mine = profileId.toLowerCase();
+  return result.when(
+    success: (rows) {
+      final kept = [
+        for (final reel in rows)
+          if (reel.authorId.toLowerCase() == mine) reel,
+      ];
+
+      // Says out loud what the server did with `authorIds`, because the two
+      // ways this goes wrong look identical on screen — an unfiltered wall and
+      // a correctly filtered one both render as "reels I do not recognise" when
+      // the posters fail to load. `asked` is what was sent; `authors` is what
+      // came back. One line of log separates "the filter was ignored" from
+      // "these really are this profile's reels".
+      final authors = {for (final r in rows) r.authorId}.toList();
+      ref.read(loggerProvider).d(
+        '[profile] reels asked=$mine got=${rows.length} kept=${kept.length} '
+        'authors=$authors '
+        'firstVideo=${rows.isEmpty ? '-' : rows.first.videoUrl} '
+        'firstPoster=${rows.isEmpty ? '-' : rows.first.posterPath}',
+      );
+      return kept;
+    },
+    failure: (e) => throw e,
+  );
+});

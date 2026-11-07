@@ -34,7 +34,6 @@ class RungFilterChip extends StatelessWidget {
         child: Container(
           height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 15),
-          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: selected
                 ? c.accent
@@ -49,13 +48,27 @@ class RungFilterChip extends StatelessWidget {
                   )
                 : null,
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected ? Colors.white : c.ink2,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
+          // `Align(widthFactor: 1)`, NOT `Container(alignment:)`.
+          //
+          // They look identical and are not: setting `alignment` on a Container
+          // wraps the child in an Align with NO width factor, which expands to
+          // whatever maximum width it is offered. In a Row that is unbounded, so
+          // the chip sized to its text and nobody noticed — but in a `Wrap` the
+          // maximum is the Wrap's own width, so every chip took a full line and
+          // a row of four short filters became four stacked buttons. A width
+          // factor of 1 means "be exactly as wide as the child", which is what
+          // a chip has always meant to be.
+          child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.white : c.ink2,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+              ),
             ),
           ),
         ),

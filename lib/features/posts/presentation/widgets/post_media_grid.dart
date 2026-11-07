@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/widgets/image_viewer.dart';
 
 import '../../domain/entities/post.dart';
 
@@ -15,7 +16,12 @@ import '../../domain/entities/post.dart';
 /// that yields no URL — a mocked backend, a deployment with no storage zone,
 /// a path that 404s — falls back to a deterministic gradient keyed on the
 /// media id rather than to a broken-image glyph.
-class PostMediaGrid extends StatelessWidget {
+///
+/// Tapping a picture opens it full-screen ([showImageViewer]) at that picture,
+/// with the post's other pictures a swipe away — the "+N" tile opens at the
+/// first hidden one. [onTap] is only the fallback for a tile with nothing to
+/// show (no resolvable URL).
+class PostMediaGrid extends ConsumerWidget {
   const PostMediaGrid({super.key, required this.media, this.onTap});
 
   final List<PostMedia> media;
@@ -24,7 +30,7 @@ class PostMediaGrid extends StatelessWidget {
   static const int _maxVisible = 2;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Pictures only. A document has no aspect ratio and nothing to crop, so it
     // renders as its own row under the body — see PostDocumentList. Filtering
     // here rather than at the call sites means a post carrying both lays its
@@ -34,9 +40,27 @@ class PostMediaGrid extends StatelessWidget {
 
     if (media.isEmpty) return const SizedBox.shrink();
 
+    final resolve = ref.watch(imageUrlResolverProvider);
+    final urls = [for (final m in media) resolve(m.url)];
+
+    void open(int index) {
+      final url = urls[index];
+      if (url == null) {
+        onTap?.call();
+        return;
+      }
+      // Only the loadable ones go in the viewer; the index shifts to match.
+      final loadable = [for (final u in urls) if (u != null) u];
+      showImageViewer(
+        context,
+        urls: loadable,
+        initialIndex: loadable.indexOf(url),
+      );
+    }
+
     if (media.length == 1) {
       return GestureDetector(
-        onTap: onTap,
+        onTap: () => open(0),
         child: AspectRatio(
           aspectRatio: media.first.aspectRatio,
           child: _Tile(media: media.first),
@@ -47,13 +71,16 @@ class PostMediaGrid extends StatelessWidget {
     final visible = media.take(_maxVisible).toList(growable: false);
     final overflow = media.length - visible.length;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          for (var i = 0; i < visible.length; i++) ...[
-            if (i > 0) const SizedBox(width: 2),
-            Expanded(
+    return Row(
+      children: [
+        for (var i = 0; i < visible.length; i++) ...[
+          if (i > 0) const SizedBox(width: 2),
+          Expanded(
+            child: GestureDetector(
+              // The "+N" tile opens at the first picture it hides.
+              onTap: () => open(
+                i == visible.length - 1 && overflow > 0 ? i + 1 : i,
+              ),
               child: AspectRatio(
                 aspectRatio: 1,
                 child: _Tile(
@@ -63,9 +90,9 @@ class PostMediaGrid extends StatelessWidget {
                 ),
               ),
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -86,10 +113,16 @@ class _Tile extends ConsumerWidget {
           Image.network(
             url,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _Placeholder(seed: media.id),
+            // A plain grey stand-in while it loads, and the same with an image
+            // mark if it never does — not a coloured gradient, which read as
+            // part of the post rather than as a picture still on its way.
+            loadingBuilder: (context, child, progress) => progress == null
+                ? child
+                : const _Placeholder(showIcon: false),
+            errorBuilder: (_, __, ___) => const _Placeholder(),
           )
         else
-          _Placeholder(seed: media.id),
+          const _Placeholder(),
         if (overflowCount != null)
           Container(
             color: const Color(0x800A0E16),
@@ -108,22 +141,22 @@ class _Tile extends ConsumerWidget {
   }
 }
 
+/// A neutral tile where a picture is, or should be.
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({required this.seed});
+  const _Placeholder({this.showIcon = true});
 
-  final String seed;
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(gradient: RungGradients.forSeed(seed)),
-      child: const Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: Colors.white54,
-          size: 34,
-        ),
-      ),
+    final c = context.rung;
+    return ColoredBox(
+      color: c.surface3,
+      child: showIcon
+          ? Center(
+              child: Icon(Icons.image_outlined, color: c.ink3, size: 30),
+            )
+          : const SizedBox.expand(),
     );
   }
 }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../notifiers/network_notifier.dart';
 
@@ -65,7 +65,7 @@ class WelcomeConnectScreen extends ConsumerWidget {
           ),
           Expanded(
             child: overview.when(
-              loading: () => const LoadingView(),
+              loading: () => const PeopleListSkeleton(count: 6),
               // No error screen. A failed suggestion read must not strand
               // somebody on the last step of sign-up — the feed is one tap away
               // and the Network tab will try again.
@@ -165,6 +165,7 @@ class _PersonRowState extends ConsumerState<_PersonRow> {
           RungAvatar(
             seed: person.id,
             initials: person.initials,
+            icon: person.accountType.icon,
             imageUrl: ref.watch(imageUrlResolverProvider)(person.avatarUrl),
             size: 48,
           ),
@@ -173,14 +174,25 @@ class _PersonRowState extends ConsumerState<_PersonRow> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  person.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        person.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    NameBadges(
+                      verified: person.verified,
+                      subscribed: person.subscribed,
+                      size: 13,
+                    ),
+                  ],
                 ),
                 if (person.headline.isNotEmpty) ...[
                   const SizedBox(height: 2),
@@ -212,7 +224,11 @@ class _PersonRowState extends ConsumerState<_PersonRow> {
                         color: c.accent,
                       ),
                     )
-                  : Text(sent ? l10n.networkAddSent : l10n.networkAdd),
+                  : Text(
+                      // Disabled once sent, so it says what is true rather
+                      // than offering an action it refuses to take.
+                      sent ? l10n.postSuggestedFollowing : l10n.profileFollow,
+                    ),
             ),
           ),
         ],
@@ -222,9 +238,10 @@ class _PersonRowState extends ConsumerState<_PersonRow> {
 
   Future<void> _connect() async {
     setState(() => _sending = true);
+    // Follows, not connects: the app has one relationship now.
     final result = await ref
         .read(networkNotifierProvider.notifier)
-        .connect(widget.person.id);
+        .follow(widget.person.id);
     if (!mounted) return;
 
     setState(() => _sending = false);

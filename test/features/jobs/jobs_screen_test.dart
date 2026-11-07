@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_mock_repository.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_repository_impl.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job_application.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/repositories/job_repository.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/screens/jobs_screen.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/widgets/job_card.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/loading_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_mock_repository.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_repository_impl.dart';
+import 'package:mohandis/features/jobs/domain/entities/job.dart';
+import 'package:mohandis/features/jobs/domain/entities/job_application.dart';
+import 'package:mohandis/features/jobs/domain/repositories/job_repository.dart';
+import 'package:mohandis/features/jobs/presentation/screens/jobs_screen.dart';
+import 'package:mohandis/features/jobs/presentation/widgets/job_card.dart';
 
 import '../../support/pump_rung.dart';
 

@@ -1,13 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:flutter_mobile_template/core/api/api_client.dart';
-import 'package:flutter_mobile_template/core/api/api_envelope.dart';
-import 'package:flutter_mobile_template/core/api/endpoints.dart';
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/core/error/result.dart';
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/dtos/person_dto.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/api/api_client.dart';
+import 'package:mohandis/core/api/api_envelope.dart';
+import 'package:mohandis/core/api/endpoints.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/core/error/result.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/features/shared/people/data/dtos/person_dto.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/features/profile/data/dtos/profile_dto.dart';
+import 'package:mohandis/features/profile/domain/entities/profile.dart';
 
 import '../../domain/entities/search_results.dart';
 import '../../domain/entities/trending_tag.dart';
@@ -66,13 +68,20 @@ class SearchRepositoryImpl implements SearchRepository {
     String query, {
     int page = 1,
     int size = 20,
+    AccountType? accountType,
   }) {
     final path = EndPoints.searchScope(_profilesScope);
     return apiCall(
       path,
       () => _api.dio.get<dynamic>(
         path,
-        queryParameters: {'q': query, 'page': page, 'size': size},
+        queryParameters: {
+          'q': query,
+          'page': page,
+          'size': size,
+          if (accountType != null)
+            'accountType': ProfileDto.accountTypeToWire(accountType),
+        },
       ),
       // A `SearchPageDto`: one object with a populated list per scope, so the
       // rows are picked out by name rather than read off `envelope.list`.

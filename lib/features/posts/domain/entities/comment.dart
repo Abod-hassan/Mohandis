@@ -1,5 +1,5 @@
-import 'package:flutter_mobile_template/core/base/base_entity.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/core/base/base_entity.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
 
 /// A comment on a post. Replies nest exactly one level deep — the design's
 /// thread renders a reply indented under its parent and no further.
@@ -17,6 +17,8 @@ class Comment extends BaseEntity {
     this.parentCommentId,
     this.authorName = '',
     this.authorAvatarUrl,
+    this.authorUsername,
+    this.authorSubscribed = false,
     this.likeCount = 0,
     this.liked = false,
     this.replyCount = 0,
@@ -32,6 +34,13 @@ class Comment extends BaseEntity {
   /// without a directory lookup per author.
   final String authorName;
   final String? authorAvatarUrl;
+
+  /// The author's `@handle`, which a reply pre-fills so the author is
+  /// notified. Null on servers that predate the field.
+  final String? authorUsername;
+
+  /// The author holds a live subscription — see `Person.subscribed`.
+  final bool authorSubscribed;
 
   final String postId;
   final String? parentCommentId;
@@ -54,7 +63,9 @@ class Comment extends BaseEntity {
     headline: '',
     location: '',
     verified: false,
+    subscribed: authorSubscribed,
     avatarUrl: authorAvatarUrl,
+    username: authorUsername ?? '',
   );
 
   Comment copyWith({
@@ -68,6 +79,8 @@ class Comment extends BaseEntity {
       authorId: authorId,
       authorName: authorName,
       authorAvatarUrl: authorAvatarUrl,
+      authorUsername: authorUsername,
+      authorSubscribed: authorSubscribed,
       postId: postId,
       parentCommentId: parentCommentId,
       text: text,

@@ -1,4 +1,4 @@
-package com.example.flutter_mobile_template
+package com.robobyte.mohandis
 
 import io.flutter.embedding.android.FlutterActivity
 

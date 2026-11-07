@@ -259,3 +259,267 @@ class RungToggleTile extends StatelessWidget {
     );
   }
 }
+
+/// A one-of-many field that opens a sheet, rather than a row of chips.
+///
+/// Chips are right when the options are few, short, and worth seeing at a
+/// glance — a filter row. They are wrong when a form asks several such
+/// questions in a column: three options each, three questions, and the form is
+/// nine rows deep before it has asked anything the person has to type. This
+/// costs one row per question whatever the list grows to.
+///
+/// Built to match [RungField] and the account-type and discipline pickers, so
+/// a form mixing typed and chosen answers reads as one control repeated.
+class RungSelectField<T> extends StatelessWidget {
+  const RungSelectField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.values,
+    required this.labelOf,
+    required this.onChanged,
+    this.iconOf,
+    this.subtitleOf,
+    this.enabled = true,
+  });
+
+  final String label;
+  final T value;
+  final List<T> values;
+  final String Function(T) labelOf;
+
+  /// Optional mark for each option, drawn in a tinted square. Null draws none,
+  /// and the rows close up rather than leaving an empty column.
+  final IconData Function(T)? iconOf;
+
+  /// Optional second line per option, for a choice whose name does not say
+  /// what it means.
+  final String Function(T)? subtitleOf;
+
+  final ValueChanged<T> onChanged;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.rung;
+    final icon = iconOf?.call(value);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w700,
+            color: c.ink2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Semantics(
+          button: true,
+          label: label,
+          value: labelOf(value),
+          child: InkWell(
+            onTap: enabled ? () => _open(context) : null,
+            borderRadius: RungRadius.mdAll,
+            child: Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: enabled ? c.surface : c.surface2,
+                borderRadius: RungRadius.mdAll,
+                border: Border.all(color: c.line),
+              ),
+              child: Row(
+                children: [
+                  if (icon != null) ...[
+                    _Mark(icon: icon, size: 30),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: Text(
+                      labelOf(value),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.expand_more_rounded, size: 20, color: c.ink3),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final chosen = await showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final c = sheetContext.rung;
+        return SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              color: c.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(RungRadius.lg),
+              ),
+            ),
+            // Sized to its content, not to a fraction of the screen: these
+            // lists are three or four rows, and a sheet that opens at three
+            // quarters leaves a hole under the last one.
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: c.line,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: RungSpace.sm),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: RungSpace.sm),
+                for (final option in values)
+                  _Option<T>(
+                    label: labelOf(option),
+                    subtitle: subtitleOf?.call(option),
+                    icon: iconOf?.call(option),
+                    selected: option == value,
+                    onTap: () => Navigator.of(sheetContext).pop(option),
+                  ),
+                const SizedBox(height: RungSpace.md),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Null is a dismissal. A select always has a value, so there is no
+    // "cleared" state to fall back to and nothing to report.
+    if (chosen != null) onChanged(chosen);
+  }
+}
+
+class _Option<T> extends StatelessWidget {
+  const _Option({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.subtitle,
+    this.icon,
+  });
+
+  final String label;
+  final String? subtitle;
+  final IconData? icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.rung;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: RungSpace.gutter,
+            vertical: 12,
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                _Mark(icon: icon!, size: 36, on: selected),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight:
+                            selected ? FontWeight.w800 : FontWeight.w600,
+                        color: selected ? c.accent : c.ink,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          height: 1.35,
+                          color: c.ink3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Always holds its width, so the labels beside it do not shift
+              // as the selection moves down the list.
+              SizedBox(
+                width: 22,
+                child: selected
+                    ? Icon(Icons.check_rounded, size: 22, color: c.accent)
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// An option's icon in a tinted square — accent-filled while it is the chosen
+/// one.
+class _Mark extends StatelessWidget {
+  const _Mark({required this.icon, required this.size, this.on = false});
+
+  final IconData icon;
+  final double size;
+  final bool on;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.rung;
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: on ? c.accent : c.accentSoft,
+        borderRadius: BorderRadius.circular(size / 4),
+      ),
+      child: Icon(icon, size: size * 0.55, color: on ? Colors.white : c.accent),
+    );
+  }
+}

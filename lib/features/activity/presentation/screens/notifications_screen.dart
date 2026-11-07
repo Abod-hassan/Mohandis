@@ -2,27 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_mobile_template/core/providers.dart';
-import 'package:flutter_mobile_template/core/theme/rung_colors.dart';
-import 'package:flutter_mobile_template/core/theme/rung_tokens.dart';
-import 'package:flutter_mobile_template/core/utils/error_messages.dart';
-import 'package:flutter_mobile_template/core/utils/formatters.dart';
-import 'package:flutter_mobile_template/core/widgets/empty_view.dart';
-import 'package:flutter_mobile_template/core/widgets/error_view.dart';
-import 'package:flutter_mobile_template/core/widgets/loading_view.dart';
-import 'package:flutter_mobile_template/core/widgets/rung/rung.dart';
-import 'package:flutter_mobile_template/features/shared/people/data/repositories/people_repository_impl.dart';
-import 'package:flutter_mobile_template/features/shared/people/domain/entities/person.dart';
-import 'package:flutter_mobile_template/l10n/l10n.dart';
+import 'package:mohandis/core/providers.dart';
+import 'package:mohandis/core/theme/rung_colors.dart';
+import 'package:mohandis/core/theme/rung_tokens.dart';
+import 'package:mohandis/core/utils/error_messages.dart';
+import 'package:mohandis/core/utils/formatters.dart';
+import 'package:mohandis/core/widgets/empty_view.dart';
+import 'package:mohandis/core/widgets/error_view.dart';
+import 'package:mohandis/core/widgets/rung/rung.dart';
+import 'package:mohandis/features/shared/people/data/repositories/people_repository_impl.dart';
+import 'package:mohandis/features/shared/people/domain/entities/person.dart';
+import 'package:mohandis/l10n/l10n.dart';
+import 'package:mohandis/features/profile/presentation/widgets/account_type_labels.dart';
 
 import '../../domain/entities/activity_notification.dart';
 import '../notifiers/activity_notifier.dart';
 
-class NotificationsScreen extends ConsumerWidget {
+/// The inbox.
+///
+/// **Opening it is what marks everything read** — the badge, the server rows
+/// and the highlights on screen. There is no button, because there is nothing
+/// a person does on this screen other than read it, and a badge that survives
+/// the only act that could clear it is a badge people stop believing.
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+  /// So a rebuild — a row being opened, the directory arriving, or the write's
+  /// own state change — does not fire the write again, and a failed write does
+  /// not retry forever against a list that rolled back to unread.
+  ///
+  /// Re-armed by a pull-to-refresh, which is the one thing that can bring in
+  /// rows this visit has not cleared yet.
+  bool _cleared = false;
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.rung;
     final l10n = context.l10n;
     final activity = ref.watch(activityNotifierProvider);
@@ -33,53 +53,49 @@ class NotificationsScreen extends ConsumerWidget {
       appBar: RungAppBar(
         title: l10n.notificationsTitle,
         titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final result = await ref
-                  .read(activityNotifierProvider.notifier)
-                  .markAllRead();
-              if (!context.mounted) return;
-              // The optimistic clear rolls back on failure; without this the
-              // dots simply reappear a second later with no explanation.
-              result.when(
-                success: (_) {},
-                failure: (e) => showRungToast(
-                  context,
-                  arabicMessageForException(e),
-                  success: false,
-                ),
-              );
-            },
-            child: Text(
-              l10n.notificationsMarkAllRead,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
       ),
       body: activity.when(
-        loading: () => const LoadingView(),
+        loading: () => const NotificationListSkeleton(),
         error: (e, _) => ErrorView(
           error: e,
           onRetry: () => ref.read(activityNotifierProvider.notifier).refresh(),
         ),
-        data: (items) => items.isEmpty
-            ? EmptyView(
-                title: l10n.emptyTitle,
-                icon: Icons.notifications_none_rounded,
-              )
-            : RefreshIndicator(
-                onRefresh: () =>
-                    ref.read(activityNotifierProvider.notifier).refresh(),
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, i) => _NotificationRow(
-                    item: items[i],
-                    actor: directory?[items[i].actorId],
+        data: (items) {
+          // After the first successful load, not in initState: the write is
+          // worth skipping entirely when there is nothing unread, and that is
+          // only knowable once the rows are in. Scheduled off the frame — a
+          // provider must not be written to during a build.
+          if (!_cleared) {
+            _cleared = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              ref.read(activityNotifierProvider.notifier).markAllReadOnOpen();
+            });
+          }
+
+          return items.isEmpty
+              ? EmptyView(
+                  title: l10n.emptyTitle,
+                  icon: Icons.notifications_none_rounded,
+                )
+              : RefreshIndicator(
+                  onRefresh: () {
+                    // Whatever the pull brings back deserves the same
+                    // treatment as what was here on open.
+                    _cleared = false;
+                    return ref
+                        .read(activityNotifierProvider.notifier)
+                        .refresh();
+                  },
+                  child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, i) => _NotificationRow(
+                      item: items[i],
+                      actor: directory?[items[i].actorId],
+                    ),
                   ),
-                ),
-              ),
+                );
+        },
       ),
     );
   }
@@ -123,6 +139,7 @@ class _NotificationRow extends ConsumerWidget {
                 RungAvatar(
                   seed: item.actorId,
                   initials: actor?.initials ?? _monogram(name),
+                  icon: actor?.accountType.icon,
                   // The directory is one page, so it misses often; the
                   // notification's own inlined photo is what makes the row
                   // render an actual face rather than a monogram.
@@ -159,11 +176,29 @@ class _NotificationRow extends ConsumerWidget {
                           text: name,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
+                        // A WidgetSpan, because the name is mid-sentence here
+                        // rather than a row of its own — "<name> أعجب بمنشورك".
+                        // A trailing sibling widget would land after the whole
+                        // sentence, attaching the mark to the verb.
+                        //
+                        // Null-aware rather than an `actor != null` guard:
+                        // `actor` is a PUBLIC final field, and Dart only
+                        // promotes private ones — the guarded form does not
+                        // compile. `NameBadges` draws nothing when both are
+                        // false, so no guard is needed anyway.
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: NameBadges(
+                            verified: actor?.verified ?? false,
+                            subscribed: actor?.subscribed ?? false,
+                            size: 12.5,
+                          ),
+                        ),
                         // The module leaves `Text` null for everything except
                         // a job application, so for almost every row the
                         // sentence has to be composed here from the kind.
                         TextSpan(
-                          text: ' ${item.text.isNotEmpty ? item.text : _predicate(l10n, item.type)}',
+                          text: ' ${item.text.isNotEmpty ? item.text : item.isFollowRequest ? l10n.activityFollowRequested : _predicate(l10n, item.type)}',
                         ),
                       ],
                     ),
@@ -188,19 +223,27 @@ class _NotificationRow extends ConsumerWidget {
                                 actor?.firstName ?? _firstWord(name);
                             final result = await ref
                                 .read(activityNotifierProvider.notifier)
-                                .acceptConnection(
-                                  item.id,
-                                  item.actorId,
-                                  l10n.notificationsNowConnected,
+                                // Every actionable row is a follow request
+                                // now: connection rows are dropped before they
+                                // reach this list — see ActivityNotificationDto
+                                // .isHidden.
+                                .acceptRequest(
+                                  item,
+                                  acceptedText: l10n.notificationsFollowApproved,
                                 );
                             if (!context.mounted) return;
                             // The row keeps its buttons when the accept fails,
                             // so the toast must agree with it — otherwise the
                             // same frame says both "connected" and "not yet".
                             result.when(
-                              success: (_) => showRungToast(
+                              success: (outcome) => showRungToast(
                                 context,
-                                l10n.toastConnected(firstName),
+                                switch (outcome) {
+                                  RequestOutcome.alreadyHandled =>
+                                    l10n.notificationsRequestHandled,
+                                  RequestOutcome.done =>
+                                    l10n.toastFollowApproved(firstName),
+                                },
                               ),
                               failure: (e) => showRungToast(
                                 context,
@@ -224,10 +267,17 @@ class _NotificationRow extends ConsumerWidget {
                           onPressed: () async {
                             final result = await ref
                                 .read(activityNotifierProvider.notifier)
-                                .ignoreConnection(item.id, item.actorId);
+                                .declineRequest(item);
                             if (!context.mounted) return;
                             result.when(
-                              success: (_) {},
+                              success: (outcome) {
+                                if (outcome == RequestOutcome.alreadyHandled) {
+                                  showRungToast(
+                                    context,
+                                    l10n.notificationsRequestHandled,
+                                  );
+                                }
+                              },
                               failure: (e) => showRungToast(
                                 context,
                                 arabicMessageForException(e),
@@ -289,9 +339,12 @@ class _NotificationRow extends ConsumerWidget {
   /// as a bare name without this — see the note at the call site.
   String _predicate(AppLocalizations l10n, ActivityType type) {
     return switch (type) {
-      ActivityType.connect => l10n.activityConnectRequested,
+      // Connection rows never reach this list — see
+      // `ActivityNotificationDto.isHidden` — so both of these arms can only be
+      // carrying their follow counterpart, and must say so.
+      ActivityType.connect => l10n.activityFollowRequested,
       ActivityType.like => l10n.activityLiked,
-      ActivityType.accepted => l10n.activityConnectAccepted,
+      ActivityType.accepted => l10n.activityFollowAccepted,
       ActivityType.comment => l10n.activityCommented,
       ActivityType.job => l10n.activityApplied,
       ActivityType.mention => l10n.activityMentioned,
@@ -299,6 +352,8 @@ class _NotificationRow extends ConsumerWidget {
       ActivityType.share => l10n.activityShared,
       ActivityType.message => l10n.activityMessaged,
       ActivityType.call => l10n.activityCalled,
+      ActivityType.storyLike => l10n.activityLikedStory,
+      ActivityType.reelComment => l10n.activityCommentedReel,
       ActivityType.other => l10n.activityOther,
     };
   }
@@ -316,6 +371,8 @@ class _NotificationRow extends ConsumerWidget {
       ActivityType.share => (c.green, Icons.repeat_rounded),
       ActivityType.message => (c.accent, Icons.mail_outline_rounded),
       ActivityType.call => (c.accent, Icons.call_outlined),
+      ActivityType.storyLike => (c.red, Icons.favorite_border_rounded),
+      ActivityType.reelComment => (c.accent, Icons.mode_comment_outlined),
       ActivityType.other => (c.ink3, Icons.notifications_none_rounded),
     };
   }

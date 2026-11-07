@@ -7,6 +7,7 @@ import 'app.dart';
 import 'core/api/endpoints.dart';
 import 'core/config/app_config.dart';
 import 'core/providers.dart';
+import 'firebase_options.dart';
 import 'features/shared/auth/data/auth_token_refresher.dart';
 import 'mocks/mock_overrides.dart';
 
@@ -25,7 +26,13 @@ Future<void> bootstrap(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await Firebase.initializeApp();
+    // `DefaultFirebaseOptions`, not the platform files alone: `flutterfire
+    // configure` writes `lib/firebase_options.dart` as the one source both
+    // platforms read, and passing it is what makes a misconfigured build fail
+    // loudly here instead of silently producing no FCM token later.
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     if (kDebugMode) {
       debugPrint('[bootstrap] Firebase.initializeApp skipped: $e');
@@ -37,15 +44,18 @@ Future<void> bootstrap(AppConfig config) async {
       overrides: [
         appConfigProvider.overrideWithValue(config),
         tokenRefresherProvider.overrideWith((ref) {
-          // AuthTokenRefresher owns its own bare Dio (no AuthInterceptor)
-          // so refreshing the access token can't loop back through the
-          // main ApiClient and form an `apiClient → refresher → apiClient`
-          // cycle. It only needs the base URL, the refresh path, and
-          // TokenStorage.
+          // AuthTokenRefresher owns its own Dio (no AuthInterceptor) so
+          // refreshing the access token can't loop back through the main
+          // ApiClient and form an `apiClient → refresher → apiClient` cycle.
+          // It still needs the config and device info: the refresh has to
+          // look like every other call from this device.
           return AuthTokenRefresher(
-            baseUrl: config.apiBaseUrl,
+            config: config,
             refreshPath: EndPoints.authRefresh,
             tokenStorage: ref.read(tokenStorageProvider),
+            // The refresh has to identify the device like every other call
+            // does — see AuthTokenRefresher._build.
+            deviceInfo: ref.read(deviceInfoServiceProvider),
           );
         }),
         // Demo / design-preview builds run entirely on seeded in-memory

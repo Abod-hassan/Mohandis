@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_mobile_template/core/error/app_exception.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_mock_repository.dart';
-import 'package:flutter_mobile_template/features/jobs/data/repositories/job_repository_impl.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/entities/job_application.dart';
-import 'package:flutter_mobile_template/features/jobs/domain/repositories/job_repository.dart';
-import 'package:flutter_mobile_template/features/jobs/presentation/notifiers/jobs_notifier.dart';
+import 'package:mohandis/core/error/app_exception.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_mock_repository.dart';
+import 'package:mohandis/features/jobs/data/repositories/job_repository_impl.dart';
+import 'package:mohandis/features/jobs/domain/entities/job.dart';
+import 'package:mohandis/features/jobs/domain/entities/job_application.dart';
+import 'package:mohandis/features/jobs/domain/repositories/job_repository.dart';
+import 'package:mohandis/features/jobs/presentation/notifiers/jobs_notifier.dart';
 
 ProviderContainer buildContainer() {
   final container = ProviderContainer(
