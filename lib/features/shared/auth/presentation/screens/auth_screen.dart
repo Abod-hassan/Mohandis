@@ -573,7 +573,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final media = MediaQuery.of(context);
     final viewport = media.size.height - media.padding.top;
 
-    return Scaffold(
+    // Sign-up is a mode of this screen, not a route above it, so Android's
+    // system back would otherwise close the app and drop a half-filled form.
+    // In sign-up, back returns to sign-in; in sign-in it leaves as usual.
+    return PopScope(
+      canPop: _mode == _AuthMode.signIn,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || _busy) return;
+        _switchMode();
+      },
+      child: Scaffold(
       // The sheet scrolls itself, so the layout must not also be resized from
       // under it — otherwise the hero collapses to a negative height when the
       // keyboard opens.
@@ -665,6 +674,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

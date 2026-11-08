@@ -67,20 +67,32 @@ class RungShell extends ConsumerWidget {
       (tab) => tab.branch == navigationShell.currentIndex,
     );
 
-    return PopScope(
-      // A Dart isolate dies with the process, so backing out of the app with a
-      // transfer running loses it. Nothing can be resumed without first copying
-      // the video into app storage and adding a platform uploader, so the
-      // honest protection is to ask.
-      // Claimed jobs only. An unclaimed transfer belongs to a composer that is
-      // still open above this shell, and that screen drops it on the way out.
-      canPop: !ref.watch(
-        videoUploadQueueProvider.select(
-          (j) => (j?.isActive ?? false) && (j?.claimed ?? false),
-        ),
+    // A Dart isolate dies with the process, so backing out of the app with a
+    // transfer running loses it. Nothing can be resumed without first copying
+    // the video into app storage and adding a platform uploader, so the
+    // honest protection is to ask.
+    // Claimed jobs only. An unclaimed transfer belongs to a composer that is
+    // still open above this shell, and that screen drops it on the way out.
+    final uploading = ref.watch(
+      videoUploadQueueProvider.select(
+        (j) => (j?.isActive ?? false) && (j?.claimed ?? false),
       ),
+    );
+
+    // Android back on any tab but the first returns to the first tab, as in
+    // other tabbed Android apps, instead of closing the app from Jobs or
+    // Network. Only from the first tab does back leave.
+    final homeBranch = tabs.first.branch;
+    final onHome = navigationShell.currentIndex == homeBranch;
+
+    return PopScope(
+      canPop: onHome && !uploading,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
+        if (!onHome) {
+          navigationShell.goBranch(homeBranch);
+          return;
+        }
         final leave = await _confirmLeave(context);
         if (leave && context.mounted) Navigator.of(context).pop();
       },

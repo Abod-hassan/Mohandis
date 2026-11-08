@@ -1820,7 +1820,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteAccountTitle => 'حذف حسابك نهائياً؟';
 
   @override
-  String get deleteAccountBody => 'سيُحذف ملفك المهني ومنشوراتك وريلزك وتعليقاتك ومتابعاتك، ولن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى. لا يمكن التراجع عن ذلك.';
+  String get deleteAccountBody =>
+      'سيُحذف ملفك المهني ومنشوراتك وريلزك وتعليقاتك ومتابعاتك، ولن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى. لا يمكن التراجع عن ذلك.';
 
   @override
   String get deleteAccountConfirm => 'حذف الحساب نهائياً';
@@ -1829,7 +1830,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get toastAccountDeleted => 'تم حذف حسابك';
 
   @override
-  String get authPhoneOrEmailHint => 'أدخل رقم هاتفك أو بريدك الإلكتروني، يكفي أحدهما. سنرسل إليه رمز تأكيد.';
+  String get authPhoneOrEmailHint =>
+      'أدخل رقم هاتفك أو بريدك الإلكتروني، يكفي أحدهما. سنرسل إليه رمز تأكيد.';
 
   @override
   String get authPhoneOrEmailRequired => 'أدخل رقم الهاتف أو البريد الإلكتروني';
@@ -1908,7 +1910,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String reelCommentReplyingTo(String name) {
-    return 'الرد على ${name}';
+    return 'الرد على $name';
   }
 
   @override
@@ -1940,7 +1942,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String composerPollOptionHint(String n) {
-    return 'الخيار ${n}';
+    return 'الخيار $n';
   }
 
   @override
@@ -1966,22 +1968,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String pollVotes(String count) {
-    return '${count} صوت';
+    return '$count صوت';
   }
 
   @override
   String pollLeftDays(String n) {
-    return 'متبقٍ ${n} يوم';
+    return 'متبقٍ $n يوم';
   }
 
   @override
   String pollLeftHours(String n) {
-    return 'متبقٍ ${n} ساعة';
+    return 'متبقٍ $n ساعة';
   }
 
   @override
   String pollLeftMinutes(String n) {
-    return 'متبقٍ ${n} دقيقة';
+    return 'متبقٍ $n دقيقة';
   }
 
   @override

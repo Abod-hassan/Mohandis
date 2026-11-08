@@ -1840,7 +1840,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountTitle => 'Delete your account permanently?';
 
   @override
-  String get deleteAccountBody => 'Your profile, posts, reels, comments and follows will be deleted, and you won\'t be able to sign in to this account again. This can\'t be undone.';
+  String get deleteAccountBody =>
+      'Your profile, posts, reels, comments and follows will be deleted, and you won\'t be able to sign in to this account again. This can\'t be undone.';
 
   @override
   String get deleteAccountConfirm => 'Delete permanently';
@@ -1849,7 +1850,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toastAccountDeleted => 'Your account was deleted';
 
   @override
-  String get authPhoneOrEmailHint => 'Enter your phone number or your email, either one is enough. We\'ll send a confirmation code to it.';
+  String get authPhoneOrEmailHint =>
+      'Enter your phone number or your email, either one is enough. We\'ll send a confirmation code to it.';
 
   @override
   String get authPhoneOrEmailRequired => 'Enter a phone number or an email';
@@ -1928,7 +1930,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reelCommentReplyingTo(String name) {
-    return 'Replying to ${name}';
+    return 'Replying to $name';
   }
 
   @override
@@ -1938,7 +1940,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reelCommentDeleteTitle => 'Delete comment?';
 
   @override
-  String get reelCommentDeleteBody => 'The comment and all its replies will be deleted.';
+  String get reelCommentDeleteBody =>
+      'The comment and all its replies will be deleted.';
 
   @override
   String get reelCommentDeleted => 'Comment deleted';
@@ -1956,11 +1959,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get composerPollTitle => 'Poll';
 
   @override
-  String get composerPollQuestionNote => 'The post\'s text is the poll question.';
+  String get composerPollQuestionNote =>
+      'The post\'s text is the poll question.';
 
   @override
   String composerPollOptionHint(String n) {
-    return 'Option ${n}';
+    return 'Option $n';
   }
 
   @override
@@ -1986,7 +1990,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pollVotes(String count) {
-    return '${count} votes';
+    return '$count votes';
   }
 
   @override

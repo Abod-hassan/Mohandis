@@ -3455,7 +3455,7 @@ abstract class AppLocalizations {
   /// Sign-in footer, text before the privacy policy link. Ends right before the link.
   ///
   /// In ar, this message translates to:
-  /// **'بمتابعتك فإنك توافق على شروط الاستخدام و'**
+  /// **'بمتابعتك فإنك توافق على '**
   String get authTermsLead;
 
   /// Tappable privacy policy link in the sign-in footer.
